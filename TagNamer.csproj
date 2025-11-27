@@ -8,4 +8,23 @@
     <UseWPF>true</UseWPF>
   </PropertyGroup>
 
+  <ItemGroup>
+    <!-- MVVM 프레임워크 - ViewModelBase, RelayCommand 등 제공 -->
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
+
+    <!-- 의존성 주입 - 서비스 등록 및 관리 -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />
+
+    <!-- ModernWpf - UI 라이브러리 -->
+    <PackageReference Include="ModernWpfUI" Version="0.9.6" />
+
+    <!-- JSON 직렬화 - 설정 저장/로드 -->
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
+
+    <!-- 로깅 라이브러리 -->
+    <PackageReference Include="Serilog" Version="4.1.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
+  </ItemGroup>
+
 </Project>

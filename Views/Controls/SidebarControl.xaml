@@ -1,0 +1,71 @@
+<UserControl x:Class="TagNamer.Views.Controls.SidebarControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignWidth="240"
+             d:DesignHeight="600">
+    <!-- 사이드바 스타일 정의 -->
+    <UserControl.Resources>
+        <Style x:Key="SidebarButtonStyle" TargetType="Button">
+            <Setter Property="Margin" Value="0,0,0,8" />
+            <Setter Property="Padding" Value="10,6" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="FontWeight" Value="SemiBold" />
+            <Setter Property="Cursor" Value="Hand" />
+        </Style>
+    </UserControl.Resources>
+    <!-- 좌측 사이드바 영역 -->
+    <Border Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+            CornerRadius="8"
+            Padding="12"
+            BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
+            BorderThickness="1">
+        <StackPanel Orientation="Vertical">
+            <!-- 파일 조작 버튼 섹션 -->
+            <StackPanel Orientation="Vertical">
+                <Button Content="파일 추가" Command="{Binding AddFilesCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="변경 적용" Command="{Binding ApplyChangesCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="규칙 설정" Command="{Binding OpenRuleSettingsCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="태그 설정" Command="{Binding OpenTagSettingsCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="목록 초기화" Command="{Binding ResetListCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                <Button Content="변경 취소" Command="{Binding UndoChangesCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            </StackPanel>
+
+            <Separator Margin="0,8,0,8" />
+
+            <!-- 정렬 옵션 섹션 -->
+            <StackPanel>
+                <TextBlock Text="정렬 기준" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,0,0,4" />
+                <ComboBox ItemsSource="{Binding SortOptions}"
+                          SelectedItem="{Binding SelectedSortOption}"
+                          HorizontalAlignment="Stretch"
+                          Margin="0,0,0,4" />
+
+                <TextBlock Text="정렬 방향" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,4,0,4" />
+                <StackPanel Orientation="Vertical">
+                    <RadioButton Content="오름차순"
+                                 GroupName="SortDirection"
+                                 IsChecked="{Binding SortAscending, Mode=TwoWay}" />
+                    <RadioButton Content="내림차순"
+                                 GroupName="SortDirection"
+                                 IsChecked="{Binding SortDescending, Mode=TwoWay}" />
+                </StackPanel>
+            </StackPanel>
+
+            <Separator Margin="0,8,0,8" />
+
+            <!-- 설정 및 확장자 변경 섹션 -->
+            <StackPanel>
+                <CheckBox Content="삭제 확인 팝업" IsChecked="{Binding ConfirmDeletion}" Margin="0,2,0,4" />
+                <CheckBox Content="확장자 표시" IsChecked="{Binding ShowExtension}" Margin="0,0,0,2" />
+                <TextBlock Text="확장자 변경" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,4,0,2" />
+                <TextBox Text="{Binding ExtensionInput, UpdateSourceTrigger=PropertyChanged}"
+                         Margin="0,0,0,4"
+                         Padding="8,6" />
+                <Button Content="적용" Command="{Binding ApplyExtensionCommand}" Style="{StaticResource SidebarButtonStyle}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

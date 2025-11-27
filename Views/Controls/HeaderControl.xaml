@@ -1,0 +1,36 @@
+<UserControl x:Class="TagNamer.Views.Controls.HeaderControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d"
+             d:DesignHeight="40"
+             d:DesignWidth="960">
+    <!-- 헤더 영역: 상단 정보 표시 -->
+    <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            Padding="15,5"
+            BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
+            BorderThickness="0,0,0,1">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />      <!-- 좌측: 규칙 표시 -->
+                <ColumnDefinition Width="Auto" />   <!-- 우측: 버전 정보 -->
+            </Grid.ColumnDefinitions>
+
+            <!-- 좌측: 현재 적용 중인 이름 변경 규칙 표시 -->
+            <StackPanel Orientation="Vertical">
+                <TextBlock Text="{Binding CurrentRuleDisplay}"
+                           FontSize="18"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+            </StackPanel>
+
+            <!-- 우측: 애플리케이션 버전 표시 -->
+            <TextBlock Grid.Column="1"
+                       Text="{Binding AppVersion}"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+        </Grid>
+    </Border>
+</UserControl>
