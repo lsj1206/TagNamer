@@ -170,5 +170,5 @@ C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\TagNamer.pdb
 C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\TagNamer.genruntimeconfig.cache
 C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\ref\TagNamer.dll
 C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\App.baml
-C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\Assets\Icon\file.baml
-C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\Assets\Icon\folder.baml
+C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\Assets\Icons\file.baml
+C:\Users\1007c\Desktop\PROJECT\TagNamer\obj\Debug\net10.0-windows\Assets\Icons\folder.baml

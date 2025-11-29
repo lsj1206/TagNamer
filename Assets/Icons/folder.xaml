@@ -1,0 +1,43 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <DrawingImage x:Key="FolderIcon">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <!-- 상단 부분 -->
+                <GeometryDrawing Brush="#FFC107">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#D48806" Thickness="2" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry>
+                            <PathFigure StartPoint="6,14" IsClosed="True">
+                                <LineSegment Point="24,14" />
+                                <LineSegment Point="28,20" />
+                                <LineSegment Point="58,20" />
+                                <LineSegment Point="58,54" />
+                                <LineSegment Point="6,54" />
+                            </PathFigure>
+                        </PathGeometry>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+                <!-- 본체 부분 -->
+                <GeometryDrawing Brush="#FFD54F">
+                    <GeometryDrawing.Pen>
+                        <Pen Brush="#D48806" Thickness="2" />
+                    </GeometryDrawing.Pen>
+                    <GeometryDrawing.Geometry>
+                        <PathGeometry>
+                            <PathFigure StartPoint="6,26" IsClosed="True">
+                                <LineSegment Point="58,26" />
+                                <LineSegment Point="58,54" />
+                                <LineSegment Point="6,54" />
+                            </PathFigure>
+                        </PathGeometry>
+                    </GeometryDrawing.Geometry>
+                </GeometryDrawing>
+
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
+
+</ResourceDictionary>

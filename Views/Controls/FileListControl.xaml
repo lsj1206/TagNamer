@@ -10,7 +10,6 @@
             <RowDefinition Height="Auto" />  <!-- 향후 제목/필터 영역 (현재 미사용) -->
             <RowDefinition Height="*" />     <!-- 파일 목록 그리드 -->
         </Grid.RowDefinitions>
-
         <!-- 파일 목록 DataGrid -->
         <DataGrid Grid.Row="1"
                   ItemsSource="{Binding Items}"
@@ -45,12 +44,10 @@
                     <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
                 </Style>
             </DataGrid.Resources>
-
             <!-- DataGrid 컬럼 정의 -->
             <DataGrid.Columns>
                 <!-- 번호 컬럼 -->
-                <DataGridTextColumn Header="번호" Binding="{Binding DisplayIndex}" Width="60" />
-
+                <DataGridTextColumn Header="번호" Binding="{Binding AddIndex}" Width="60" />
                 <!-- 파일명 컬럼: 아이콘 + 파일명 -->
                 <DataGridTemplateColumn Header="파일명" Width="*">
                     <DataGridTemplateColumn.CellTemplate>
@@ -60,10 +57,24 @@
                                 <ContentControl Margin="0,0,8,0">
                                     <ContentControl.Style>
                                         <Style TargetType="ContentControl">
-                                            <Setter Property="Content" Value="{StaticResource FileIcon}"/>
+                                            <Setter Property="ContentTemplate">
+                                                <Setter.Value>
+                                                    <DataTemplate>
+                                                        <Image Width="16" Height="16"
+                                                            Source="{StaticResource FileIcon}"/>
+                                                    </DataTemplate>
+                                                </Setter.Value>
+                                            </Setter>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsFolder}" Value="True">
-                                                    <Setter Property="Content" Value="{StaticResource FolderIcon}"/>
+                                                    <Setter Property="ContentTemplate">
+                                                        <Setter.Value>
+                                                            <DataTemplate>
+                                                                <Image Width="16" Height="16"
+                                                                    Source="{StaticResource FolderIcon}"/>
+                                                            </DataTemplate>
+                                                        </Setter.Value>
+                                                    </Setter>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -82,12 +93,11 @@
                                             </Style.Triggers>
                                         </Style>
                                     </TextBlock.Style>
-                                </TextBlock>`
+                                </TextBlock>
                             </StackPanel>
                         </DataTemplate>
                     </DataGridTemplateColumn.CellTemplate>
                 </DataGridTemplateColumn>
-
                 <!-- 변경될 파일명 컬럼 -->
                 <DataGridTextColumn Header="변경될 파일명" Binding="{Binding NewName}" Width="*" />
                 <!-- 파일 크기 컬럼 -->
