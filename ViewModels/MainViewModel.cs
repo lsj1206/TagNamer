@@ -48,10 +48,9 @@ public partial class MainViewModel : ObservableObject
 
     public IRelayCommand AddFilesCommand { get; }
     public IRelayCommand AddFolderCommand { get; }
-    public IRelayCommand ApplyChangesCommand { get; }
+    public IRelayCommand ListClearCommand { get; }
     public IRelayCommand OpenRuleSettingsCommand { get; }
-    public IRelayCommand OpenTagSettingsCommand { get; }
-    public IRelayCommand ResetListCommand { get; }
+    public IRelayCommand ApplyChangesCommand { get; }
     public IRelayCommand UndoChangesCommand { get; }
     public IRelayCommand ApplyExtensionCommand { get; }
 
@@ -61,10 +60,9 @@ public partial class MainViewModel : ObservableObject
 
         AddFilesCommand = new RelayCommand(AddFiles);
         AddFolderCommand = new RelayCommand(AddFolder);
-        ApplyChangesCommand = new RelayCommand(() => { });
+        ListClearCommand = new RelayCommand(() => { });
         OpenRuleSettingsCommand = new RelayCommand(() => { });
-        OpenTagSettingsCommand = new RelayCommand(() => { });
-        ResetListCommand = new RelayCommand(() => { });
+        ApplyChangesCommand = new RelayCommand(() => { });
         UndoChangesCommand = new RelayCommand(() => { });
         ApplyExtensionCommand = new RelayCommand(ApplyExtension);
     }
