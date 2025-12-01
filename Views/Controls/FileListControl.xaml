@@ -1,110 +1,161 @@
 <UserControl x:Class="TagNamer.Views.Controls.FileListControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d">
-    <!-- 파일 목록 영역: 메인 콘텐츠 -->
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:models="clr-namespace:TagNamer.Models"
+             mc:Ignorable="d"
+             d:DesignHeight="450" d:DesignWidth="800">
+
+    <UserControl.Resources>
+        <!-- Win11 스타일 색상 정의 -->
+        <SolidColorBrush x:Key="ItemHoverBackground" Color="#E5F3FF"/>
+        <SolidColorBrush x:Key="ItemSelectedBackground" Color="#CCE8FF"/>
+        <SolidColorBrush x:Key="FolderHeaderBackground" Color="#F5F5F5"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#666666"/>
+        <SolidColorBrush x:Key="AccentColor" Color="#0078D4"/>
+
+        <!-- ListViewItem 스타일: 핵심 로직 -->
+        <Style x:Key="FileItemContainerStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Padding" Value="4,6"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <!-- 파일 템플릿 (기본) -->
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4"
+                                SnapsToDevicePixels="true">
+                            <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource ItemHoverBackground}"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="{StaticResource ItemSelectedBackground}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <!-- 폴더 템플릿 -->
+                <DataTrigger Binding="{Binding IsFolder}" Value="True">
+                    <Setter Property="Focusable" Value="False"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ListViewItem">
+                                <Border Background="{StaticResource FolderHeaderBackground}"
+                                        CornerRadius="4"
+                                        Padding="10,8"
+                                        Margin="0,10,0,2">
+                                    <StackPanel Orientation="Horizontal">
+                                        <!-- 폴더 아이콘 -->
+                                        <Image Source="{StaticResource FolderIcon}"
+                                               Width="16" Height="16"
+                                               Margin="0,0,8,0"
+                                               VerticalAlignment="Center"/>
+                                        <!-- 폴더 경로 -->
+                                        <TextBlock Text="{Binding Path}"
+                                                   FontWeight="SemiBold"
+                                                   FontSize="14"
+                                                   Foreground="#333333"/>
+                                    </StackPanel>
+                                </Border>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
+
     <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />  <!-- 향후 제목/필터 영역 (현재 미사용) -->
-            <RowDefinition Height="*" />     <!-- 파일 목록 그리드 -->
-        </Grid.RowDefinitions>
-        <!-- 파일 목록 DataGrid -->
-        <DataGrid Grid.Row="1"
-                  ItemsSource="{Binding Items}"
-                  AutoGenerateColumns="False"
-                  HeadersVisibility="Column"
-                  GridLinesVisibility="None"
-                  IsReadOnly="True"
-                  ColumnHeaderHeight="34"
-                  RowHeight="40"
-                  ClipToBounds="True"
-                  RowBackground="{DynamicResource SystemControlBackgroundAltHighBrush}"
-                  AlternatingRowBackground="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                  HorizontalGridLinesBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
-                  VerticalGridLinesBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}">
-            <!-- DataGrid 스타일 정의 -->
-            <DataGrid.Resources>
-                <!-- 컬럼 헤더 스타일 -->
-                <Style TargetType="DataGridColumnHeader">
-                    <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-                    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
-                    <Setter Property="Padding" Value="8,0" />
-                    <Setter Property="FontWeight" Value="SemiBold" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundBaseMediumBrush}" />
-                    <Setter Property="BorderThickness" Value="0,0,1,1" />
-                    <Setter Property="ClipToBounds" Value="True" />
-                </Style>
-                <!-- 셀 스타일 -->
-                <Style TargetType="DataGridCell">
-                    <Setter Property="BorderThickness" Value="0,0,0,1" />
-                    <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}" />
-                    <Setter Property="Padding" Value="8,0" />
-                    <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
-                </Style>
-            </DataGrid.Resources>
-            <!-- DataGrid 컬럼 정의 -->
-            <DataGrid.Columns>
-                <!-- 번호 컬럼 -->
-                <DataGridTextColumn Header="번호" Binding="{Binding AddIndex}" Width="60" />
-                <!-- 파일명 컬럼: 아이콘 + 파일명 -->
-                <DataGridTemplateColumn Header="파일명" Width="*">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <!-- 파일/폴더 아이콘 (XAML 리소스) -->
-                                <ContentControl Margin="0,0,8,0">
-                                    <ContentControl.Style>
-                                        <Style TargetType="ContentControl">
-                                            <Setter Property="ContentTemplate">
-                                                <Setter.Value>
-                                                    <DataTemplate>
-                                                        <Image Width="16" Height="16"
-                                                            Source="{StaticResource FileIcon}"/>
-                                                    </DataTemplate>
-                                                </Setter.Value>
-                                            </Setter>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsFolder}" Value="True">
-                                                    <Setter Property="ContentTemplate">
-                                                        <Setter.Value>
-                                                            <DataTemplate>
-                                                                <Image Width="16" Height="16"
-                                                                    Source="{StaticResource FolderIcon}"/>
-                                                            </DataTemplate>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </ContentControl.Style>
-                                </ContentControl>
-                                <!-- 파일명 텍스트 -->
-                                <TextBlock Text="{Binding OriginalName}">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="FontWeight" Value="Normal" />
-                                            <Style.Triggers>
-                                                <!-- 폴더인 경우 굵게 표시 -->
-                                                <DataTrigger Binding="{Binding IsFolder}" Value="True">
-                                                    <Setter Property="FontWeight" Value="SemiBold" />
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </StackPanel>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <!-- 변경될 파일명 컬럼 -->
-                <DataGridTextColumn Header="변경될 파일명" Binding="{Binding NewName}" Width="*" />
-                <!-- 파일 크기 컬럼 -->
-                <DataGridTextColumn Header="파일 크기" Binding="{Binding UnitSize}" Width="120" />
-                <!-- 파일 경로 컬럼 -->
-                <DataGridTextColumn Header="파일 경로" Binding="{Binding Path}" Width="2*" />
-            </DataGrid.Columns>
-        </DataGrid>
+        <ListView ItemsSource="{Binding Items}"
+                  ItemContainerStyle="{StaticResource FileItemContainerStyle}"
+                  BorderThickness="0"
+                  Background="Transparent"
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+
+            <ListView.View>
+                <GridView>
+                    <GridView.ColumnHeaderContainerStyle>
+                        <!-- 헤더 스타일 -->
+                        <Style TargetType="GridViewColumnHeader">
+                            <Setter Property="Background" Value="Transparent"/>
+                            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+                            <Setter Property="Padding" Value="10,5"/>
+                            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+                            <Setter Property="FontWeight" Value="SemiBold"/>
+                        </Style>
+                    </GridView.ColumnHeaderContainerStyle>
+
+                    <!-- 번호 -->
+                    <GridViewColumn Header="번호" Width="60">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding AddIndex}" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 원본 파일명 -->
+                    <GridViewColumn Header="파일명" Width="250">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <!-- 파일 아이콘 -->
+                                    <Image Source="{StaticResource FileIcon}"
+                                           Width="16" Height="16"
+                                           Margin="0,2,8,0"/>
+                                    <TextBlock Text="{Binding OriginalName}" TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 변경될 파일명 -->
+                    <GridViewColumn Header="변경될 파일명" Width="250">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding NewName}"
+                                           Foreground="{StaticResource AccentColor}"
+                                           FontWeight="Medium"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 파일 크기 -->
+                    <GridViewColumn Header="크기" Width="80">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding UnitSize}" Foreground="{StaticResource TextSecondary}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+
+                    <!-- 경로 -->
+                    <GridViewColumn Header="경로" Width="300">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBlock Text="{Binding Path}"
+                                           Foreground="#999999"
+                                           TextTrimming="CharacterEllipsis"
+                                           ToolTip="{Binding Path}"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
     </Grid>
 </UserControl>

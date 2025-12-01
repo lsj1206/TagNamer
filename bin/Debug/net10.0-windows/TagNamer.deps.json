@@ -9,6 +9,7 @@
       "TagNamer/1.0.0": {
         "dependencies": {
           "CommunityToolkit.Mvvm": "8.4.0",
+          "Microsoft-WindowsAPICodePack-Shell": "1.1.5",
           "Microsoft.Extensions.DependencyInjection": "9.0.0",
           "ModernWpfUI": "0.9.6",
           "Newtonsoft.Json": "13.0.4",
@@ -25,6 +26,25 @@
           "lib/net8.0/CommunityToolkit.Mvvm.dll": {
             "assemblyVersion": "8.4.0.0",
             "fileVersion": "8.4.0.1"
+          }
+        }
+      },
+      "Microsoft-WindowsAPICodePack-Core/1.1.5": {
+        "runtime": {
+          "lib/net7.0-windows7.0/Microsoft.WindowsAPICodePack.dll": {
+            "assemblyVersion": "1.1.5.0",
+            "fileVersion": "1.1.5.0"
+          }
+        }
+      },
+      "Microsoft-WindowsAPICodePack-Shell/1.1.5": {
+        "dependencies": {
+          "Microsoft-WindowsAPICodePack-Core": "1.1.5"
+        },
+        "runtime": {
+          "lib/net7.0-windows7.0/Microsoft.WindowsAPICodePack.Shell.dll": {
+            "assemblyVersion": "1.1.5.0",
+            "fileVersion": "1.1.5.0"
           }
         }
       },
@@ -542,6 +562,20 @@
       "sha512": "sha512-tqVU8yc/ADO9oiTRyTnwhFN68hCwvkliMierptWOudIAvWY1mWCh5VFh+guwHJmpMwfg0J0rY+yyd5Oy7ty9Uw==",
       "path": "communitytoolkit.mvvm/8.4.0",
       "hashPath": "communitytoolkit.mvvm.8.4.0.nupkg.sha512"
+    },
+    "Microsoft-WindowsAPICodePack-Core/1.1.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3feeT5wxrH/T4YmoZwCglVrUw6aS4+WJLA3FRADLVT2J85/zjptrCikvGNcLI1+gDeoI1AZ4w45gF2FvBv6eQw==",
+      "path": "microsoft-windowsapicodepack-core/1.1.5",
+      "hashPath": "microsoft-windowsapicodepack-core.1.1.5.nupkg.sha512"
+    },
+    "Microsoft-WindowsAPICodePack-Shell/1.1.5": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-lZ+oIxvTp1Ph0YrzFl3AKcrry7OCfi0awf43nrGwodWqDlFASktZ+pN532rbU/5o09irYjxVu1m3UxO5L1H8fw==",
+      "path": "microsoft-windowsapicodepack-shell/1.1.5",
+      "hashPath": "microsoft-windowsapicodepack-shell.1.1.5.nupkg.sha512"
     },
     "Microsoft.Extensions.DependencyInjection/9.0.0": {
       "type": "package",

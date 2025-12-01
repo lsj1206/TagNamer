@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.WindowsAPICodePack.Dialogs;
 
 namespace TagNamer.ViewModels;
 
@@ -46,6 +47,7 @@ public partial class MainViewModel : ObservableObject
     private string extensionInput = string.Empty;
 
     public IRelayCommand AddFilesCommand { get; }
+    public IRelayCommand AddFolderCommand { get; }
     public IRelayCommand ApplyChangesCommand { get; }
     public IRelayCommand OpenRuleSettingsCommand { get; }
     public IRelayCommand OpenTagSettingsCommand { get; }
@@ -57,7 +59,8 @@ public partial class MainViewModel : ObservableObject
     {
         selectedSortOption = SortOptions.First();
 
-        AddFilesCommand = new RelayCommand(() => { });
+        AddFilesCommand = new RelayCommand(AddFiles);
+        AddFolderCommand = new RelayCommand(AddFolder);
         ApplyChangesCommand = new RelayCommand(() => { });
         OpenRuleSettingsCommand = new RelayCommand(() => { });
         OpenTagSettingsCommand = new RelayCommand(() => { });
@@ -101,4 +104,41 @@ public partial class MainViewModel : ObservableObject
         ExtensionInput = extension;
     }
 
+    // 파일 추가 로직
+    private void AddFiles()
+    {
+        var dialog = new CommonOpenFileDialog
+        {
+            IsFolderPicker = false,
+            Multiselect = true,
+            Title = "파일 추가"
+        };
+
+        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        {
+            foreach (var file in dialog.FileNames)
+            {
+                FileList.AddFile(file);
+            }
+        }
+    }
+
+    // 폴더 추가 로직
+    private void AddFolder()
+    {
+        var dialog = new CommonOpenFileDialog
+        {
+            IsFolderPicker = true,
+            Multiselect = true,
+            Title = "폴더 추가"
+        };
+
+        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        {
+            foreach (var folder in dialog.FileNames)
+            {
+                FileList.AddFolder(folder);
+            }
+        }
+    }
 }

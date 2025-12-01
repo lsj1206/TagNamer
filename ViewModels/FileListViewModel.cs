@@ -1,6 +1,7 @@
 using System;
 using System.Collections.ObjectModel;
 using TagNamer.Models;
+using System.Linq;
 
 namespace TagNamer.ViewModels;
 
@@ -8,115 +9,73 @@ public class FileListViewModel
 {
     public ObservableCollection<FileItem> Items { get; } = new();
 
-    public FileListViewModel()
+    // 파일 경로를 받아 목록에 추가하는 메서드
+    public void AddFile(string path)
     {
-        LoadSampleData();
+        try
+        {
+            // 중복 파일 체크
+            if (Items.Any(i => i.Path.Equals(path, StringComparison.OrdinalIgnoreCase)))
+            {
+                return;
+            }
+
+            var fileInfo = new System.IO.FileInfo(path);
+            var item = new FileItem
+            {
+                AddIndex = Items.Count + 1,
+                OriginalName = fileInfo.Name,
+                NewName = fileInfo.Name,
+                Path = path,
+                Size = fileInfo.Length,
+                CreatedDate = fileInfo.CreationTime,
+                ModifiedDate = fileInfo.LastWriteTime
+            };
+            Items.Add(item);
+        }
+        catch (Exception ex)
+        {
+            // 로그 또는 에러 처리
+            System.Diagnostics.Debug.WriteLine($"Error adding file: {ex.Message}");
+        }
     }
 
-    private void LoadSampleData()
+    // 폴더 내의 파일을 재귀적으로 추가하는 메서드 (예외 처리 강화)
+    public void AddFolder(string folderPath)
     {
-        Items.Clear();
+        var stack = new System.Collections.Generic.Stack<string>();
+        stack.Push(folderPath);
 
-        Items.Add(new FileItem
+        while (stack.Count > 0)
         {
-            OriginalName = "FolderName",
-            Path = @"C:\Projects\TagNamer\FolderName",
-            IsFolder = true
-        });
+            var currentDir = stack.Pop();
 
-        Items.Add(new FileItem
-        {
-            AddIndex = 1,
-            OriginalName = "FileName 001",
-            NewName = "FileName 001",
-            Path = @"C:\Projects\TagNamer\FolderName\FileName 001.txt",
-            Size = 1 * 1024 * 1024,
-            CreatedDate = DateTime.Now.AddDays(-2),
-            ModifiedDate = DateTime.Now.AddDays(-1)
-        });
+            try
+            {
+                var dirInfo = new System.IO.DirectoryInfo(currentDir);
 
-        Items.Add(new FileItem
-        {
-            AddIndex = 2,
-            OriginalName = "FileName 002",
-            NewName = "FileName 002",
-            Path = @"C:\Projects\TagNamer\FolderName\FileName 002.txt",
-            Size = 12 * 1024 * 1024,
-            CreatedDate = DateTime.Now.AddDays(-4),
-            ModifiedDate = DateTime.Now.AddDays(-2)
-        });
+                // 현재 폴더의 파일 추가
+                foreach (var file in dirInfo.GetFiles())
+                {
+                    AddFile(file.FullName);
+                }
 
-        Items.Add(new FileItem
-        {
-            AddIndex = 3,
-            OriginalName = "FileName 003",
-            NewName = "FileName 003",
-            Path = @"C:\Projects\TagNamer\FolderName\FileName 003.txt",
-            Size = 34 * 1024 * 1024,
-            CreatedDate = DateTime.Now.AddDays(-5),
-            ModifiedDate = DateTime.Now.AddDays(-3)
-        });
-
-        Items.Add(new FileItem
-        {
-            AddIndex = 4,
-            OriginalName = "FileName 004",
-            NewName = "FileName 004",
-            Path = @"C:\Projects\TagNamer\FolderName\FileName 004.txt",
-            Size = (long)(766.1 * 1024),
-            CreatedDate = DateTime.Now.AddDays(-6),
-            ModifiedDate = DateTime.Now.AddDays(-4)
-        });
-
-        Items.Add(new FileItem
-        {
-            AddIndex = 5,
-            OriginalName = "FileName 005",
-            NewName = "FileName 005",
-            Path = @"C:\Projects\TagNamer\FolderName\FileName 005.txt",
-            Size = (long)(6.1 * 1024 * 1024),
-            CreatedDate = DateTime.Now.AddDays(-7),
-            ModifiedDate = DateTime.Now.AddDays(-5)
-        });
-
-        Items.Add(new FileItem
-        {
-            OriginalName = "Another Folder",
-            Path = @"C:\Projects\TagNamer\Another Folder",
-            IsFolder = true
-        });
-
-        Items.Add(new FileItem
-        {
-            AddIndex = 6,
-            OriginalName = "FileName 001",
-            NewName = "FileName 001",
-            Path = @"C:\Projects\TagNamer\Another Folder\FileName 001.txt",
-            Size = 34 * 1024 * 1024,
-            CreatedDate = DateTime.Now.AddDays(-8),
-            ModifiedDate = DateTime.Now.AddDays(-6)
-        });
-
-        Items.Add(new FileItem
-        {
-            AddIndex = 7,
-            OriginalName = "FileName 002",
-            NewName = "FileName 002",
-            Path = @"C:\Projects\TagNamer\Another Folder\FileName 002.txt",
-            Size = (long)(766.1 * 1024),
-            CreatedDate = DateTime.Now.AddDays(-9),
-            ModifiedDate = DateTime.Now.AddDays(-7)
-        });
-
-        Items.Add(new FileItem
-        {
-            AddIndex = 8,
-            OriginalName = "FileName 003",
-            NewName = "FileName 003",
-            Path = @"C:\Projects\TagNamer\Another Folder\FileName 003.txt",
-            Size = (long)(6.1 * 1024 * 1024),
-            CreatedDate = DateTime.Now.AddDays(-10),
-            ModifiedDate = DateTime.Now.AddDays(-8)
-        });
+                // 하위 폴더를 스택에 추가
+                foreach (var dir in dirInfo.GetDirectories())
+                {
+                    stack.Push(dir.FullName);
+                }
+            }
+            catch (UnauthorizedAccessException)
+            {
+                // 권한 없는 폴더는 건너뜀
+                System.Diagnostics.Debug.WriteLine($"Access denied to: {currentDir}");
+            }
+            catch (Exception ex)
+            {
+                // 기타 오류 처리
+                System.Diagnostics.Debug.WriteLine($"Error processing folder {currentDir}: {ex.Message}");
+            }
+        }
     }
 }

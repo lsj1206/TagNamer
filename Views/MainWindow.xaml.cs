@@ -16,4 +16,9 @@ public partial class MainWindow : Window
     {
 
     }
+
+    private void FileListControl_Loaded(object sender, RoutedEventArgs e)
+    {
+
+    }
 }

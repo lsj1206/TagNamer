@@ -1,10 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "fJbb11J1X44=",
+  "dgSpecHash": "AaMYT2KV6ag=",
   "success": true,
   "projectFilePath": "C:\\Users\\1007c\\Desktop\\PROJECT\\TagNamer\\TagNamer.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\1007c\\.nuget\\packages\\communitytoolkit.mvvm\\8.4.0\\communitytoolkit.mvvm.8.4.0.nupkg.sha512",
+    "C:\\Users\\1007c\\.nuget\\packages\\microsoft-windowsapicodepack-core\\1.1.5\\microsoft-windowsapicodepack-core.1.1.5.nupkg.sha512",
+    "C:\\Users\\1007c\\.nuget\\packages\\microsoft-windowsapicodepack-shell\\1.1.5\\microsoft-windowsapicodepack-shell.1.1.5.nupkg.sha512",
     "C:\\Users\\1007c\\.nuget\\packages\\microsoft.extensions.dependencyinjection\\9.0.0\\microsoft.extensions.dependencyinjection.9.0.0.nupkg.sha512",
     "C:\\Users\\1007c\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\9.0.0\\microsoft.extensions.dependencyinjection.abstractions.9.0.0.nupkg.sha512",
     "C:\\Users\\1007c\\.nuget\\packages\\microsoft.extensions.logging\\8.0.0\\microsoft.extensions.logging.8.0.0.nupkg.sha512",
