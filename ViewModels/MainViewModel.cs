@@ -66,7 +66,7 @@ public partial class MainViewModel : ObservableObject
 
         AddFilesCommand = new RelayCommand(AddFiles);
         AddFolderCommand = new RelayCommand(AddFolder);
-        ListClearCommand = new AsyncRelayCommand(ResetListAsync);
+        ListClearCommand = new AsyncRelayCommand(ListClearAsync);
         OpenRuleSettingsCommand = new RelayCommand(() => { });
         ApplyChangesCommand = new RelayCommand(() => { });
         UndoChangesCommand = new RelayCommand(() => { });
@@ -146,11 +146,10 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-
-    // 목록 초기화 로직
-    private async Task ResetListAsync()
+    // 목록 삭제 로직
+    private async Task ListClearAsync()
     {
-        var result = await _dialogService.ShowConfirmationAsync("목록을 전부 삭제하시겠습니까?", "목록 초기화");
+        var result = await _dialogService.ShowConfirmationAsync("파일 목록을 전부 삭제하시겠습니까?", "목록 삭제");
         if (result)
         {
             FileList.Items.Clear();
