@@ -8,15 +8,13 @@
         xmlns:ui="http://schemas.modernwpf.com/2019"
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
-        Title="TagNamer"
+        WindowStartupLocation="CenterScreen"
         Height="720"
-        Width="1200"
         MinHeight="600"
+        Width="1200"
         MinWidth="960"
-        WindowStartupLocation="CenterScreen">
-    <Window.DataContext>
-        <viewModels:MainViewModel />
-    </Window.DataContext>
+        Title="TagNamer">
+
 
     <Grid>
         <Grid.RowDefinitions>

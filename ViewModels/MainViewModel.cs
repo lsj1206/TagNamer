@@ -1,9 +1,11 @@
 using System;
-using System.Collections.ObjectModel;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using TagNamer.Services;
 
 namespace TagNamer.ViewModels;
 
@@ -54,13 +56,17 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand UndoChangesCommand { get; }
     public IRelayCommand ApplyExtensionCommand { get; }
 
-    public MainViewModel()
+    private readonly IDialogService _dialogService;
+
+    public MainViewModel(IDialogService dialogService)
     {
+        _dialogService = dialogService;
+
         selectedSortOption = SortOptions.First();
 
         AddFilesCommand = new RelayCommand(AddFiles);
         AddFolderCommand = new RelayCommand(AddFolder);
-        ListClearCommand = new RelayCommand(() => { });
+        ListClearCommand = new AsyncRelayCommand(ResetListAsync);
         OpenRuleSettingsCommand = new RelayCommand(() => { });
         ApplyChangesCommand = new RelayCommand(() => { });
         UndoChangesCommand = new RelayCommand(() => { });
@@ -137,6 +143,17 @@ public partial class MainViewModel : ObservableObject
             {
                 FileList.AddFolder(folder);
             }
+        }
+    }
+
+
+    // 목록 초기화 로직
+    private async Task ResetListAsync()
+    {
+        var result = await _dialogService.ShowConfirmationAsync("목록을 전부 삭제하시겠습니까?", "목록 초기화");
+        if (result)
+        {
+            FileList.Items.Clear();
         }
     }
 }
