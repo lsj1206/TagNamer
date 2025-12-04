@@ -83,7 +83,8 @@
                   ItemContainerStyle="{StaticResource FileItemContainerStyle}"
                   BorderThickness="0"
                   Background="Transparent"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  KeyDown="ListView_KeyDown">
 
             <ListView.View>
                 <GridView>

@@ -50,6 +50,7 @@ public partial class MainViewModel : ObservableObject
 
     public IRelayCommand AddFilesCommand { get; }
     public IRelayCommand AddFolderCommand { get; }
+    public IRelayCommand<System.Collections.IList> DeleteFilesCommand { get; }
     public IRelayCommand ListClearCommand { get; }
     public IRelayCommand OpenRuleSettingsCommand { get; }
     public IRelayCommand ApplyChangesCommand { get; }
@@ -66,6 +67,7 @@ public partial class MainViewModel : ObservableObject
 
         AddFilesCommand = new RelayCommand(AddFiles);
         AddFolderCommand = new RelayCommand(AddFolder);
+        DeleteFilesCommand = new RelayCommand<System.Collections.IList>(DeleteFiles);
         ListClearCommand = new AsyncRelayCommand(ListClearAsync);
         OpenRuleSettingsCommand = new RelayCommand(() => { });
         ApplyChangesCommand = new RelayCommand(() => { });
@@ -143,6 +145,31 @@ public partial class MainViewModel : ObservableObject
             {
                 FileList.AddFolder(folder);
             }
+        }
+    }
+
+    // 파일 삭제 로직
+    private async void DeleteFiles(System.Collections.IList? items)
+    {
+        if (items == null || items.Count == 0) return;
+
+        // 삭제할 항목 리스트 복사 (순회 중 컬렉션 변경 방지)
+        var itemsToDelete = items.Cast<TagNamer.Models.FileItem>().ToList();
+        int count = itemsToDelete.Count;
+
+        if (ConfirmDeletion)
+        {
+            string message = count == 1
+                ? "선택된 파일을 목록에서 삭제하시겠습니까?"
+                : $"{count}개의 선택된 파일을 목록에서 삭제하시겠습니까?";
+
+            var result = await _dialogService.ShowConfirmationAsync(message, "삭제 확인");
+            if (!result) return;
+        }
+
+        foreach (var item in itemsToDelete)
+        {
+            FileList.Items.Remove(item);
         }
     }
 
