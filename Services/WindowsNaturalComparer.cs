@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace TagNamer.Services;
 
-public class NaturalStringComparer : IComparer<string>
+public class WindowsNaturalComparer : IComparer<string>
 {
     [DllImport("shlwapi.dll", CharSet = CharSet.Unicode)]
     private static extern int StrCmpLogicalW(string psz1, string psz2);

@@ -79,10 +79,14 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand ApplyExtensionCommand { get; }
 
     private readonly IDialogService _dialogService;
+    private readonly ISortingService _sortingService;
+    private readonly IFileService _fileService;
 
-    public MainViewModel(IDialogService dialogService)
+    public MainViewModel(IDialogService dialogService, ISortingService sortingService, IFileService fileService)
     {
         _dialogService = dialogService;
+        _sortingService = sortingService;
+        _fileService = fileService;
 
         selectedSortOption = SortOptions.First();
 
@@ -154,7 +158,11 @@ public partial class MainViewModel : ObservableObject
         {
             foreach (var file in dialog.FileNames)
             {
-                FileList.AddFile(file);
+                var item = _fileService.CreateFileItem(file);
+                if (item != null)
+                {
+                    FileList.AddItem(item);
+                }
             }
             SortFiles();
         }
@@ -174,7 +182,15 @@ public partial class MainViewModel : ObservableObject
         {
             foreach (var folder in dialog.FileNames)
             {
-                FileList.AddFolder(folder);
+                var files = _fileService.GetFilesInFolder(folder);
+                foreach (var file in files)
+                {
+                    var item = _fileService.CreateFileItem(file);
+                    if (item != null)
+                    {
+                        FileList.AddItem(item);
+                    }
+                }
             }
             SortFiles();
         }
@@ -219,74 +235,7 @@ public partial class MainViewModel : ObservableObject
     {
         if (FileList.Items.Count == 0) return;
 
-        var items = FileList.Items.ToList();
-        IOrderedEnumerable<TagNamer.Models.FileItem> sortedItems;
-        var comparer = new NaturalStringComparer();
-
-        // 1차 정렬
-        switch (SelectedSortOption.Type)
-        {
-            case SortType.NameNumber:
-            case SortType.NamePath:
-                sortedItems = SortAscending
-                    ? items.OrderBy(x => x.OriginalName, comparer)
-                    : items.OrderByDescending(x => x.OriginalName, comparer);
-                break;
-            case SortType.PathNumber:
-            case SortType.PathName:
-                sortedItems = SortAscending
-                    ? items.OrderBy(x => x.DirectoryName, comparer)
-                    : items.OrderByDescending(x => x.DirectoryName, comparer);
-                break;
-            case SortType.Size:
-                sortedItems = SortAscending
-                    ? items.OrderBy(x => x.Size)
-                    : items.OrderByDescending(x => x.Size);
-                break;
-            case SortType.CreatedDate:
-                sortedItems = SortAscending
-                    ? items.OrderBy(x => x.CreatedDate)
-                    : items.OrderByDescending(x => x.CreatedDate);
-                break;
-            case SortType.ModifiedDate:
-                sortedItems = SortAscending
-                    ? items.OrderBy(x => x.ModifiedDate)
-                    : items.OrderByDescending(x => x.ModifiedDate);
-                break;
-            case SortType.AddIndex:
-            default:
-                sortedItems = SortAscending
-                    ? items.OrderBy(x => x.AddIndex)
-                    : items.OrderByDescending(x => x.AddIndex);
-                break;
-        }
-
-        // 2차 정렬 (동점자 처리)
-        switch (SelectedSortOption.Type)
-        {
-            case SortType.NameNumber:
-            case SortType.PathNumber:
-            case SortType.Size:
-            case SortType.CreatedDate:
-            case SortType.ModifiedDate:
-                // 중복 시 번호(AddIndex) 순
-                sortedItems = SortAscending
-                    ? sortedItems.ThenBy(x => x.AddIndex)
-                    : sortedItems.ThenByDescending(x => x.AddIndex);
-                break;
-            case SortType.NamePath:
-                // 중복 시 경로(Path) 순
-                sortedItems = SortAscending
-                    ? sortedItems.ThenBy(x => x.Path, comparer)
-                    : sortedItems.ThenByDescending(x => x.Path, comparer);
-                break;
-            case SortType.PathName:
-                // 중복 시 이름(OriginalName) 순
-                sortedItems = SortAscending
-                    ? sortedItems.ThenBy(x => x.OriginalName, comparer)
-                    : sortedItems.ThenByDescending(x => x.OriginalName, comparer);
-                break;
-        }
+        var sortedItems = _sortingService.Sort(FileList.Items, SelectedSortOption, SortAscending);
 
         // 정렬된 리스트 반영
         FileList.Items.Clear();

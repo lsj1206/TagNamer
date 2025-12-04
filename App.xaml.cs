@@ -1,6 +1,6 @@
-﻿using System.Configuration;
-using System.Data;
+﻿using System.Data;
 using System.Windows;
+using System.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ModernWpf;
 using TagNamer.Services;
@@ -25,9 +25,11 @@ public partial class App : Application
 
         // Services
         services.AddSingleton<IDialogService, DialogService>();
+        services.AddSingleton<ISortingService, SortingService>();
+        services.AddSingleton<IFileService, FileService>();
 
         // ViewModels
-        services.AddSingleton<MainViewModel>();
+        services.AddTransient<MainViewModel>();
 
         // Views
         services.AddSingleton<MainWindow>();
