@@ -8,6 +8,13 @@ namespace TagNamer.ViewModels;
 public class FileListViewModel
 {
     public ObservableCollection<FileItem> Items { get; } = new();
+    private int _nextAddIndex = 1;
+
+    public void Clear()
+    {
+        Items.Clear();
+        _nextAddIndex = 1;
+    }
 
     // 파일 경로를 받아 목록에 추가하는 메서드
     public void AddFile(string path)
@@ -23,10 +30,11 @@ public class FileListViewModel
             var fileInfo = new System.IO.FileInfo(path);
             var item = new FileItem
             {
-                AddIndex = Items.Count + 1,
+                AddIndex = _nextAddIndex++,
                 OriginalName = fileInfo.Name,
                 NewName = fileInfo.Name,
                 Path = path,
+                DirectoryName = System.IO.Path.GetDirectoryName(path) ?? string.Empty,
                 Size = fileInfo.Length,
                 CreatedDate = fileInfo.CreationTime,
                 ModifiedDate = fileInfo.LastWriteTime

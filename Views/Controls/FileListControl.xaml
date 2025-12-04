@@ -148,7 +148,7 @@
                     <GridViewColumn Header="경로" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding Path}"
+                                <TextBlock Text="{Binding DirectoryName}"
                                            Foreground="#999999"
                                            TextTrimming="CharacterEllipsis"
                                            ToolTip="{Binding Path}"/>

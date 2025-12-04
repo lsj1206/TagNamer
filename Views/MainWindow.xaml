@@ -15,7 +15,6 @@
         MinWidth="960"
         Title="TagNamer">
 
-
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="36" />  <!-- 헤더 영역 높이 -->

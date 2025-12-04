@@ -6,6 +6,7 @@ public class FileItem
 {
     // 필수 속성
     public required string OriginalName { get; set; }
+    public required string DirectoryName { get; set; }
     public required string Path { get; set; }
     // 자동 계산 속성
     public string NewName { get; set; } = string.Empty;

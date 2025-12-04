@@ -46,6 +46,7 @@
                     <TextBlock Text="정렬 기준" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,0,0,4" />
                     <ComboBox ItemsSource="{Binding SortOptions}"
                             SelectedItem="{Binding SelectedSortOption}"
+                            DisplayMemberPath="Display"
                             HorizontalAlignment="Stretch"
                             Margin="0,0,0,4" />
 
