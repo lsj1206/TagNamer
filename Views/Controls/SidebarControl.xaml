@@ -68,10 +68,23 @@
                     <CheckBox Content="삭제 확인 팝업" IsChecked="{Binding ConfirmDeletion}" Margin="0,2,0,4" />
                     <CheckBox Content="확장자 표시" IsChecked="{Binding ShowExtension}" Margin="0,0,0,2" />
                     <TextBlock Text="확장자 변경" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,4,0,2" />
-                    <TextBox Text="{Binding ExtensionInput, UpdateSourceTrigger=PropertyChanged}"
-                            Margin="0,0,0,4"
-                            Padding="8,6" />
-                    <Button Content="적용" Command="{Binding ApplyExtensionCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                    <Grid Margin="0,0,0,4">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="7*"/>
+                            <ColumnDefinition Width="3*"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding ExtensionInput, UpdateSourceTrigger=PropertyChanged}"
+                                 Margin="0,0,4,0"
+                                 Padding="8,6" />
+                        <Button Grid.Column="1"
+                                Content="적용"
+                                Command="{Binding ApplyExtensionCommand}"
+                                Style="{StaticResource SidebarButtonStyle}"
+                                FontWeight="Normal"
+                                Margin="0"
+                                Padding="6,2"/>
+                    </Grid>
                 </StackPanel>
             </StackPanel>
         </Border>
