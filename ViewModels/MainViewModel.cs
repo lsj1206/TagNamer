@@ -64,7 +64,7 @@ public partial class MainViewModel : ObservableObject
     private bool confirmDeletion = true;
 
     [ObservableProperty]
-    private bool showExtension = true;
+    private bool showExtension = false;
 
     [ObservableProperty]
     private string extensionInput = string.Empty;
@@ -100,11 +100,22 @@ public partial class MainViewModel : ObservableObject
         ApplyExtensionCommand = new RelayCommand(ApplyExtension);
     }
 
+    // 확장자 표시 ON/OFF
+    partial void OnShowExtensionChanged(bool value)
+    {
+        foreach (var item in FileList.Items)
+        {
+            item.UpdateDisplay(value);
+        }
+    }
+
+    // 정렬 기준 선택
     partial void OnSelectedSortOptionChanged(SortOption value)
     {
         SortFiles();
     }
 
+    // 오름차순
     partial void OnSortAscendingChanged(bool value)
     {
         if (_isUpdatingSortDirection || !value) return;
@@ -116,6 +127,7 @@ public partial class MainViewModel : ObservableObject
         SortFiles();
     }
 
+    // 내림차순
     partial void OnSortDescendingChanged(bool value)
     {
         if (_isUpdatingSortDirection || !value) return;
@@ -123,7 +135,6 @@ public partial class MainViewModel : ObservableObject
         _isUpdatingSortDirection = true;
         SortAscending = false;
         _isUpdatingSortDirection = false;
-
         SortFiles();
     }
 
@@ -144,7 +155,7 @@ public partial class MainViewModel : ObservableObject
         ExtensionInput = extension;
     }
 
-    // 파일 추가 로직
+    // 파일 추가
     private void AddFiles()
     {
         var dialog = new CommonOpenFileDialog
@@ -161,6 +172,7 @@ public partial class MainViewModel : ObservableObject
                 var item = _fileService.CreateFileItem(file);
                 if (item != null)
                 {
+                    item.UpdateDisplay(ShowExtension);
                     FileList.AddItem(item);
                 }
             }
@@ -168,7 +180,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // 폴더 추가 로직
+    // 폴더 추가
     private void AddFolder()
     {
         var dialog = new CommonOpenFileDialog
@@ -188,6 +200,7 @@ public partial class MainViewModel : ObservableObject
                     var item = _fileService.CreateFileItem(file);
                     if (item != null)
                     {
+                        item.UpdateDisplay(ShowExtension);
                         FileList.AddItem(item);
                     }
                 }
@@ -196,7 +209,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // 파일 삭제 로직
+    // 파일 삭제
     private async void DeleteFiles(System.Collections.IList? items)
     {
         if (items == null || items.Count == 0) return;
@@ -221,7 +234,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // 목록 삭제 로직
+    // 목록 삭제
     private async Task ListClearAsync()
     {
         var result = await _dialogService.ShowConfirmationAsync("파일 목록을 전부 삭제하시겠습니까?", "목록 삭제");
@@ -231,6 +244,7 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
+    // 목록 정렬
     private void SortFiles()
     {
         if (FileList.Items.Count == 0) return;

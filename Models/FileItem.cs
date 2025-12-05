@@ -1,13 +1,23 @@
 // 파일/폴더 정보 Model
 
+using CommunityToolkit.Mvvm.ComponentModel;
+
 namespace TagNamer.Models;
 
-public class FileItem
+public partial class FileItem : ObservableObject
 {
     // 필수 속성
     public required string OriginalName { get; set; }
     public required string DirectoryName { get; set; }
     public required string Path { get; set; }
+
+    // 표시용 속성
+    [ObservableProperty]
+    private string displayOriginalName = string.Empty;
+
+    [ObservableProperty]
+    private string displayNewName = string.Empty;
+
     // 자동 계산 속성
     public string NewName { get; set; } = string.Empty;
     public long Size { get; set; }
@@ -18,8 +28,7 @@ public class FileItem
     public DateTime? ModifiedDate { get; set; }
     // 파일 확장자
     public string Extension => IsFolder ? string.Empty : System.IO.Path.GetExtension(OriginalName);
-    // 확장자 제외된 파일명
-    public string NameWithoutExtension => IsFolder ? OriginalName : System.IO.Path.GetFileNameWithoutExtension(OriginalName);
+
     // 파일 크기를 읽기 쉬운 형태로 변환
     public string UnitSize => FormatFileSize(Size);
     private static string FormatFileSize(long bytes)
@@ -37,5 +46,29 @@ public class FileItem
         }
 
         return $"{len:0.#} {sizes[order]}";
+    }
+
+    public void UpdateDisplay(bool showExtension)
+    {
+        if (IsFolder)
+        {
+            DisplayOriginalName = OriginalName;
+            DisplayNewName = NewName;
+            return;
+        }
+
+        if (showExtension)
+        {
+            DisplayOriginalName = OriginalName;
+            DisplayNewName = NewName;
+        }
+        else
+        {
+            DisplayOriginalName = System.IO.Path.GetFileNameWithoutExtension(OriginalName);
+            // NewName에서도 확장자 제거 (단, NewName이 비어있지 않을 때만)
+            DisplayNewName = string.IsNullOrEmpty(NewName)
+                ? string.Empty
+                : System.IO.Path.GetFileNameWithoutExtension(NewName);
+        }
     }
 }

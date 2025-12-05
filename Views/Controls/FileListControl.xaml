@@ -117,7 +117,7 @@
                                     <Image Source="{StaticResource FileIcon}"
                                            Width="16" Height="16"
                                            Margin="0,2,8,0"/>
-                                    <TextBlock Text="{Binding OriginalName}" TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding DisplayOriginalName}" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -127,7 +127,7 @@
                     <GridViewColumn Header="변경될 파일명" Width="250">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding NewName}"
+                                <TextBlock Text="{Binding DisplayNewName}"
                                            Foreground="{StaticResource AccentColor}"
                                            FontWeight="Medium"
                                            TextTrimming="CharacterEllipsis"/>
