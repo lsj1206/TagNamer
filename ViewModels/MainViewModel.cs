@@ -77,6 +77,7 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand ApplyChangesCommand { get; }
     public IRelayCommand UndoChangesCommand { get; }
     public IRelayCommand ApplyExtensionCommand { get; }
+    public IRelayCommand ReorderNumberCommand { get; }
 
     private readonly IDialogService _dialogService;
     private readonly ISortingService _sortingService;
@@ -98,6 +99,31 @@ public partial class MainViewModel : ObservableObject
         ApplyChangesCommand = new RelayCommand(() => { });
         UndoChangesCommand = new RelayCommand(() => { });
         ApplyExtensionCommand = new RelayCommand(ApplyExtension);
+        ReorderNumberCommand = new RelayCommand(ReorderNumber);
+    }
+
+    private async void ReorderNumber()
+    {
+        if (FileList.Items.Count == 0) return;
+
+        var result = await _dialogService.ShowConfirmationAsync(
+            "번호를 현재 목록 순서대로 정렬하시겠습니까?\n현재 부여된 번호는 초기화됩니다.",
+            "번호 재정렬");
+
+        if (result)
+        {
+            int index = 1;
+            foreach (var item in FileList.Items)
+            {
+                // 폴더가 아닌 경우에만 번호 부여
+                if (!item.IsFolder)
+                {
+                    item.AddIndex = index++;
+                }
+            }
+            // 다음 추가될 번호 업데이트
+            FileList.UpdateNextAddIndex(index);
+        }
     }
 
     // 확장자 표시 ON/OFF

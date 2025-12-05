@@ -27,4 +27,9 @@ public class FileListViewModel
         item.AddIndex = _nextAddIndex++;
         Items.Add(item);
     }
+
+    public void UpdateNextAddIndex(int nextIndex)
+    {
+        _nextAddIndex = nextIndex;
+    }
 }

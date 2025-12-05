@@ -22,7 +22,9 @@ public partial class FileItem : ObservableObject
     public string NewName { get; set; } = string.Empty;
     public long Size { get; set; }
     public bool IsFolder { get; set; }
-    public int? AddIndex { get; set; }  // 파일만 번호, 폴더는 null
+
+    [ObservableProperty]
+    private int? addIndex;  // 파일만 번호, 폴더는 null
     // 파일 날짜 정보
     public DateTime? CreatedDate { get; set; }
     public DateTime? ModifiedDate { get; set; }
