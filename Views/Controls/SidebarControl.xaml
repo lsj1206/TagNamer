@@ -33,9 +33,9 @@
                 <StackPanel Orientation="Vertical">
                     <Button Content="파일 추가" Command="{Binding AddFilesCommand}" Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="폴더 추가" Command="{Binding AddFolderCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="목록 삭제" Command="{Binding ListClearCommand}" Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="규칙 설정" Command="{Binding OpenRuleSettingsCommand}" Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="번호 재정렬" Command="{Binding ReorderNumberCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="목록 삭제" Command="{Binding ListClearCommand}" Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="변경 적용" Command="{Binding ApplyChangesCommand}" Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="변경 취소" Command="{Binding UndoChangesCommand}" Style="{StaticResource SidebarButtonStyle}" />
                 </StackPanel>
