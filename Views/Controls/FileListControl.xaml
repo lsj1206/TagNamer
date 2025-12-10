@@ -79,13 +79,16 @@
     </UserControl.Resources>
 
     <Grid>
-        <ListView ItemsSource="{Binding Items}"
+        <ListView x:Name="FileListView"
+                  ItemsSource="{Binding Items}"
                   ItemContainerStyle="{StaticResource FileItemContainerStyle}"
                   BorderThickness="0"
                   Background="Transparent"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  KeyDown="ListView_KeyDown">
-
+                  KeyDown="ListView_KeyDown"
+                  AllowDrop="True"
+                  Drop="FileListView_Drop"
+                  PreviewDragOver="FileListView_PreviewDragOver">
             <ListView.View>
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>

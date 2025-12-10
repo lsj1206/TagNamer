@@ -284,4 +284,39 @@ public partial class MainViewModel : ObservableObject
             FileList.Items.Add(item);
         }
     }
+
+    // 드래그 앤 드롭으로 전달된 파일 및 폴더를 처리하는 메서드
+    public void AddDroppedItems(string[] paths)
+    {
+        if (paths == null || paths.Length == 0) return;
+
+        foreach (var path in paths)
+        {
+            if (System.IO.File.Exists(path))
+            {
+                // 파일인 경우
+                var item = _fileService.CreateFileItem(path);
+                if (item != null)
+                {
+                    item.UpdateDisplay(ShowExtension);
+                    FileList.AddItem(item);
+                }
+            }
+            else if (System.IO.Directory.Exists(path))
+            {
+                // 폴더인 경우
+                var filePaths = _fileService.GetFilesInFolder(path);
+                foreach (var filePath in filePaths)
+                {
+                    var item = _fileService.CreateFileItem(filePath);
+                    if (item != null)
+                    {
+                        item.UpdateDisplay(ShowExtension);
+                        FileList.AddItem(item);
+                    }
+                }
+            }
+        }
+        SortFiles();
+    }
 }
