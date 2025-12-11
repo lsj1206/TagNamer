@@ -5,6 +5,7 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.Extensions.DependencyInjection;
 using TagNamer.Services;
 
 namespace TagNamer.ViewModels;
@@ -82,12 +83,18 @@ public partial class MainViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly ISortingService _sortingService;
     private readonly IFileService _fileService;
+    private readonly IServiceProvider _serviceProvider;
 
-    public MainViewModel(IDialogService dialogService, ISortingService sortingService, IFileService fileService)
+    public MainViewModel(
+        IDialogService dialogService,
+        ISortingService sortingService,
+        IFileService fileService,
+        IServiceProvider serviceProvider)
     {
         _dialogService = dialogService;
         _sortingService = sortingService;
         _fileService = fileService;
+        _serviceProvider = serviceProvider;
 
         selectedSortOption = SortOptions.First();
 
@@ -95,11 +102,21 @@ public partial class MainViewModel : ObservableObject
         AddFolderCommand = new RelayCommand(AddFolder);
         DeleteFilesCommand = new RelayCommand<System.Collections.IList>(DeleteFiles);
         ListClearCommand = new AsyncRelayCommand(ListClearAsync);
-        OpenRuleSettingsCommand = new RelayCommand(() => { });
+        OpenRuleSettingsCommand = new RelayCommand(OpenRenameRule);
         ApplyChangesCommand = new RelayCommand(() => { });
         UndoChangesCommand = new RelayCommand(() => { });
         ApplyExtensionCommand = new RelayCommand(ApplyExtension);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
+    }
+
+    private void OpenRenameRule()
+    {
+        var window = _serviceProvider.GetRequiredService<TagNamer.Views.RenameRuleWindow>();
+        var viewModel = _serviceProvider.GetRequiredService<RenameRuleViewModel>();
+
+        window.Owner = System.Windows.Application.Current.MainWindow;
+        window.DataContext = viewModel;
+        window.ShowDialog();
     }
 
     private async void ReorderNumber()
