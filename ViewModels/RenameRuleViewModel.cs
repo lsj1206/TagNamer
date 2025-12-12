@@ -10,7 +10,7 @@ namespace TagNamer.ViewModels;
 public partial class RenameRuleViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string ruleFormat = "[origin]"; // 기본값
+    private string ruleFormat = "[Origin]"; // 기본값
 
     // 실제 파일명 변경 로직에서 사용할 변환된 규칙 문자열
     public string ResolvedRuleFormat
@@ -30,7 +30,7 @@ public partial class RenameRuleViewModel : ObservableObject
     }
 
     public ObservableCollection<TagItem> CreatedTags { get; } = new();
-    public ObservableCollection<string> TagTypes { get; } = new() { "[num]", "[alpha]", "[today]", "[now]" };
+    public ObservableCollection<string> TagTypes { get; } = new() { "[Number]", "[AtoZ]", "[Today]", "[Time.now]" };
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TagTypeDescription))]
@@ -38,10 +38,10 @@ public partial class RenameRuleViewModel : ObservableObject
 
     public string TagTypeDescription => SelectedTagType switch
     {
-        "[num]" => "순차적인 번호를 입력합니다.",
-        "[alpha]" => "알파벳 순서를 입력합니다.",
-        "[today]" => "오늘 날짜를 입력합니다. " + "대소문자 구분없이 년:YYYY/YY 월:MM 일:DD",
-        "[now]" => "현재 시간을 입력합니다. " + "대소문자 구분없이 시:HH 분:MM 초:SS",
+        "[Number]" => "규칙대로 순차적으로 증가하는 수를 입력하는 태그",
+        "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그",
+        "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\n대소문자 구분없이 년:YYYY/YY 월:MM 일:DD",
+        "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\n대소문자 구분없이 시:HH 분:MM 초:SS",
         _ => ""
     };
 
@@ -58,14 +58,14 @@ public partial class RenameRuleViewModel : ObservableObject
     private bool optionLowerCase = false;
 
     [ObservableProperty]
-    private string ruleExplanation = "태그를 끌어당겨 원하는 위치에 규칙을 추가할 수 있습니다.";
+    private string ruleGuildTooltip = "태그를 끌어당겨 원하는 위치에 규칙을 추가할 수 있습니다.";
 
     // UI 표시용 속성들 (Visibility 제어 등은 View의 DataTrigger로 처리 예정이지만, 필요시 VM에서 불리언 속성 제공 가능)
 
-    private int _numCount = 0;
-    private int _alphaCount = 0;
-    private int _dateCount = 0;
-    private int _timeCount = 0;
+    private int _numTagCount = 0;
+    private int _alphaTagCount = 0;
+    private int _todayTagCount = 0;
+    private int _nowTagCount = 0;
 
     public IRelayCommand CreateTagCommand { get; }
 
@@ -75,23 +75,23 @@ public partial class RenameRuleViewModel : ObservableObject
 
         // 초기 기본 태그 추가
         AddFixedTags();
-        SelectedTagType = TagTypes.FirstOrDefault() ?? "[num]";
+        SelectedTagType = TagTypes.FirstOrDefault() ?? "[Number]";
     }
 
     private void AddFixedTags()
     {
         CreatedTags.Add(new TagItem
         {
-            DisplayName = "[origin]",
-            Code = "[origin]",
-            ToolTip = "파일이 목록에 추가될 당시의 이름"
+            DisplayName = "[Origin]",
+            Code = "[Origin]",
+            ToolTip = "파일이 추가될 당시의 파일명을 입력합니다."
         });
 
         CreatedTags.Add(new TagItem
         {
             DisplayName = "[prevName]",
             Code = "[prevName]",
-            ToolTip = "마지막으로 변경된 이름 (처음엔 원본 이름)"
+            ToolTip = "마지막으로 변경된 파일명을 입력합니다.\n처음엔 원본 파일명이 입력됩니다."
         });
     }
 
@@ -103,41 +103,41 @@ public partial class RenameRuleViewModel : ObservableObject
 
         switch (SelectedTagType)
         {
-            case "[num]":
-                _numCount++;
+            case "[Number]":
+                _numTagCount++;
                 newItem = new TagItem
                 {
-                    DisplayName = $"[num{_numCount}]",
-                    Code = $"[num:{OptionDigits}:{OptionStartValue}]",
-                    ToolTip = $"자리 수 : {OptionDigits}, 시작 값 : {OptionStartValue}"
+                    DisplayName = $"[Number{_numTagCount}]",
+                    Code = $"[Number:{OptionDigits}:{OptionStartValue}]",
+                    ToolTip = $"규칙대로 순차적으로 증가하는 수가 입력됩니다.\n자리 수 : {OptionDigits}, 시작 값 : {OptionStartValue}"
                 };
                 break;
-            case "[alpha]":
-                _alphaCount++;
+            case "[AtoZ]":
+                _alphaTagCount++;
                 var caseStr = OptionLowerCase ? "소문자" : "대문자";
                 newItem = new TagItem
                 {
-                    DisplayName = $"[alpha{_alphaCount}]",
-                    Code = $"[alpha:{OptionDigits}:{OptionStartValue}:{(OptionLowerCase ? "lower" : "upper")}]",
-                    ToolTip = $"자리 수 : {OptionDigits}, 시작 값 : {OptionStartValue}, {caseStr}"
+                    DisplayName = $"[AtoZ{_alphaTagCount}]",
+                    Code = $"[AtoZ:{OptionDigits}:{OptionStartValue}:{(OptionLowerCase ? "lower" : "upper")}]",
+                    ToolTip = $"규칙대로 A-Z 순서로 알파벳이 입력됩니다.\n자리 수 : {OptionDigits}, 시작 값 : {OptionStartValue}, {caseStr}"
                 };
                 break;
-            case "[today]":
-                _dateCount++;
+            case "[Today]":
+                _todayTagCount++;
                 newItem = new TagItem
                 {
-                    DisplayName = $"[today{_dateCount}]",
-                    Code = $"[today:{OptionDateFormat}]",
-                    ToolTip = $"형식 : {OptionDateFormat} (예: yyyyMMdd)"
+                    DisplayName = $"[Today{_todayTagCount}]",
+                    Code = $"[Today:{OptionDateFormat}]",
+                    ToolTip = $"{OptionDateFormat} 형식으로 오늘 날짜가 입력됩니다."
                 };
                 break;
-            case "[now]":
-                _timeCount++;
+            case "[Time.now]":
+                _nowTagCount++;
                 newItem = new TagItem
                 {
-                    DisplayName = $"[now{_timeCount}]",
-                    Code = $"[now:{OptionDateFormat}]",
-                    ToolTip = $"형식: {OptionDateFormat} (예: HHmmss)"
+                    DisplayName = $"[Time.now{_nowTagCount}]",
+                    Code = $"[Time.now:{OptionDateFormat}]",
+                    ToolTip = $"{OptionDateFormat} 형식으로 현재 시간이 입력됩니다."
                 };
                 break;
         }
