@@ -10,7 +10,7 @@ namespace TagNamer.ViewModels;
 public partial class RenameRuleViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string ruleFormat = "[Origin]"; // 기본값
+    private string ruleFormat = "[Name.origin]"; // 기본값
 
     // 실제 파일명 변경 로직에서 사용할 변환된 규칙 문자열
     public string ResolvedRuleFormat
@@ -82,15 +82,15 @@ public partial class RenameRuleViewModel : ObservableObject
     {
         CreatedTags.Add(new TagItem
         {
-            DisplayName = "[Origin]",
-            Code = "[Origin]",
+            DisplayName = "[Name.origin]",
+            Code = "[Name.origin]",
             ToolTip = "파일이 추가될 당시의 파일명을 입력합니다."
         });
 
         CreatedTags.Add(new TagItem
         {
-            DisplayName = "[prevName]",
-            Code = "[prevName]",
+            DisplayName = "[Name.prev]",
+            Code = "[Name.prev]",
             ToolTip = "마지막으로 변경된 파일명을 입력합니다.\n처음엔 원본 파일명이 입력됩니다."
         });
     }

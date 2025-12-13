@@ -46,8 +46,8 @@ public partial class MainViewModel : ObservableObject
         new() { Display = "수정일", Type = SortType.ModifiedDate }
     ];
 
-    [ObservableProperty]
-    private string currentRuleDisplay = "규칙: [number] - [name]";
+    // 현재 규칙 표시 (RenameRuleViewModel과 동기화)
+    public string CurrentRuleDisplay => _renameRuleViewModel.RuleFormat;
 
     [ObservableProperty]
     private string appVersion = "v1.0.0";
@@ -84,17 +84,29 @@ public partial class MainViewModel : ObservableObject
     private readonly ISortingService _sortingService;
     private readonly IFileService _fileService;
     private readonly IServiceProvider _serviceProvider;
+    private readonly RenameRuleViewModel _renameRuleViewModel;
 
     public MainViewModel(
         IDialogService dialogService,
         ISortingService sortingService,
         IFileService fileService,
-        IServiceProvider serviceProvider)
+        IServiceProvider serviceProvider,
+        RenameRuleViewModel renameRuleViewModel)
     {
         _dialogService = dialogService;
         _sortingService = sortingService;
         _fileService = fileService;
         _serviceProvider = serviceProvider;
+        _renameRuleViewModel = renameRuleViewModel;
+
+        // RenameRuleViewModel의 RuleFormat 변경 시 UI 알림
+        _renameRuleViewModel.PropertyChanged += (s, e) =>
+        {
+            if (e.PropertyName == nameof(RenameRuleViewModel.RuleFormat))
+            {
+                OnPropertyChanged(nameof(CurrentRuleDisplay));
+            }
+        };
 
         selectedSortOption = SortOptions.First();
 

@@ -7,28 +7,37 @@
 
     <!-- 헤더 영역: 상단 정보 표시 -->
     <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            Padding="15,5"
+            Padding="10,5"
             BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
             BorderThickness="0,0,0,1">
         <Grid>
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />      <!-- 좌측: 규칙 표시 -->
+                <ColumnDefinition Width="Auto" />   <!-- 좌측: '규칙' 표시 -->
+                <ColumnDefinition Width="*" />      <!-- 중앙: 규칙 표시 -->
                 <ColumnDefinition Width="Auto" />   <!-- 우측: 버전 정보 -->
             </Grid.ColumnDefinitions>
 
+            <TextBlock Grid.Column="0"
+                       Text="규칙 | "
+                       FontSize="18"
+                       FontWeight="Normal"
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+
             <!-- 좌측: 현재 적용 중인 이름 변경 규칙 표시 -->
-            <StackPanel Orientation="Vertical">
+            <StackPanel Grid.Column="1" Orientation="Vertical">
                 <TextBlock Text="{Binding CurrentRuleDisplay}"
                            FontSize="18"
-                           FontWeight="SemiBold"
-                           Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                           FontWeight="Normal"
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
             </StackPanel>
 
             <!-- 우측: 애플리케이션 버전 표시 -->
-            <TextBlock Grid.Column="1"
+            <TextBlock Grid.Column="2"
+                       Margin="15,0,0,0"
                        Text="{Binding AppVersion}"
                        VerticalAlignment="Center"
                        FontSize="14"
+                       FontWeight="Normal"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
         </Grid>
     </Border>
