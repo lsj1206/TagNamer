@@ -14,12 +14,12 @@
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>    <!-- 규칙 입력 -->
+            <RowDefinition Height="80"/>   <!-- 규칙 입력 -->
             <RowDefinition Height="*"/>    <!-- 태그 목록 -->
-            <RowDefinition Height="*"/>    <!-- 태그 생성 폼 -->
+            <RowDefinition Height="*"/>    <!-- 태그 생성 -->
         </Grid.RowDefinitions>
 
-        <!-- 1. 규칙 입력 섹션 -->
+        <!-- 규칙 입력 -->
         <StackPanel Grid.Row="0">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <TextBlock Text="규칙을 입력하세요.  " Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
@@ -46,7 +46,7 @@
             </Grid>
         </StackPanel>
 
-        <!-- 2. 생성된 태그 목록 (드래그 소스) -->
+        <!-- 생성된 태그 목록 -->
         <GroupBox Grid.Row="1" Header="생성된 태그 목록" Margin="0,8,0,0">
             <ItemsControl Margin="0,-8,0,0" ItemsSource="{Binding TagManager.CreatedTags}">
                 <ItemsControl.ItemsPanel>
@@ -72,35 +72,35 @@
             </ItemsControl>
         </GroupBox>
 
-        <!-- 3. 태그 생성 폼 -->
+        <!-- 태그 생성 -->
         <Border Grid.Row="1" VerticalAlignment="Bottom" BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}" BorderThickness="0,0,0,1" Margin="0,0,0,-8"/>
         <GroupBox Grid.Row="2" Header="태그 생성" Margin="0,16,0,0">
             <Grid Margin="0,-8,0,0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/> <!-- 상단: 선택 | 설명 | 생성 -->
-                    <RowDefinition Height="Auto"/> <!-- 하단: 옵션 -->
+                    <RowDefinition Height="Auto"/>    <!-- 상단: 선택 | 설명 | 생성 -->
+                    <RowDefinition Height="Auto"/>    <!-- 하단: 옵션 -->
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120"/> <!-- 태그 선택 -->
-                    <ColumnDefinition Width="*"/>   <!-- 설명 -->
-                    <ColumnDefinition Width="88"/>  <!-- 생성 버튼 -->
+                    <ColumnDefinition Width="120"/>    <!-- 태그 선택 -->
+                    <ColumnDefinition Width="*"/>      <!-- 설명 -->
+                    <ColumnDefinition Width="88"/>     <!-- 생성 버튼 -->
                 </Grid.ColumnDefinitions>
 
-                <!-- 1. 태그 선택 -->
+                <!-- 태그 선택 -->
                 <ComboBox Grid.Row="0" Grid.Column="0"
                           ItemsSource="{Binding TagManager.TagTypes}"
                           SelectedItem="{Binding TagManager.SelectedTagType}"
                           Margin="0,0,8,8" VerticalAlignment="Center"
                           HorizontalAlignment="Stretch"/>
 
-                <!-- 2. 설명 -->
+                <!-- 태그 설명 -->
                 <TextBlock Grid.Row="0" Grid.Column="1"
                            Text="{Binding TagManager.TagTypeDescription}"
                            VerticalAlignment="Center"
                            Foreground="Gray"
                            Margin="8,0,8,8"/>
 
-                <!-- 3. 생성 버튼 -->
+                <!-- 생성 버튼 -->
                 <Button Grid.Row="0" Grid.Column="2"
                         Content="생성"
                         Width="80" Height="32"
@@ -108,6 +108,7 @@
                         HorizontalAlignment="Right" VerticalAlignment="Top"
                         Margin="0,0,0,8"/>
 
+                <!-- 태그 옵션 -->
                 <ContentControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
                                 Content="{Binding TagManager.SelectedTagType}"
                                 HorizontalAlignment="Stretch" VerticalAlignment="Top">

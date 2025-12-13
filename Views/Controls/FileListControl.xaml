@@ -7,14 +7,14 @@
              mc:Ignorable="d">
 
     <UserControl.Resources>
-        <!-- Win11 스타일 색상 정의 -->
+        <!-- 파일 리스트 스타일 -->
         <SolidColorBrush x:Key="ItemHoverBackground" Color="#E5F3FF"/>
         <SolidColorBrush x:Key="ItemSelectedBackground" Color="#CCE8FF"/>
         <SolidColorBrush x:Key="FolderHeaderBackground" Color="#F5F5F5"/>
         <SolidColorBrush x:Key="TextSecondary" Color="#666666"/>
         <SolidColorBrush x:Key="AccentColor" Color="#0078D4"/>
 
-        <!-- ListViewItem 스타일: 핵심 로직 -->
+        <!-- ListViewItem 스타일 -->
         <Style x:Key="FileItemContainerStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -23,7 +23,7 @@
             <Setter Property="Padding" Value="4,6"/>
             <Setter Property="Template">
                 <Setter.Value>
-                    <!-- 파일 템플릿 (기본) -->
+                    <!-- 파일 템플릿 -->
                     <ControlTemplate TargetType="ListViewItem">
                         <Border x:Name="bd"
                                 Background="{TemplateBinding Background}"
@@ -110,7 +110,7 @@
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
 
-                    <!-- 원본 파일명 -->
+                    <!-- 파일명 -->
                     <GridViewColumn Header="파일명" Width="250">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>

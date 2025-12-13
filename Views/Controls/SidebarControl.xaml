@@ -15,8 +15,8 @@
             <Setter Property="Cursor" Value="Hand" />
         </Style>
     </UserControl.Resources>
-    <!-- 좌측 사이드바 영역 -->
 
+    <!-- 사이드바 -->
     <ScrollViewer VerticalScrollBarVisibility="Hidden"
                   HorizontalScrollBarVisibility="Disabled"
                   PanningMode="VerticalOnly">
@@ -28,7 +28,7 @@
                 BorderThickness="1">
 
             <StackPanel Orientation="Vertical">
-                <!-- 파일 조작 버튼 섹션 -->
+                <!-- 파일 조작 버튼 -->
                 <StackPanel Orientation="Vertical">
                     <Button Content="파일 추가" Command="{Binding AddFilesCommand}" Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="폴더 추가" Command="{Binding AddFolderCommand}" Style="{StaticResource SidebarButtonStyle}" />
@@ -41,7 +41,7 @@
 
                 <Separator Margin="0,8,0,8" />
 
-                <!-- 정렬 옵션 섹션 -->
+                <!-- 정렬 옵션 -->
                 <StackPanel>
                     <TextBlock Text="정렬 기준" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,0,0,4" />
                     <ComboBox ItemsSource="{Binding SortOptions}"
@@ -63,7 +63,7 @@
 
                 <Separator Margin="0,8,0,8" />
 
-                <!-- 설정 및 확장자 변경 섹션 -->
+                <!-- 설정 및 확장자 변경 -->
                 <StackPanel>
                     <CheckBox Content="삭제 확인 팝업" IsChecked="{Binding ConfirmDeletion}" Margin="0,2,0,4" />
                     <CheckBox Content="확장자 표시" IsChecked="{Binding ShowExtension}" Margin="0,0,0,2" />

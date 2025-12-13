@@ -18,26 +18,25 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="36" />  <!-- 헤더 영역 높이 -->
-            <RowDefinition Height="42"/>   <!-- 빈 공간 (향후 사용 가능) -->
-            <RowDefinition />                 <!-- 메인 콘텐츠 영역 -->
+            <RowDefinition Height="42"/>   <!-- 빈 공간 -->
+            <RowDefinition />              <!-- 메인 콘텐츠 영역 -->
         </Grid.RowDefinitions>
 
-        <!-- 헤더 섹션: 상단 규칙 표시 및 버전 정보 -->
+        <!-- 헤더 섹션 -->
         <controls:HeaderControl Grid.Row="0" Loaded="HeaderControl_Loaded" />
 
-        <!-- 메인 콘텐츠 섹션: 사이드바 + 파일 목록 -->
+        <!-- 메인 섹션 -->
         <Grid Grid.Row="2" Margin="16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="300" />  <!-- 좌측 사이드바 너비 -->
                 <ColumnDefinition Width="*" />    <!-- 우측 파일 목록 영역 -->
             </Grid.ColumnDefinitions>
 
-            <!-- 좌측 사이드바: 파일 조작 버튼, 정렬 옵션, 설정 -->
+            <!-- 좌측 사이드바 -->
             <controls:SidebarControl Grid.Column="0" Margin="-10,-50,140,-10" />
 
-            <!-- 우측 파일 목록 영역: 파일/폴더 목록 표시 -->
-            <Border
-                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            <!-- 파일 목록 -->
+            <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
                     BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
                     BorderThickness="1"
                     Grid.ColumnSpan="2" Margin="166,-50,-10,-10">
