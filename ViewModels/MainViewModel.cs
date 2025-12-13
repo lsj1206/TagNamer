@@ -46,8 +46,8 @@ public partial class MainViewModel : ObservableObject
         new() { Display = "수정일", Type = SortType.ModifiedDate }
     ];
 
-    // 현재 규칙 표시 (RenameRuleViewModel과 동기화)
-    public string CurrentRuleDisplay => _renameRuleViewModel.RuleFormat;
+    // 현재 규칙 표시 (RenameViewModel과 동기화)
+    public string CurrentRuleDisplay => _renameViewModel.RuleFormat;
 
     [ObservableProperty]
     private string appVersion = "v1.0.0";
@@ -84,25 +84,25 @@ public partial class MainViewModel : ObservableObject
     private readonly ISortingService _sortingService;
     private readonly IFileService _fileService;
     private readonly IServiceProvider _serviceProvider;
-    private readonly RenameRuleViewModel _renameRuleViewModel;
+    private readonly RenameViewModel _renameViewModel;
 
     public MainViewModel(
         IDialogService dialogService,
         ISortingService sortingService,
         IFileService fileService,
         IServiceProvider serviceProvider,
-        RenameRuleViewModel renameRuleViewModel)
+        RenameViewModel renameViewModel)
     {
         _dialogService = dialogService;
         _sortingService = sortingService;
         _fileService = fileService;
         _serviceProvider = serviceProvider;
-        _renameRuleViewModel = renameRuleViewModel;
+        _renameViewModel = renameViewModel;
 
-        // RenameRuleViewModel의 RuleFormat 변경 시 UI 알림
-        _renameRuleViewModel.PropertyChanged += (s, e) =>
+        // RenameViewModel의 RuleFormat 변경 시 UI 알림
+        _renameViewModel.PropertyChanged += (s, e) =>
         {
-            if (e.PropertyName == nameof(RenameRuleViewModel.RuleFormat))
+            if (e.PropertyName == nameof(RenameViewModel.RuleFormat))
             {
                 OnPropertyChanged(nameof(CurrentRuleDisplay));
             }
@@ -114,17 +114,17 @@ public partial class MainViewModel : ObservableObject
         AddFolderCommand = new RelayCommand(AddFolder);
         DeleteFilesCommand = new RelayCommand<System.Collections.IList>(DeleteFiles);
         ListClearCommand = new AsyncRelayCommand(ListClearAsync);
-        OpenRuleSettingsCommand = new RelayCommand(OpenRenameRule);
+        OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
         ApplyChangesCommand = new RelayCommand(() => { });
         UndoChangesCommand = new RelayCommand(() => { });
         ApplyExtensionCommand = new RelayCommand(ApplyExtension);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
     }
 
-    private void OpenRenameRule()
+    private void OpenRenameWindow()
     {
-        var window = _serviceProvider.GetRequiredService<TagNamer.Views.RenameRuleWindow>();
-        var viewModel = _serviceProvider.GetRequiredService<RenameRuleViewModel>();
+        var window = _serviceProvider.GetRequiredService<TagNamer.Views.RenameWindow>();
+        var viewModel = _serviceProvider.GetRequiredService<RenameViewModel>();
 
         window.Owner = System.Windows.Application.Current.MainWindow;
         window.DataContext = viewModel;

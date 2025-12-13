@@ -30,11 +30,11 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<MainViewModel>();
-        services.AddSingleton<RenameRuleViewModel>();
+        services.AddSingleton<RenameViewModel>();
 
         // Views
         services.AddSingleton<MainWindow>();
-        services.AddTransient<TagNamer.Views.RenameRuleWindow>();
+        services.AddTransient<TagNamer.Views.RenameWindow>();
 
         return services.BuildServiceProvider();
     }

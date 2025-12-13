@@ -7,7 +7,7 @@ using TagNamer.Models;
 
 namespace TagNamer.ViewModels;
 
-public partial class RenameRuleViewModel : ObservableObject
+public partial class RenameViewModel : ObservableObject
 {
     [ObservableProperty]
     private string ruleFormat = "[Name.origin]"; // 기본값
@@ -69,7 +69,7 @@ public partial class RenameRuleViewModel : ObservableObject
 
     public IRelayCommand CreateTagCommand { get; }
 
-    public RenameRuleViewModel()
+    public RenameViewModel()
     {
         CreateTagCommand = new RelayCommand(CreateTag);
 

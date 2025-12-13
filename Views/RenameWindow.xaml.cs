@@ -5,9 +5,9 @@ using TagNamer.Models;
 
 namespace TagNamer.Views;
 
-public partial class RenameRuleWindow : System.Windows.Window
+public partial class RenameWindow : System.Windows.Window
 {
-    public RenameRuleWindow()
+    public RenameWindow()
     {
         InitializeComponent();
     }
