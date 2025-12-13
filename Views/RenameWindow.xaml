@@ -48,7 +48,7 @@
 
         <!-- 2. 생성된 태그 목록 (드래그 소스) -->
         <GroupBox Grid.Row="1" Header="생성된 태그 목록" Margin="0,8,0,0">
-            <ItemsControl Margin="0,-8,0,0" ItemsSource="{Binding CreatedTags}">
+            <ItemsControl Margin="0,-8,0,0" ItemsSource="{Binding TagManager.CreatedTags}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <WrapPanel Orientation="Horizontal"/>
@@ -88,14 +88,14 @@
 
                 <!-- 1. 태그 선택 -->
                 <ComboBox Grid.Row="0" Grid.Column="0"
-                          ItemsSource="{Binding TagTypes}"
-                          SelectedItem="{Binding SelectedTagType}"
+                          ItemsSource="{Binding TagManager.TagTypes}"
+                          SelectedItem="{Binding TagManager.SelectedTagType}"
                           Margin="0,0,8,8" VerticalAlignment="Center"
                           HorizontalAlignment="Stretch"/>
 
                 <!-- 2. 설명 -->
                 <TextBlock Grid.Row="0" Grid.Column="1"
-                           Text="{Binding TagTypeDescription}"
+                           Text="{Binding TagManager.TagTypeDescription}"
                            VerticalAlignment="Center"
                            Foreground="Gray"
                            Margin="8,0,8,8"/>
@@ -104,42 +104,42 @@
                 <Button Grid.Row="0" Grid.Column="2"
                         Content="생성"
                         Width="80" Height="32"
-                        Command="{Binding CreateTagCommand}"
+                        Command="{Binding TagManager.CreateTagCommand}"
                         HorizontalAlignment="Right" VerticalAlignment="Top"
                         Margin="0,0,0,8"/>
 
                 <ContentControl Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"
-                                Content="{Binding SelectedTagType}"
+                                Content="{Binding TagManager.SelectedTagType}"
                                 HorizontalAlignment="Stretch" VerticalAlignment="Top">
                     <ContentControl.Resources>
                         <DataTemplate x:Key="NumTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="자리 수 :" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
                                 <TextBlock Text="시작 값 :" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                         <DataTemplate x:Key="AlphaTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="자리 수 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
                                 <TextBlock Text="시작 값 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,12,0" VerticalContentAlignment="Center"/>
                                 <TextBlock Text="소문자 수 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionCase, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionCase, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                         <DataTemplate x:Key="DateTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="형식 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionDateFormat, RelativeSource={RelativeSource AncestorType=Window}}" Width="200" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionDateFormat, RelativeSource={RelativeSource AncestorType=Window}}" Width="200" VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                         <DataTemplate x:Key="TimeTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="형식 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.OptionDateFormat, RelativeSource={RelativeSource AncestorType=Window}}" Width="200" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionDateFormat, RelativeSource={RelativeSource AncestorType=Window}}" Width="200" VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                     </ContentControl.Resources>
@@ -147,16 +147,16 @@
                         <Style TargetType="ContentControl">
                             <Setter Property="ContentTemplate" Value="{x:Null}"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding SelectedTagType}" Value="[Number]">
+                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Number]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource NumTemplate}"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding SelectedTagType}" Value="[AtoZ]">
+                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[AtoZ]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource AlphaTemplate}"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding SelectedTagType}" Value="[Today]">
+                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Today]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource DateTemplate}"/>
                                 </DataTrigger>
-                                <DataTrigger Binding="{Binding SelectedTagType}" Value="[Time.Now]">
+                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Time.Now]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource TimeTemplate}"/>
                                 </DataTrigger>
                             </Style.Triggers>

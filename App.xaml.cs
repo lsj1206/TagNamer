@@ -30,6 +30,7 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddSingleton<TagManagerViewModel>();
         services.AddSingleton<RenameViewModel>();
 
         // Views
