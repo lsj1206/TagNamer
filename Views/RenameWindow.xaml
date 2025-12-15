@@ -64,6 +64,8 @@
                                 Padding="8,4"
                                 ToolTip="{Binding ToolTip}"
                                 MouseMove="TagItem_MouseMove"
+                                MouseLeftButtonUp="TagItem_MouseLeftButtonUp"
+                                MouseRightButtonUp="TagItem_MouseRightButtonUp"
                                 Cursor="Hand">
                             <TextBlock Text="{Binding DisplayName}" FontWeight="Medium"/>
                         </Border>

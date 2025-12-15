@@ -31,6 +31,22 @@ public partial class RenameViewModel : ObservableObject
         }
     }
 
+    /// 규칙에 태그 추가
+    /// 'isForward' 앞에 추가할지 여부 (true: 맨 앞, false: 맨 뒤)
+    public void AddTagToRule(string tagCode, bool isForward)
+    {
+        if (string.IsNullOrEmpty(tagCode)) return;
+
+        if (isForward)
+        {
+            RuleFormat = tagCode + RuleFormat;
+        }
+        else
+        {
+            RuleFormat = RuleFormat + tagCode;
+        }
+    }
+
     [ObservableProperty]
     private string ruleGuildTooltip = "태그를 끌어당겨 원하는 위치에 규칙을 추가할 수 있습니다.";
 

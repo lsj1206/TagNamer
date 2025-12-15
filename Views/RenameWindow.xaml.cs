@@ -20,6 +20,26 @@ public partial class RenameWindow : System.Windows.Window
         }
     }
 
+    private void TagItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement element &&
+            element.DataContext is TagItem tagItem &&
+            DataContext is ViewModels.RenameViewModel viewModel)
+        {
+            viewModel.AddTagToRule(tagItem.Code, true);
+        }
+    }
+
+    private void TagItem_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
+    {
+        if (sender is FrameworkElement element &&
+            element.DataContext is TagItem tagItem &&
+            DataContext is ViewModels.RenameViewModel viewModel)
+        {
+            viewModel.AddTagToRule(tagItem.Code, false);
+        }
+    }
+
     private void RuleTextBox_PreviewDragOver(object sender, DragEventArgs e)
     {
         e.Handled = true;
