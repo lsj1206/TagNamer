@@ -23,20 +23,27 @@ public partial class RenameWindow : System.Windows.Window
     private void TagItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is FrameworkElement element &&
-            element.DataContext is TagItem tagItem &&
-            DataContext is ViewModels.RenameViewModel viewModel)
+            element.DataContext is TagItem tagItem)
         {
-            viewModel.AddTagToRule(tagItem.Code, true);
+            // ViewModel을 통하지 않고 View에서 직접 처리하여 Undo(Ctrl+Z) 스택 유지
+            RuleTextBox.Focus();
+            RuleTextBox.CaretIndex = 0;
+            RuleTextBox.SelectedText = tagItem.Code;
+
+            // 포커스 유지 및 커서 위치 조정 (삽입된 텍스트 뒤로)
+            RuleTextBox.CaretIndex = tagItem.Code.Length;
         }
     }
 
     private void TagItem_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is FrameworkElement element &&
-            element.DataContext is TagItem tagItem &&
-            DataContext is ViewModels.RenameViewModel viewModel)
+            element.DataContext is TagItem tagItem)
         {
-            viewModel.AddTagToRule(tagItem.Code, false);
+            // ViewModel을 통하지 않고 View에서 직접 처리하여 Undo(Ctrl+Z) 스택 유지
+            RuleTextBox.Focus();
+            RuleTextBox.CaretIndex = RuleTextBox.Text.Length;
+            RuleTextBox.SelectedText = tagItem.Code;
         }
     }
 
