@@ -83,6 +83,7 @@ public partial class MainViewModel : ObservableObject
     private readonly IDialogService _dialogService;
     private readonly ISortingService _sortingService;
     private readonly IFileService _fileService;
+    private readonly IRenameService _renameService;
     private readonly IServiceProvider _serviceProvider;
     private readonly RenameViewModel _renameViewModel;
 
@@ -90,12 +91,14 @@ public partial class MainViewModel : ObservableObject
         IDialogService dialogService,
         ISortingService sortingService,
         IFileService fileService,
+        IRenameService renameService,
         IServiceProvider serviceProvider,
         RenameViewModel renameViewModel)
     {
         _dialogService = dialogService;
         _sortingService = sortingService;
         _fileService = fileService;
+        _renameService = renameService;
         _serviceProvider = serviceProvider;
         _renameViewModel = renameViewModel;
 
@@ -105,6 +108,7 @@ public partial class MainViewModel : ObservableObject
             if (e.PropertyName == nameof(RenameViewModel.RuleFormat))
             {
                 OnPropertyChanged(nameof(CurrentRuleDisplay));
+                UpdatePreview();
             }
         };
 
@@ -115,8 +119,8 @@ public partial class MainViewModel : ObservableObject
         DeleteFilesCommand = new RelayCommand<System.Collections.IList>(DeleteFiles);
         ListClearCommand = new AsyncRelayCommand(ListClearAsync);
         OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
-        ApplyChangesCommand = new RelayCommand(() => { });
-        UndoChangesCommand = new RelayCommand(() => { });
+        ApplyChangesCommand = new RelayCommand(ApplyChanges);
+        UndoChangesCommand = new RelayCommand(UndoChanges);
         ApplyExtensionCommand = new RelayCommand(ApplyExtension);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
     }
@@ -314,7 +318,24 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // 드래그 앤 드롭으로 전달된 파일 및 폴더를 처리하는 메서드
+    private void ApplyChanges()
+    {
+        if (FileList.Items.Count == 0) return;
+        _renameService.ApplyRename(FileList.Items);
+    }
+
+    private void UndoChanges()
+    {
+        if (FileList.Items.Count == 0) return;
+        _renameService.UndoRename(FileList.Items);
+    }
+
+    private void UpdatePreview()
+    {
+        if (FileList.Items.Count == 0 || string.IsNullOrEmpty(_renameViewModel.RuleFormat)) return;
+        _renameService.UpdatePreview(FileList.Items, _renameViewModel.RuleFormat, _renameViewModel.TagManager);
+    }
+
     public void AddDroppedItems(string[] paths)
     {
         if (paths == null || paths.Length == 0) return;
@@ -347,5 +368,6 @@ public partial class MainViewModel : ObservableObject
             }
         }
         SortFiles();
+        UpdatePreview(); // 파일 추가 시에도 프리뷰 업데이트
     }
 }

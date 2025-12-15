@@ -65,4 +65,25 @@ public class FileService : IFileService
         }
         return files;
     }
+
+    public bool RenameFile(string sourcePath, string destPath)
+    {
+        try
+        {
+            if (!File.Exists(sourcePath)) return false;
+
+            // 대상 파일이 이미 존재하면 실패 (덮어쓰기 방지)
+            if (File.Exists(destPath) && !string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // 대소문자만 변경되는 경우를 위해 Move 사용
+            File.Move(sourcePath, destPath);
+            return true;
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error renaming file: {ex.Message}");
+            return false;
+        }
+    }
 }

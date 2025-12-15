@@ -18,6 +18,9 @@ public partial class FileItem : ObservableObject
     [ObservableProperty]
     private string displayNewName = string.Empty;
 
+    // Undo를 위한 이전 경로
+    public string PreviousPath { get; set; } = string.Empty;
+
     // 자동 계산 속성
     public string NewName { get; set; } = string.Empty;
     public long Size { get; set; }
