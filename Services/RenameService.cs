@@ -105,6 +105,10 @@ public class RenameService : IRenameService
             }
 
             item.NewName = newName;
+            item.UpdateDisplay(true); // 확장자 표시 여부는 일단 true로 가정하거나 파라미터로 받아야 함.
+                                      // 하지만 여기서는 MainViewModel의 ShowExtension 값을 모르므로,
+                                      // FileItem에 ShowExtension 상태를 저장하거나,
+                                      // 일단은 NewName 변경 시 UpdateDisplay를 호출.
         }
     }
 
@@ -138,6 +142,7 @@ public class RenameService : IRenameService
                 item.PreviousPath = item.Path; // 되돌리기를 위해 현재 경로 저장
                 item.Path = newPath;
                 item.OriginalName = item.NewName; // 이름 변경 완료 처리
+                item.UpdateDisplay(true);
                 // NewName 초기화? 아니면 유지? -> 유지하는 편이 나음
             }
         }
@@ -153,8 +158,10 @@ public class RenameService : IRenameService
             {
                 // 성공 시
                 item.Path = item.PreviousPath;
+                item.Path = item.PreviousPath;
                 item.OriginalName = Path.GetFileName(item.PreviousPath);
                 item.PreviousPath = string.Empty; // Undo 완료
+                item.UpdateDisplay(true);
             }
         }
     }
