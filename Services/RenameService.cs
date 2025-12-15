@@ -17,7 +17,7 @@ public class RenameService : IRenameService
         _fileService = fileService;
     }
 
-    public void UpdatePreview(IEnumerable<FileItem> items, string ruleFormat, TagManagerViewModel tagManager)
+    public void UpdatePreview(IEnumerable<FileItem> items, string ruleFormat, TagManagerViewModel tagManager, bool showExtension)
     {
         // 규칙이 없으면 원본 이름 그대로
         if (string.IsNullOrEmpty(ruleFormat))
@@ -105,7 +105,7 @@ public class RenameService : IRenameService
             }
 
             item.NewName = newName;
-            item.UpdateDisplay(true); // 확장자 표시 여부는 일단 true로 가정하거나 파라미터로 받아야 함.
+            item.UpdateDisplay(showExtension); // 확장자 표시 여부는 일단 true로 가정하거나 파라미터로 받아야 함.
                                       // 하지만 여기서는 MainViewModel의 ShowExtension 값을 모르므로,
                                       // FileItem에 ShowExtension 상태를 저장하거나,
                                       // 일단은 NewName 변경 시 UpdateDisplay를 호출.
@@ -127,7 +127,7 @@ public class RenameService : IRenameService
         return Regex.Replace(input, Regex.Escape(search), replacement.Replace("$","$$"), RegexOptions.IgnoreCase);
     }
 
-    public void ApplyRename(IEnumerable<FileItem> items)
+    public void ApplyRename(IEnumerable<FileItem> items, bool showExtension)
     {
         foreach (var item in items)
         {
@@ -142,13 +142,13 @@ public class RenameService : IRenameService
                 item.PreviousPath = item.Path; // 되돌리기를 위해 현재 경로 저장
                 item.Path = newPath;
                 item.OriginalName = item.NewName; // 이름 변경 완료 처리
-                item.UpdateDisplay(true);
+                item.UpdateDisplay(showExtension);
                 // NewName 초기화? 아니면 유지? -> 유지하는 편이 나음
             }
         }
     }
 
-    public void UndoRename(IEnumerable<FileItem> items)
+    public void UndoRename(IEnumerable<FileItem> items, bool showExtension)
     {
         foreach (var item in items)
         {
@@ -161,7 +161,7 @@ public class RenameService : IRenameService
                 item.Path = item.PreviousPath;
                 item.OriginalName = Path.GetFileName(item.PreviousPath);
                 item.PreviousPath = string.Empty; // Undo 완료
-                item.UpdateDisplay(true);
+                item.UpdateDisplay(showExtension);
             }
         }
     }

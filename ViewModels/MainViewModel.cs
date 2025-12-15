@@ -236,6 +236,7 @@ public partial class MainViewModel : ObservableObject
                 }
             }
             SortFiles();
+            UpdatePreview();
         }
     }
 
@@ -265,6 +266,7 @@ public partial class MainViewModel : ObservableObject
                 }
             }
             SortFiles();
+            UpdatePreview();
         }
     }
 
@@ -321,19 +323,19 @@ public partial class MainViewModel : ObservableObject
     private void ApplyChanges()
     {
         if (FileList.Items.Count == 0) return;
-        _renameService.ApplyRename(FileList.Items);
+        _renameService.ApplyRename(FileList.Items, ShowExtension);
     }
 
     private void UndoChanges()
     {
         if (FileList.Items.Count == 0) return;
-        _renameService.UndoRename(FileList.Items);
+        _renameService.UndoRename(FileList.Items, ShowExtension);
     }
 
     private void UpdatePreview()
     {
         if (FileList.Items.Count == 0 || string.IsNullOrEmpty(_renameViewModel.RuleFormat)) return;
-        _renameService.UpdatePreview(FileList.Items, _renameViewModel.RuleFormat, _renameViewModel.TagManager);
+        _renameService.UpdatePreview(FileList.Items, _renameViewModel.RuleFormat, _renameViewModel.TagManager, ShowExtension);
     }
 
     public void AddDroppedItems(string[] paths)
