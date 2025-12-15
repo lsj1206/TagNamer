@@ -25,7 +25,7 @@ public class RenameService : IRenameService
             foreach (var item in items)
             {
                 item.NewName = item.OriginalName;
-                // UI 업데이트는 MainViewModel에서 일괄 처리 또는 PropertyChanged로 자동 처리
+                item.UpdateDisplay(showExtension);
             }
             return;
         }
