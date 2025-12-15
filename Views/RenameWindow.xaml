@@ -22,10 +22,10 @@
         <!-- 규칙 입력 -->
         <StackPanel Grid.Row="0">
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <TextBlock Text="규칙을 입력하세요.  " Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
-                <TextBlock Text="설명 보기" FontSize="12" TextDecorations="Underline" Cursor="Help" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}">
+                <TextBlock Text="규칙을 입력하세요. " Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"/>
+                <TextBlock Text="사용 방법" FontSize="12" TextDecorations="Underline" Cursor="Help" Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}">
                     <TextBlock.ToolTip>
-                        <ToolTip Content="{Binding ruleGuildTooltip}"/>
+                        <ToolTip Content="{Binding RuleGuildTooltip}"/>
                     </TextBlock.ToolTip>
                 </TextBlock>
             </StackPanel>
