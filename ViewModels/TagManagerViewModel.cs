@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -100,14 +101,24 @@ public partial class TagManagerViewModel : ObservableObject
     private int _nowTagCount = 0;
 
     public IRelayCommand CreateTagCommand { get; }
+    public IRelayCommand<TagItem> DeleteTagCommand { get; }
 
     public TagManagerViewModel()
     {
         CreateTagCommand = new RelayCommand(CreateTag);
+        DeleteTagCommand = new RelayCommand<TagItem>(DeleteTag);
 
         // 초기 기본 태그 추가
         AddFixedTags();
         SelectedTagType = TagTypes.FirstOrDefault() ?? "[Number]";
+    }
+
+    private void DeleteTag(TagItem? item)
+    {
+        if (item != null && CreatedTags.Contains(item))
+        {
+            CreatedTags.Remove(item);
+        }
     }
 
     private void AddFixedTags()
@@ -158,12 +169,14 @@ public partial class TagManagerViewModel : ObservableObject
                     if (string.IsNullOrEmpty(OptionDigits)) displayDigits = "입력없음(1)";
                     if (string.IsNullOrEmpty(OptionStartValue)) displayStart = "입력없음(1)";
 
-                    newItem = new TagItem
+                     newItem = new TagItem
                     {
                         DisplayName = $"[Number{_numTagCount}]",
                         Code = $"[Number:{codeStart}:{codeDigits}]",
-                        ToolTip = $"규칙대로 순차적으로 증가하는 수가 입력됩니다.\n시작 값 : {displayStart}, 자리 수 : {displayDigits}"
+                        ToolTip = $"시작 값 : {displayStart}\n자리 수 : {displayDigits}"
                     };
+                    newItem.Options.Add($"시작 값 : {displayStart}");
+                    newItem.Options.Add($"자리 수 : {displayDigits}");
                 }
                 break;
             case "[AtoZ]":
@@ -191,8 +204,11 @@ public partial class TagManagerViewModel : ObservableObject
                     {
                         DisplayName = $"[AtoZ{_alphaTagCount}]",
                         Code = $"[AtoZ:{realStart}:{codeDigits}:{codeLower}]",
-                        ToolTip = $"규칙대로 A-Z 순서로 알파벳이 입력됩니다.\n시작 값 : {displayStart}, 자리 수 : {displayDigits}, 소문자 수 : {displayLower}"
+                        ToolTip = $"시작 값 : {displayStart}\n자리 수 : {displayDigits}\n소문자 수 : {displayLower}"
                     };
+                    newItem.Options.Add($"시작 값 : {displayStart}");
+                    newItem.Options.Add($"자리 수 : {displayDigits}");
+                    newItem.Options.Add($"소문자 수 : {displayLower}");
                 }
                 break;
             case "[Today]":
@@ -201,8 +217,9 @@ public partial class TagManagerViewModel : ObservableObject
                 {
                     DisplayName = $"[Today{_todayTagCount}]",
                     Code = $"[Today:{OptionDateFormat}]",
-                    ToolTip = $"{OptionDateFormat} 형식으로 오늘 날짜가 입력됩니다."
+                    ToolTip = $"{OptionDateFormat}"
                 };
+                newItem.Options.Add($"형식 : {OptionDateFormat}");
                 break;
             case "[Time.now]":
                 _nowTagCount++;
@@ -210,8 +227,9 @@ public partial class TagManagerViewModel : ObservableObject
                 {
                     DisplayName = $"[Time.now{_nowTagCount}]",
                     Code = $"[Time.now:{OptionDateFormat}]",
-                    ToolTip = $"{OptionDateFormat} 형식으로 현재 시간이 입력됩니다."
+                    ToolTip = $"{OptionDateFormat}"
                 };
+                newItem.Options.Add($"형식 : {OptionDateFormat}");
                 break;
         }
 
