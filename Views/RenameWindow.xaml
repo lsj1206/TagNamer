@@ -14,9 +14,9 @@
 
     <Grid Margin="16">
         <Grid.RowDefinitions>
-            <RowDefinition Height="80"/>   <!-- 규칙 입력 -->
+            <RowDefinition Height="60"/>   <!-- 규칙 입력 -->
             <RowDefinition Height="*"/>    <!-- 태그 목록 -->
-            <RowDefinition Height="*"/>    <!-- 태그 생성 -->
+            <RowDefinition Height="160"/>    <!-- 태그 생성 -->
         </Grid.RowDefinitions>
 
         <!-- 규칙 입력 -->
