@@ -30,61 +30,89 @@ public class RenameService : IRenameService
             return;
         }
 
-        // 카운터 초기화
-        int numCounter = string.IsNullOrWhiteSpace(tagManager.OptionStartValue) ? 1 : (int.TryParse(tagManager.OptionStartValue, out int v) ? v : 1);
-        int alphaCounter = 0; // 알파벳 로직은 복잡하므로 일단 단순 카운터로 시작 (A, B, ...)
+        var itemList = items.ToList();
 
-        // 정규식: 태그 패턴 [Type:...] 또는 [Type] 찾기
-        // 예: [Number], [AtoZ], [Name.origin] 등
-        // 하지만 사용자가 입력한 포맷은 파싱된 상태가 아니라 [Name.origin]_[Number] 형태임.
-        // 태그를 식별하기 위해 정규식 사용
-        // 대괄호로 묶인 부분을 찾음
-        var regex = new Regex(@"\[(.*?)\]");
-
-        foreach (var item in items)
+        for (int i = 0; i < itemList.Count; i++)
         {
+            var item = itemList[i];
             string newName = ruleFormat;
 
             // 1. 고정 태그 처리 (파일마다 값이 다른 것들)
             newName = newName.Replace("[Name.origin]", Path.GetFileNameWithoutExtension(item.OriginalName));
-            // [Name.prev]는 Undo 시점에만 유효하거나 히스토리가 있어야 함. 현재는 원본과 동일하게 처리하거나 구현 보류
             newName = newName.Replace("[Name.prev]", Path.GetFileNameWithoutExtension(item.OriginalName));
 
-            // 2. 순차 태그 처리 ([Number], [AtoZ])
-            // 정규식으로 매칭하여 하나씩 처리해야 함. 왜냐하면 [Number]가 여러 번 나올 수도 있고, 포맷이 [Number:3:1] 처럼 들어올 수도 있음.
-            // 하지만 현재 UI 구조상 TagManager가 옵션을 들고 있고, RuleFormat에는 [Number] 텍스트만 들어감.
-            // TagManagerViewModel의 Replace 로직을 보면 ResolvedRuleFormat을 만드는데,
-            // 여기서는 FileItem 별로 순차적인 값을 생성해야 하므로 직접 처리해야 함.
-
-            // [Number] 처리
-            if (newName.Contains("[Number]"))
+            // 2. [Number] 처리 (MatchEvaluator 사용)
+            // 태그 형식: [Number:시작값:자리수]  (파라미터 필수, 순서 변경됨)
+            newName = Regex.Replace(newName, @"\[Number:(\d+):(\d+)\]", match =>
             {
-                // 옵션 가져오기
                 int digits = 0;
-                int.TryParse(tagManager.OptionDigits, out digits);
+                long startValue = 1;
 
-                string numStr = numCounter.ToString().PadLeft(digits, '0');
-                newName = newName.Replace("[Number]", numStr);
+                // 순서 변경: Group[1] = StartValue, Group[2] = Digits
+                long.TryParse(match.Groups[1].Value, out startValue);
+                int.TryParse(match.Groups[2].Value, out digits);
 
-                // 다음 파일을 위해 증가
-                numCounter++;
-            }
+                if (digits <= 0) digits = 1;
+                if (startValue < 0) startValue = 0;
 
-            // [AtoZ] 처리 (간략화: A, B, ... Z, AA ...)
-            if (newName.Contains("[AtoZ]"))
+                long currentValue = startValue + i; // 인덱스 i를 더함
+                return currentValue.ToString().PadLeft(digits, '0');
+            });
+
+            // [AtoZ] 처리
+            // 태그 형식: [AtoZ:시작값:자리수:소문자수] (파라미터 필수, 순서 변경됨)
+            // StartValue는 알파벳([a-zA-Z]*)
+            newName = Regex.Replace(newName, @"\[AtoZ:([a-zA-Z]*):(\d+):(\d+)\]", match =>
             {
-                // 알파벳 로직은 OptionStartValue가 문자일 수 있음. 복잡하므로 여기서는 단순화
-                // 실제로는 TagManager의 설정을 따라야 함.
-                // 일단은 구현 편의상 스킵하거나 추후 보강
-            }
+                int digits = 1;
+                string startValueStr = "A";
+                int lowerCount = 0;
+
+                // 순서 변경: Group[1] = StartValue, Group[2] = Digits, Group[3] = Lower
+                startValueStr = match.Groups[1].Value;
+                int.TryParse(match.Groups[2].Value, out digits);
+                int.TryParse(match.Groups[3].Value, out lowerCount);
+
+                if (string.IsNullOrEmpty(startValueStr)) startValueStr = "A";
+                if (digits <= 0) digits = 1;
+
+                startValueStr = startValueStr.ToUpper();
+
+                // 자리수 보정: 입력값이 자리수보다 짧으면 뒤에 'A'를 채움
+                if (startValueStr.Length < digits)
+                {
+                    startValueStr = startValueStr.PadRight(digits, 'A');
+                }
+
+                long startNum = ExcelColumnToNumber(startValueStr);
+                long currentNum = startNum + i; // 인덱스 i를 더함
+                string alphaStr = NumberToExcelColumn(currentNum);
+
+                // 소문자 처리: 뒤에서부터 lowerCount만큼
+                if (lowerCount > 0)
+                {
+                    if (lowerCount >= alphaStr.Length)
+                    {
+                        alphaStr = alphaStr.ToLower();
+                    }
+                    else
+                    {
+                        string upperPart = alphaStr.Substring(0, alphaStr.Length - lowerCount);
+                        string lowerPart = alphaStr.Substring(alphaStr.Length - lowerCount).ToLower();
+                        alphaStr = upperPart + lowerPart;
+                    }
+                }
+
+                return alphaStr;
+            });
 
             // 3. 시간/날짜 태그 처리 ([Today], [Time.now])
             // 이것들은 파일마다 변하지 않고 현재 시간 기준임
-             if (newName.Contains("[Today]"))
+            if (newName.Contains("[Today]"))
             {
                 string format = string.IsNullOrWhiteSpace(tagManager.OptionDateFormat) ? "yyyyMMdd" : tagManager.OptionDateFormat;
-                 // C# 날짜 포맷과 사용자 입력 포맷 매칭 필요 (YY->yy, DD->dd 등)
-                 // 대소문자 무시하고 치환하는게 좋음
+                // C# 날짜 포맷과 사용자 입력 포맷 매칭 필요 (YY->yy, DD->dd 등)
+                // 대소문자 무시하고 치환하는게 좋음
                 string dateStr = DateTime.Now.ToString(ConvertDateFormat(format));
                 newName = newName.Replace("[Today]", dateStr);
             }
@@ -106,9 +134,9 @@ public class RenameService : IRenameService
 
             item.NewName = newName;
             item.UpdateDisplay(showExtension); // 확장자 표시 여부는 일단 true로 가정하거나 파라미터로 받아야 함.
-                                      // 하지만 여기서는 MainViewModel의 ShowExtension 값을 모르므로,
-                                      // FileItem에 ShowExtension 상태를 저장하거나,
-                                      // 일단은 NewName 변경 시 UpdateDisplay를 호출.
+                                               // 하지만 여기서는 MainViewModel의 ShowExtension 값을 모르므로,
+                                               // FileItem에 ShowExtension 상태를 저장하거나,
+                                               // 일단은 NewName 변경 시 UpdateDisplay를 호출.
         }
     }
 
@@ -124,7 +152,30 @@ public class RenameService : IRenameService
 
     private string ReplaceCaseInsensitive(string input, string search, string replacement)
     {
-        return Regex.Replace(input, Regex.Escape(search), replacement.Replace("$","$$"), RegexOptions.IgnoreCase);
+        return Regex.Replace(input, Regex.Escape(search), replacement.Replace("$", "$$"), RegexOptions.IgnoreCase);
+    }
+
+    private long ExcelColumnToNumber(string column)
+    {
+        long result = 0;
+        foreach (char c in column)
+        {
+            result *= 26;
+            result += c - 'A' + 1;
+        }
+        return result;
+    }
+
+    private string NumberToExcelColumn(long number)
+    {
+        string column = "";
+        while (number > 0)
+        {
+            long modulo = (number - 1) % 26;
+            column = Convert.ToChar('A' + modulo) + column;
+            number = (number - 1) / 26;
+        }
+        return column;
     }
 
     public void ApplyRename(IEnumerable<FileItem> items, bool showExtension)

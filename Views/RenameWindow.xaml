@@ -129,7 +129,7 @@
                                 <TextBlock Text="자리 수 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
                                 <TextBox Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,8,0" VerticalContentAlignment="Center"/>
                                 <TextBlock Text="소문자 수 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                <TextBox Text="{Binding DataContext.TagManager.OptionCase, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
+                                <TextBox Text="{Binding DataContext.TagManager.OptionLowerCount, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
                         <DataTemplate x:Key="DateTemplate">

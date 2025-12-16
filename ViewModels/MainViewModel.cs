@@ -335,7 +335,7 @@ public partial class MainViewModel : ObservableObject
     private void UpdatePreview()
     {
         if (FileList.Items.Count == 0) return;
-        _renameService.UpdatePreview(FileList.Items, _renameViewModel.RuleFormat, _renameViewModel.TagManager, ShowExtension);
+        _renameService.UpdatePreview(FileList.Items, _renameViewModel.ResolvedRuleFormat, _renameViewModel.TagManager, ShowExtension);
     }
 
     public void AddDroppedItems(string[] paths)

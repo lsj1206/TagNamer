@@ -27,14 +27,72 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty]
     private string optionDigits = "";
 
+    partial void OnOptionDigitsChanged(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return;
+
+        var numericValue = new string(value.Where(char.IsDigit).ToArray());
+
+        if (int.TryParse(numericValue, out int result))
+        {
+            if (result > 255) result = 255;
+            if (result < 0) result = 0;
+            if (OptionDigits != result.ToString()) // 재진입 방지
+                OptionDigits = result.ToString();
+        }
+        else
+        {
+             OptionDigits = "";
+        }
+    }
+
     [ObservableProperty]
     private string optionStartValue = "";
+
+    partial void OnOptionStartValueChanged(string value)
+    {
+         if (SelectedTagType == "[Number]")
+         {
+             if (string.IsNullOrEmpty(value)) return;
+             var numericValue = new string(value.Where(char.IsDigit).ToArray());
+             if(value != numericValue)
+             {
+                 OptionStartValue = numericValue;
+                 return;
+             }
+
+             // Number일 경우 시작값은 0 이상
+             if (long.TryParse(numericValue, out long result))
+             {
+                 if (result < 0) OptionStartValue = "0";
+             }
+         }
+         // AtoZ일 경우 문자가능
+    }
 
     [ObservableProperty]
     private string optionDateFormat = "";
 
     [ObservableProperty]
-    private bool optionLowerCase = false;
+    private string optionLowerCount = "0";
+
+    partial void OnOptionLowerCountChanged(string value)
+    {
+         if (string.IsNullOrEmpty(value)) return;
+
+        var numericValue = new string(value.Where(char.IsDigit).ToArray());
+
+        if (int.TryParse(numericValue, out int result))
+        {
+            if (result > 255) result = 255;
+            if (result < 0) result = 0;
+            OptionLowerCount = result.ToString();
+        }
+        else
+        {
+             OptionLowerCount = "0";
+        }
+    }
 
     private int _numTagCount = 0;
     private int _alphaTagCount = 0;
@@ -79,22 +137,63 @@ public partial class TagManagerViewModel : ObservableObject
         {
             case "[Number]":
                 _numTagCount++;
-                newItem = new TagItem
                 {
-                    DisplayName = $"[Number{_numTagCount}]",
-                    Code = $"[Number:{OptionDigits}:{OptionStartValue}]",
-                    ToolTip = $"규칙대로 순차적으로 증가하는 수가 입력됩니다.\n자리 수 : {OptionDigits}, 시작 값 : {OptionStartValue}"
-                };
+                    // 자리수 계산
+                    int.TryParse(OptionDigits, out int d);
+                    int realDigits = d <= 0 ? 1 : d;
+                    string displayDigits = (OptionDigits != realDigits.ToString()) ? $"{OptionDigits}({realDigits})" : OptionDigits;
+                    if(string.IsNullOrEmpty(OptionDigits)) displayDigits = $"(1)";
+
+                    // 시작값 계산
+                    long.TryParse(OptionStartValue, out long s);
+                    long realStart = s < 0 ? 0 : s; // 0은 허용
+                    string displayStart = (OptionStartValue != realStart.ToString()) ? $"{OptionStartValue}({realStart})" : OptionStartValue;
+                    if(string.IsNullOrEmpty(OptionStartValue)) { realStart = 1; displayStart = "(1)"; }
+
+                    // TagManager는 항상 값을 채워서 보내도록 수정해야 함. Code 생성 시.
+                    string codeDigits = realDigits.ToString();
+                    string codeStart = string.IsNullOrEmpty(OptionStartValue) ? "1" : realStart.ToString();
+
+                    // 툴팁용은 입력값 위주로 보여주되 보정치 병기
+                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = "입력없음(1)";
+                    if (string.IsNullOrEmpty(OptionStartValue)) displayStart = "입력없음(1)";
+
+                    newItem = new TagItem
+                    {
+                        DisplayName = $"[Number{_numTagCount}]",
+                        Code = $"[Number:{codeStart}:{codeDigits}]",
+                        ToolTip = $"규칙대로 순차적으로 증가하는 수가 입력됩니다.\n시작 값 : {displayStart}, 자리 수 : {displayDigits}"
+                    };
+                }
                 break;
             case "[AtoZ]":
                 _alphaTagCount++;
-                var caseStr = OptionLowerCase ? "소문자" : "대문자";
-                newItem = new TagItem
                 {
-                    DisplayName = $"[AtoZ{_alphaTagCount}]",
-                    Code = $"[AtoZ:{OptionDigits}:{OptionStartValue}:{(OptionLowerCase ? "lower" : "upper")}]",
-                    ToolTip = $"규칙대로 A-Z 순서로 알파벳이 입력됩니다.\n자리 수 : {OptionDigits}, 시작 값 : {OptionStartValue}, {caseStr}"
-                };
+                    int.TryParse(OptionDigits, out int d);
+                    int realDigits = d <= 0 ? 1 : d;
+                    string displayDigits = (OptionDigits != realDigits.ToString()) ? $"{OptionDigits}({realDigits})" : OptionDigits;
+                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = "입력없음(1)";
+
+                    // AtoZ 시작값은 문자열. 비어있으면 A.
+                    string realStart = string.IsNullOrEmpty(OptionStartValue) ? "A" : OptionStartValue;
+                    string displayStart = string.IsNullOrEmpty(OptionStartValue) ? "입력없음(A)" : OptionStartValue;
+
+                    // LowerCount
+                    int.TryParse(OptionLowerCount, out int l);
+                    int realLower = l < 0 ? 0 : l;
+                    string displayLower = (OptionLowerCount != realLower.ToString()) ? $"{OptionLowerCount}({realLower})" : OptionLowerCount;
+                    if (string.IsNullOrEmpty(OptionLowerCount)) displayLower = "입력없음(0)";
+
+                    string codeDigits = realDigits.ToString();
+                    string codeLower = realLower.ToString();
+
+                    newItem = new TagItem
+                    {
+                        DisplayName = $"[AtoZ{_alphaTagCount}]",
+                        Code = $"[AtoZ:{realStart}:{codeDigits}:{codeLower}]",
+                        ToolTip = $"규칙대로 A-Z 순서로 알파벳이 입력됩니다.\n시작 값 : {displayStart}, 자리 수 : {displayDigits}, 소문자 수 : {displayLower}"
+                    };
+                }
                 break;
             case "[Today]":
                 _todayTagCount++;

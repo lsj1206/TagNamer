@@ -28,10 +28,10 @@ public partial class RenameWindow : System.Windows.Window
             // ViewModel을 통하지 않고 View에서 직접 처리하여 Undo(Ctrl+Z) 스택 유지
             RuleTextBox.Focus();
             RuleTextBox.CaretIndex = 0;
-            RuleTextBox.SelectedText = tagItem.Code;
+            RuleTextBox.SelectedText = tagItem.DisplayName;
 
             // 포커스 유지 및 커서 위치 조정 (삽입된 텍스트 뒤로)
-            RuleTextBox.CaretIndex = tagItem.Code.Length;
+            RuleTextBox.CaretIndex = tagItem.DisplayName.Length;
         }
     }
 
@@ -43,7 +43,7 @@ public partial class RenameWindow : System.Windows.Window
             // ViewModel을 통하지 않고 View에서 직접 처리하여 Undo(Ctrl+Z) 스택 유지
             RuleTextBox.Focus();
             RuleTextBox.CaretIndex = RuleTextBox.Text.Length;
-            RuleTextBox.SelectedText = tagItem.Code;
+            RuleTextBox.SelectedText = tagItem.DisplayName;
         }
     }
 
