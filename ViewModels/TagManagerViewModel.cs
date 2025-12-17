@@ -96,7 +96,7 @@ public partial class TagManagerViewModel : ObservableObject
     }
 
     private int _numTagCount = 0;
-    private int _alphaTagCount = 0;
+    private int _atozTagCount = 0;
     private int _todayTagCount = 0;
     private int _nowTagCount = 0;
 
@@ -180,7 +180,7 @@ public partial class TagManagerViewModel : ObservableObject
                 }
                 break;
             case "[AtoZ]":
-                _alphaTagCount++;
+                _atozTagCount++;
                 {
                     int.TryParse(OptionDigits, out int d);
                     int realDigits = d <= 0 ? 1 : d;
@@ -202,7 +202,7 @@ public partial class TagManagerViewModel : ObservableObject
 
                     newItem = new TagItem
                     {
-                        DisplayName = $"[AtoZ{_alphaTagCount}]",
+                        DisplayName = $"[AtoZ{_atozTagCount}]",
                         Code = $"[AtoZ:{realStart}:{codeDigits}:{codeLower}]",
                         ToolTip = $"시작 값 : {displayStart}\n자리 수 : {displayDigits}\n소문자 수 : {displayLower}"
                     };

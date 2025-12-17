@@ -122,7 +122,7 @@
                                 <TextBox Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </DataTemplate>
-                        <DataTemplate x:Key="AlphaTemplate">
+                        <DataTemplate x:Key="AtoZTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="시작 값 : " VerticalAlignment="Center" Margin="0,0,4,0"/>
                                 <TextBox Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" Width="100" Margin="0,0,8,0" VerticalContentAlignment="Center"/>
@@ -153,7 +153,7 @@
                                     <Setter Property="ContentTemplate" Value="{StaticResource NumTemplate}"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[AtoZ]">
-                                    <Setter Property="ContentTemplate" Value="{StaticResource AlphaTemplate}"/>
+                                    <Setter Property="ContentTemplate" Value="{StaticResource AtoZTemplate}"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Today]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource DateTemplate}"/>
