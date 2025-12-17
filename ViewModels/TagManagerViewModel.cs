@@ -20,7 +20,7 @@ public partial class TagManagerViewModel : ObservableObject
     public string TagTypeDescription => SelectedTagType switch
     {
         "[Number]" => "규칙대로 순차적으로 증가하는 수를 입력하는 태그",
-        "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그\n 시작 값에 숫자를 입력할 경우 Excel 스타일로 변환해서 적용합니다.",
+        "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그\n시작 값에 숫자를 입력할 경우 Excel 스타일로 변환해서 적용합니다.",
         "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\n대소문자 구분없이 년:YYYY/YY 월:MM 일:DD",
         "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\n대소문자 구분없이 시:HH 분:MM 초:SS",
         _ => ""
