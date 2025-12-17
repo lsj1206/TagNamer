@@ -75,7 +75,7 @@ public partial class TagManagerViewModel : ObservableObject
     private string optionDateFormat = "";
 
     [ObservableProperty]
-    private string optionLowerCount = "0";
+    private string optionLowerCount = "";
 
     partial void OnOptionLowerCountChanged(string value)
     {
@@ -166,8 +166,8 @@ public partial class TagManagerViewModel : ObservableObject
                     string codeStart = string.IsNullOrEmpty(OptionStartValue) ? "1" : realStart.ToString();
 
                     // 툴팁용은 입력값 위주로 보여주되 보정치 병기
-                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = "입력없음(1)";
-                    if (string.IsNullOrEmpty(OptionStartValue)) displayStart = "입력없음(1)";
+                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = " (1)";
+                    if (string.IsNullOrEmpty(OptionStartValue)) displayStart = " (1)";
 
                      newItem = new TagItem
                     {
@@ -185,17 +185,17 @@ public partial class TagManagerViewModel : ObservableObject
                     int.TryParse(OptionDigits, out int d);
                     int realDigits = d <= 0 ? 1 : d;
                     string displayDigits = (OptionDigits != realDigits.ToString()) ? $"{OptionDigits}({realDigits})" : OptionDigits;
-                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = "입력없음(1)";
+                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = " (1)";
 
                     // AtoZ 시작값은 문자열. 비어있으면 A.
                     string realStart = string.IsNullOrEmpty(OptionStartValue) ? "A" : OptionStartValue;
-                    string displayStart = string.IsNullOrEmpty(OptionStartValue) ? "입력없음(A)" : OptionStartValue;
+                    string displayStart = string.IsNullOrEmpty(OptionStartValue) ? " (A)" : OptionStartValue;
 
                     // LowerCount
                     int.TryParse(OptionLowerCount, out int l);
                     int realLower = l < 0 ? 0 : l;
                     string displayLower = (OptionLowerCount != realLower.ToString()) ? $"{OptionLowerCount}({realLower})" : OptionLowerCount;
-                    if (string.IsNullOrEmpty(OptionLowerCount)) displayLower = "입력없음(0)";
+                    if (string.IsNullOrEmpty(OptionLowerCount)) displayLower = " (0)";
 
                     string codeDigits = realDigits.ToString();
                     string codeLower = realLower.ToString();
