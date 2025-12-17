@@ -54,17 +54,22 @@ public partial class RenameWindow : System.Windows.Window
                 RuleTextBox.CaretIndex = RuleTextBox.Text.Length; // 커서 맨 뒤로
             };
             menu.Items.Add(insertLastItem);
-            menu.Items.Add(new Separator());
-            // 태그 삭제
-            var deleteItem = new MenuItem { Header = "태그 삭제" };
-            deleteItem.Click += (s, args) =>
+
+            // 고정 태그는 삭제 메뉴를 노출하지 않음
+            if (!tagItem.IsFixed)
             {
-                if (DataContext is RenameViewModel vm)
+                menu.Items.Add(new Separator());
+                // 태그 삭제
+                var deleteItem = new MenuItem { Header = "태그 삭제" };
+                deleteItem.Click += (s, args) =>
                 {
-                    vm.TagManager.DeleteTagCommand.Execute(tagItem);
-                }
-            };
-            menu.Items.Add(deleteItem);
+                    if (DataContext is RenameViewModel vm)
+                    {
+                        vm.TagManager.DeleteTagCommand.Execute(tagItem);
+                    }
+                };
+                menu.Items.Add(deleteItem);
+            }
 
             // 메뉴 표시
             menu.IsOpen = true;
