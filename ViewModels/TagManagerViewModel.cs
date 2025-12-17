@@ -29,6 +29,7 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty]
     private string optionDigits = "";
 
+    // [Number] 태그의 자리 수 옵션 변경 시 처리
     partial void OnOptionDigitsChanged(string value)
     {
         if (string.IsNullOrEmpty(value)) return;
@@ -37,7 +38,9 @@ public partial class TagManagerViewModel : ObservableObject
 
         if (int.TryParse(numericValue, out int result))
         {
-            if (result > 255) result = 255;
+            // 윈도우 파일명 제한이 확장자 255자이기 때문에 250 제한
+            if (result > 250) result = 250;
+            // 0 이하는 0으로 처리
             if (result < 0) result = 0;
             if (OptionDigits != result.ToString()) // 재진입 방지
                 OptionDigits = result.ToString();
