@@ -9,6 +9,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ui:ThemeResources />
                 <ui:XamlControlsResources />
+                <ResourceDictionary Source="Themes/Generic.xaml" />
                 <ResourceDictionary Source="Assets/Icons/file.xaml" />
                 <ResourceDictionary Source="Assets/Icons/folder.xaml" />
             </ResourceDictionary.MergedDictionaries>

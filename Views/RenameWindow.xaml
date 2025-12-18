@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:ui="http://schemas.modernwpf.com/2019"
+        xmlns:controls="clr-namespace:TagNamer.Controls"
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
         Height="480"
@@ -34,13 +35,15 @@
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <TextBox x:Name="RuleTextBox"
-                         Text="{Binding RuleFormat, UpdateSourceTrigger=PropertyChanged}"
-                         AllowDrop="True"
-                         Drop="RuleTextBox_Drop"
-                         PreviewDragOver="RuleTextBox_PreviewDragOver"
-                         Height="32" VerticalContentAlignment="Center"
-                         Margin="0,0,0,0"/>
+                <controls:FilterTextBox x:Name="RuleTextBox"
+                                        Text="{Binding RuleFormat, UpdateSourceTrigger=PropertyChanged}"
+                                        BlockedCharacters="&lt;&gt;:&quot;\/:*?"
+                                        AllowDrop="True"
+                                        Drop="RuleTextBox_Drop"
+                                        PreviewDragOver="RuleTextBox_PreviewDragOver"
+                                        Height="32"
+                                        VerticalContentAlignment="Center"
+                                        Margin="0,0,0,0"/>
             </Grid>
         </StackPanel>
 
