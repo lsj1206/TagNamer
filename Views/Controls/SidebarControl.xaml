@@ -17,40 +17,60 @@
     </UserControl.Resources>
 
     <!-- 사이드바 -->
-    <ScrollViewer VerticalScrollBarVisibility="Hidden"
-                  HorizontalScrollBarVisibility="Disabled"
-                  PanningMode="VerticalOnly">
+    <ScrollViewer PanningMode="VerticalOnly"
+                  VerticalScrollBarVisibility="Hidden"
+                  HorizontalScrollBarVisibility="Disabled">
 
-        <Border Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+        <Border Padding="12"
+                Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
                 CornerRadius="8"
-                Padding="12"
                 BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
                 BorderThickness="1">
 
             <StackPanel Orientation="Vertical">
                 <!-- 파일 조작 버튼 -->
                 <StackPanel Orientation="Vertical">
-                    <Button Content="파일 추가" Command="{Binding AddFilesCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="폴더 추가" Command="{Binding AddFolderCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="규칙 설정" Command="{Binding OpenRuleSettingsCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="번호 재정렬" Command="{Binding ReorderNumberCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="목록 삭제" Command="{Binding ListClearCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="변경 적용" Command="{Binding ApplyChangesCommand}" Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="변경 취소" Command="{Binding UndoChangesCommand}" Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="파일 추가"
+                            Command="{Binding AddFilesCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="폴더 추가"
+                            Command="{Binding AddFolderCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="규칙 설정"
+                            Command="{Binding OpenRuleSettingsCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="번호 재정렬"
+                            Command="{Binding ReorderNumberCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="목록 삭제"
+                            Command="{Binding ListClearCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="변경 적용"
+                            Command="{Binding ApplyChangesCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
+                    <Button Content="변경 취소"
+                            Command="{Binding UndoChangesCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
                 </StackPanel>
 
                 <Separator Margin="0,8,0,8" />
 
                 <!-- 정렬 옵션 -->
                 <StackPanel>
-                    <TextBlock Text="정렬 기준" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,0,0,4" />
-                    <ComboBox ItemsSource="{Binding SortOptions}"
-                            SelectedItem="{Binding SelectedSortOption}"
-                            DisplayMemberPath="Display"
-                            HorizontalAlignment="Stretch"
-                            Margin="0,0,0,4" />
+                    <TextBlock Margin="0,0,0,4"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                               Text="정렬 기준" />
+                    <ComboBox HorizontalAlignment="Stretch"
+                              Margin="0,0,0,4"
+                              ItemsSource="{Binding SortOptions}"
+                              SelectedItem="{Binding SelectedSortOption}"
+                              DisplayMemberPath="Display" />
 
-                    <TextBlock Text="정렬 방향" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,4,0,4" />
+                    <TextBlock Margin="0,4,0,4"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                               Text="정렬 방향" />
                     <StackPanel Orientation="Vertical">
                         <RadioButton Content="오름차순"
                                     GroupName="SortDirection"
@@ -65,25 +85,32 @@
 
                 <!-- 설정 및 확장자 변경 -->
                 <StackPanel>
-                    <CheckBox Content="삭제 확인 팝업" IsChecked="{Binding ConfirmDeletion}" Margin="0,2,0,4" />
-                    <CheckBox Content="확장자 표시" IsChecked="{Binding ShowExtension}" Margin="0,0,0,2" />
-                    <TextBlock Text="확장자 변경" FontWeight="SemiBold" Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}" Margin="0,4,0,2" />
+                    <CheckBox Margin="0,2,0,4"
+                              Content="삭제 확인 팝업"
+                              IsChecked="{Binding ConfirmDeletion}" />
+                    <CheckBox Margin="0,0,0,2"
+                              Content="확장자 표시"
+                              IsChecked="{Binding ShowExtension}" />
+                    <TextBlock Margin="0,4,0,2"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                               Text="확장자 변경" />
                     <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="7*"/>
                             <ColumnDefinition Width="3*"/>
                         </Grid.ColumnDefinitions>
                         <TextBox Grid.Column="0"
-                                 Text="{Binding ExtensionInput, UpdateSourceTrigger=PropertyChanged}"
                                  Margin="0,0,4,0"
-                                 Padding="8,6" />
+                                 Padding="8,6"
+                                 Text="{Binding ExtensionInput, UpdateSourceTrigger=PropertyChanged}" />
                         <Button Grid.Column="1"
+                                Margin="0"
+                                Padding="6,2"
+                                FontWeight="Normal"
                                 Content="적용"
                                 Command="{Binding ApplyExtensionCommand}"
-                                Style="{StaticResource SidebarButtonStyle}"
-                                FontWeight="Normal"
-                                Margin="0"
-                                Padding="6,2"/>
+                                Style="{StaticResource SidebarButtonStyle}" />
                     </Grid>
                 </StackPanel>
             </StackPanel>

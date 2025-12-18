@@ -6,8 +6,8 @@
              mc:Ignorable="d">
 
     <!-- 상단 정보 -->
-    <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
-            Padding="10,5"
+    <Border Padding="10,5"
+            Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
             BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
             BorderThickness="0,0,0,1">
         <Grid>
@@ -18,27 +18,28 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Column="0"
-                       Text="규칙 | "
                        FontSize="18"
                        FontWeight="Normal"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       Text="규칙 | " />
 
             <!-- 현재 적용 중인 규칙 표시 -->
-            <StackPanel Grid.Column="1" Orientation="Vertical">
-                <TextBlock Text="{Binding CurrentRuleDisplay}"
-                           FontSize="18"
+            <StackPanel Grid.Column="1"
+                        Orientation="Vertical">
+                <TextBlock FontSize="18"
                            FontWeight="Normal"
-                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                           Text="{Binding CurrentRuleDisplay}" />
             </StackPanel>
 
             <!-- 버전 정보 -->
             <TextBlock Grid.Column="2"
                        Margin="15,0,0,0"
-                       Text="{Binding AppVersion}"
                        VerticalAlignment="Center"
                        FontSize="14"
                        FontWeight="Normal"
-                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}" />
+                       Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
+                       Text="{Binding AppVersion}" />
         </Grid>
     </Border>
 </UserControl>

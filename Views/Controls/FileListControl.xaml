@@ -1,8 +1,8 @@
 <UserControl x:Class="TagNamer.Views.Controls.FileListControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:models="clr-namespace:TagNamer.Models"
              mc:Ignorable="d">
 
@@ -26,13 +26,13 @@
                     <!-- 파일 템플릿 -->
                     <ControlTemplate TargetType="ListViewItem">
                         <Border x:Name="bd"
+                                SnapsToDevicePixels="true"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4"
-                                SnapsToDevicePixels="true">
+                                CornerRadius="4">
                             <GridViewRowPresenter VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}"/>
+                                                  SnapsToDevicePixels="{TemplateBinding SnapsToDevicePixels}" />
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -52,21 +52,22 @@
                     <Setter Property="Template">
                         <Setter.Value>
                             <ControlTemplate TargetType="ListViewItem">
-                                <Border Background="{StaticResource FolderHeaderBackground}"
-                                        CornerRadius="4"
+                                <Border Margin="0,10,0,2"
                                         Padding="10,8"
-                                        Margin="0,10,0,2">
+                                        Background="{StaticResource FolderHeaderBackground}"
+                                        CornerRadius="4">
                                     <StackPanel Orientation="Horizontal">
                                         <!-- 폴더 아이콘 -->
-                                        <Image Source="{StaticResource FolderIcon}"
-                                               Width="16" Height="16"
+                                        <Image Width="16"
+                                               Height="16"
                                                Margin="0,0,8,0"
-                                               VerticalAlignment="Center"/>
+                                               VerticalAlignment="Center"
+                                               Source="{StaticResource FolderIcon}" />
                                         <!-- 폴더 경로 -->
-                                        <TextBlock Text="{Binding Path}"
+                                        <TextBlock FontSize="14"
                                                    FontWeight="SemiBold"
-                                                   FontSize="14"
-                                                   Foreground="#333333"/>
+                                                   Foreground="#333333"
+                                                   Text="{Binding Path}" />
                                     </StackPanel>
                                 </Border>
                             </ControlTemplate>
@@ -79,13 +80,13 @@
 
     <Grid>
         <ListView x:Name="FileListView"
-                  ItemsSource="{Binding Items}"
-                  ItemContainerStyle="{StaticResource FileItemContainerStyle}"
                   BorderThickness="0"
                   Background="Transparent"
                   ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                  KeyDown="ListView_KeyDown"
+                  ItemsSource="{Binding Items}"
+                  ItemContainerStyle="{StaticResource FileItemContainerStyle}"
                   AllowDrop="True"
+                  KeyDown="ListView_KeyDown"
                   Drop="FileListView_Drop"
                   PreviewDragOver="FileListView_PreviewDragOver">
             <ListView.View>
@@ -105,7 +106,9 @@
                     <GridViewColumn Header="번호" Width="60">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding AddIndex}" Foreground="{StaticResource TextSecondary}" HorizontalAlignment="Center"/>
+                                <TextBlock HorizontalAlignment="Center"
+                                           Foreground="{StaticResource TextSecondary}"
+                                           Text="{Binding AddIndex}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -116,10 +119,12 @@
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
                                     <!-- 파일 아이콘 -->
-                                    <Image Source="{StaticResource FileIcon}"
-                                           Width="16" Height="16"
-                                           Margin="0,2,8,0"/>
-                                    <TextBlock Text="{Binding DisplayOriginalName}" TextTrimming="CharacterEllipsis"/>
+                                    <Image Width="16"
+                                           Height="16"
+                                           Margin="0,2,8,0"
+                                           Source="{StaticResource FileIcon}" />
+                                    <TextBlock TextTrimming="CharacterEllipsis"
+                                               Text="{Binding DisplayOriginalName}" />
                                 </StackPanel>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
@@ -129,10 +134,10 @@
                     <GridViewColumn Header="변경될 파일명" Width="250">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DisplayNewName}"
+                                <TextBlock FontWeight="Medium"
                                            Foreground="{StaticResource AccentColor}"
-                                           FontWeight="Medium"
-                                           TextTrimming="CharacterEllipsis"/>
+                                           TextTrimming="CharacterEllipsis"
+                                           Text="{Binding DisplayNewName}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -141,7 +146,8 @@
                     <GridViewColumn Header="크기" Width="80">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding UnitSize}" Foreground="{StaticResource TextSecondary}"/>
+                                <TextBlock Foreground="{StaticResource TextSecondary}"
+                                           Text="{Binding UnitSize}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -150,10 +156,10 @@
                     <GridViewColumn Header="경로" Width="300">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
-                                <TextBlock Text="{Binding DirectoryName}"
-                                           Foreground="#999999"
+                                <TextBlock Foreground="#999999"
                                            TextTrimming="CharacterEllipsis"
-                                           ToolTip="{Binding Path}"/>
+                                           Text="{Binding DirectoryName}"
+                                           ToolTip="{Binding Path}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

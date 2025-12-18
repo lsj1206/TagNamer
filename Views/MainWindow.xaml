@@ -1,4 +1,4 @@
-﻿<Window x:Class="TagNamer.MainWindow"
+<Window x:Class="TagNamer.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -36,10 +36,11 @@
             <controls:SidebarControl Grid.Column="0" Margin="-10,-50,140,-10" />
 
             <!-- 파일 목록 -->
-            <Border Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
+            <Border Grid.ColumnSpan="2"
+                    Margin="166,-50,-10,-10"
+                    Background="{DynamicResource SystemControlBackgroundAltHighBrush}"
                     BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumBrush}"
-                    BorderThickness="1"
-                    Grid.ColumnSpan="2" Margin="166,-50,-10,-10">
+                    BorderThickness="1">
                 <controls:FileListControl DataContext="{Binding FileList}" />
             </Border>
         </Grid>
