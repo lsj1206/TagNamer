@@ -20,7 +20,7 @@ public partial class TagManagerViewModel : ObservableObject
     public string TagTypeDescription => SelectedTagType switch
     {
         "[Number]" => "규칙대로 순차적으로 증가하는 수를 입력하는 태그",
-        "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그\n시작 값에 숫자를 입력할 경우 Excel 스타일로 변환해서 적용합니다.",
+        "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그",
         "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\n대소문자 구분없이 년:YYYY/YY 월:MM 일:DD",
         "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\n대소문자 구분없이 시:HH 분:MM 초:SS",
         _ => ""
@@ -29,7 +29,7 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty]
     private string optionDigits = "1";
 
-    // 자리 수 옵션 처리
+    // 자리 수 옵션 예외 처리
     partial void OnOptionDigitsChanged(string value)
     {
         // 입력값이 비어있으면 1로 변경
@@ -59,19 +59,38 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty]
     private string optionStartValue = "";
 
-    // 시작 값 옵션 처리
+    // 시작 값 옵션 예외 처리
     partial void OnOptionStartValueChanged(string value)
     {
-         if (SelectedTagType == "[Number]")
-         {
-             if (string.IsNullOrEmpty(value)) return;
+        if (SelectedTagType == "[Number]")
+        {
+            // 입력값이 비어있거나 무효하면 1로 변경
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                OptionStartValue = "1";
+                return;
+            }
 
-             // Number일 경우 시작값은 0 이상
-             if (long.TryParse(value, out long result))
-             {
-                 if (result < 0) OptionStartValue = "0";
-             }
-         }
+            if (long.TryParse(value, out long result))
+            {
+                // Number일 경우 시작값은 0 이상
+                if (result < 0) result = 0;
+                if (OptionStartValue != result.ToString())
+                    OptionStartValue = result.ToString();
+            }
+            else
+            {
+                OptionStartValue = "1";
+            }
+        }
+        else if (SelectedTagType == "[AtoZ]")
+        {
+            // AtoZ일 경우 비어있으면 A로 변경
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                OptionStartValue = "A";
+            }
+        }
     }
 
     [ObservableProperty]
@@ -154,29 +173,15 @@ public partial class TagManagerViewModel : ObservableObject
             case "[Number]":
                 _numTagCount++;
                 {
-                    // 자리수 계산 (OnOptionDigitsChanged에서 이미 검증됨: 1~100)
+                    // 자리수 계산
                     string displayDigits = OptionDigits;
                     string codeDigits = OptionDigits;
 
                     // 시작값 계산
-                    long.TryParse(OptionStartValue, out long s);
-                    long realStart = s < 0 ? 0 : s; // 0은 허용
-                    string displayStart;
-
-                    if (string.IsNullOrEmpty(OptionStartValue))
-                    {
-                        realStart = 1;
-                        displayStart = $"{realStart} (비었음)";
-                    }
-                    else
-                    {
-                        displayStart = OptionStartValue != realStart.ToString()
-                            ? $"{realStart} ({OptionStartValue})"
-                            : $"{realStart}";
-                    }
-
-                    // TagManager는 항상 값을 채워서 보내도록 수정해야 함. Code 생성 시.
-                    string codeStart = realStart.ToString();
+                    OnOptionStartValueChanged(OptionStartValue);
+                    long.TryParse(OptionStartValue, out long realStart);
+                    string displayStart = OptionStartValue;
+                    string codeStart = OptionStartValue;
 
                      newItem = new TagItem
                     {
@@ -191,56 +196,19 @@ public partial class TagManagerViewModel : ObservableObject
             case "[AtoZ]":
                 _atozTagCount++;
                 {
-                    // 자리수 계산 (OnOptionDigitsChanged에서 이미 검증됨: 1~100)
+                    // 자리수 계산
                     string displayDigits = OptionDigits;
                     string codeDigits = OptionDigits;
 
-                    // AtoZ 시작값 처리 (숫자/알파벳만 유지)
-                    // - 모든 비문자/비숫자 제거 (한글/중문/기호 등 제외)
-                    // - 숫자 부분은 Excel 컬럼 스타일로 변환 (1->A, 27->AA)
-                    // - 알파벳 부분은 그대로 이어 붙임
-                    // - 둘 다 없으면 A 로 대체
-                    string rawStart = OptionStartValue ?? string.Empty;
-                    // 한글/중문 등 비-ASCII 알파벳은 모두 제거하고, ASCII 영문/숫자만 사용
-                    string filtered = new string(rawStart.Where(IsAsciiLetterOrDigit).ToArray());
-
-                    string digitsPart = new string(filtered.Where(char.IsDigit).ToArray());
-                    string lettersPart = new string(filtered.Where(char.IsLetter).ToArray());
-
-                    string inputFiltered = filtered; // 입력에서 유효문자만 추출한 값 (표시용)
-                    string digitsConverted = string.Empty;
-                    if (!string.IsNullOrEmpty(digitsPart))
-                    {
-                        long numericStart = 1;
-                        long.TryParse(digitsPart, out numericStart);
-                        if (numericStart < 1) numericStart = 1;
-                        digitsConverted = NumberToExcelColumn(numericStart);
-                    }
-
-                    string combined = $"{digitsConverted}{lettersPart}";
-
-                    string realStart;
-                    string displayStart;
-                    if (string.IsNullOrEmpty(combined))
-                    {
-                        realStart = "A";
-                        displayStart = "A (비었음)";
-                    }
-                    else
-                    {
-                        realStart = combined;
-                        // 실제값(입력값) 형식으로 표시
-                        displayStart = !string.IsNullOrEmpty(inputFiltered)
-                            ? $"{realStart} ({inputFiltered})"
-                            : $"{realStart} (비었음)";
-                    }
+                    // 시작값 처리
+                    OnOptionStartValueChanged(OptionStartValue);
+                    string realStart = OptionStartValue;
+                    string displayStart = OptionStartValue;
 
                     // LowerCount
                     int.TryParse(OptionLowerCount, out int l);
                     int realLower = l < 0 ? 0 : l;
-                    string displayLower = !string.IsNullOrEmpty(OptionLowerCount)
-                        ? (OptionLowerCount != realLower.ToString() ? $"{realLower}({OptionLowerCount})" : $"{realLower}")
-                        : $"{realLower} (비었음)";
+                    string displayLower = string.IsNullOrEmpty(OptionLowerCount) ? $"{realLower} (비었음)" : $"{realLower}";
 
                     string codeLower = realLower.ToString();
 
@@ -285,24 +253,7 @@ public partial class TagManagerViewModel : ObservableObject
 
 
 
-    private static bool IsAsciiLetterOrDigit(char c)
-    {
-        return (c >= '0' && c <= '9')
-            || (c >= 'A' && c <= 'Z')
-            || (c >= 'a' && c <= 'z');
-    }
 
-    // Excel 스타일 숫자 -> 알파벳 변환 (1 -> A, 26 -> Z, 27 -> AA ...)
-    private static string NumberToExcelColumn(long number)
-    {
-        if (number < 1) number = 1;
-        string column = "";
-        while (number > 0)
-        {
-            long modulo = (number - 1) % 26;
-            column = Convert.ToChar('A' + modulo) + column;
-            number = (number - 1) / 26;
-        }
-        return column;
-    }
+
+
 }
