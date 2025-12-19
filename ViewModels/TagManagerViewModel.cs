@@ -27,52 +27,51 @@ public partial class TagManagerViewModel : ObservableObject
     };
 
     [ObservableProperty]
-    private string optionDigits = "";
+    private string optionDigits = "1";
 
-    // [Number] 태그의 자리 수 옵션 변경 시 처리
+    // 자리 수 옵션 처리
     partial void OnOptionDigitsChanged(string value)
     {
-        if (string.IsNullOrEmpty(value)) return;
+        // 입력값이 비어있으면 1로 변경
+        if (string.IsNullOrWhiteSpace(value)){
+            OptionDigits = "1";
+            return;
+        }
 
-        var numericValue = new string(value.Where(char.IsDigit).ToArray());
-
-        if (int.TryParse(numericValue, out int result))
+        if (int.TryParse(value, out int result))
         {
+            // 0이 입력되면 1로 변경
+            if (result < 1) result = 1;
             // 윈도우 파일명 제한이 확장자 255자이기 때문에 250 제한
-            if (result > 250) result = 250;
-            // 0 이하는 0으로 처리
-            if (result < 0) result = 0;
-            if (OptionDigits != result.ToString()) // 재진입 방지
+            if (result > 100) result = 100;
+            // 옵션값이 변경되었을 경우에만 변경
+            if (OptionDigits != result.ToString())
                 OptionDigits = result.ToString();
         }
         else
         {
-             OptionDigits = "";
+            // TryParse는 실패하면 false를 반환
+            // overflow가 발생한 경우 1로 변경
+            OptionDigits = "1";
         }
     }
 
     [ObservableProperty]
     private string optionStartValue = "";
 
+    // 시작 값 옵션 처리
     partial void OnOptionStartValueChanged(string value)
     {
          if (SelectedTagType == "[Number]")
          {
              if (string.IsNullOrEmpty(value)) return;
-             var numericValue = new string(value.Where(char.IsDigit).ToArray());
-             if(value != numericValue)
-             {
-                 OptionStartValue = numericValue;
-                 return;
-             }
 
              // Number일 경우 시작값은 0 이상
-             if (long.TryParse(numericValue, out long result))
+             if (long.TryParse(value, out long result))
              {
                  if (result < 0) OptionStartValue = "0";
              }
          }
-         // AtoZ일 경우 문자가능
     }
 
     [ObservableProperty]
@@ -83,19 +82,19 @@ public partial class TagManagerViewModel : ObservableObject
 
     partial void OnOptionLowerCountChanged(string value)
     {
-         if (string.IsNullOrEmpty(value)) return;
+        if (string.IsNullOrEmpty(value)) return;
 
-        var numericValue = new string(value.Where(char.IsDigit).ToArray());
-
-        if (int.TryParse(numericValue, out int result))
+        if (int.TryParse(value, out int result))
         {
             if (result > 255) result = 255;
             if (result < 0) result = 0;
-            OptionLowerCount = result.ToString();
+
+            if (OptionLowerCount != result.ToString())
+                OptionLowerCount = result.ToString();
         }
         else
         {
-             OptionLowerCount = "0";
+            OptionLowerCount = "";
         }
     }
 
@@ -155,28 +154,29 @@ public partial class TagManagerViewModel : ObservableObject
             case "[Number]":
                 _numTagCount++;
                 {
-                    // 자리수 계산
-                    int.TryParse(OptionDigits, out int d);
-                    int realDigits = d <= 0 ? 1 : d;
-                    string displayDigits = !string.IsNullOrEmpty(OptionDigits)
-                        ? (OptionDigits != realDigits.ToString() ? $"{realDigits} ({OptionDigits})" : $"{realDigits}")
-                        : $"{realDigits} (비었음)";
+                    // 자리수 계산 (OnOptionDigitsChanged에서 이미 검증됨: 1~100)
+                    string displayDigits = OptionDigits;
+                    string codeDigits = OptionDigits;
 
                     // 시작값 계산
                     long.TryParse(OptionStartValue, out long s);
                     long realStart = s < 0 ? 0 : s; // 0은 허용
-                    string displayStart = !string.IsNullOrEmpty(OptionStartValue)
-                        ? (OptionStartValue != realStart.ToString() ? $"{realStart} ({OptionStartValue})" : $"{realStart}")
-                        : $"{realStart} (비었음)";
-                    if(string.IsNullOrEmpty(OptionStartValue)) { realStart = 1; displayStart = $"{realStart} (비었음)"; }
+                    string displayStart;
+
+                    if (string.IsNullOrEmpty(OptionStartValue))
+                    {
+                        realStart = 1;
+                        displayStart = $"{realStart} (비었음)";
+                    }
+                    else
+                    {
+                        displayStart = OptionStartValue != realStart.ToString()
+                            ? $"{realStart} ({OptionStartValue})"
+                            : $"{realStart}";
+                    }
 
                     // TagManager는 항상 값을 채워서 보내도록 수정해야 함. Code 생성 시.
-                    string codeDigits = realDigits.ToString();
-                    string codeStart = string.IsNullOrEmpty(OptionStartValue) ? "1" : realStart.ToString();
-
-                    // 툴팁용은 입력값 위주로 보여주되 보정치 병기
-                    if (string.IsNullOrEmpty(OptionDigits)) displayDigits = $"{realDigits} (비었음)";
-                    if (string.IsNullOrEmpty(OptionStartValue)) displayStart = $"{realStart} (비었음)";
+                    string codeStart = realStart.ToString();
 
                      newItem = new TagItem
                     {
@@ -191,11 +191,9 @@ public partial class TagManagerViewModel : ObservableObject
             case "[AtoZ]":
                 _atozTagCount++;
                 {
-                    int.TryParse(OptionDigits, out int d);
-                    int realDigits = d <= 0 ? 1 : d;
-                    string displayDigits = !string.IsNullOrEmpty(OptionDigits)
-                        ? (OptionDigits != realDigits.ToString() ? $"{realDigits}({OptionDigits})" : $"{realDigits}")
-                        : $"{realDigits} (비었음)";
+                    // 자리수 계산 (OnOptionDigitsChanged에서 이미 검증됨: 1~100)
+                    string displayDigits = OptionDigits;
+                    string codeDigits = OptionDigits;
 
                     // AtoZ 시작값 처리 (숫자/알파벳만 유지)
                     // - 모든 비문자/비숫자 제거 (한글/중문/기호 등 제외)
@@ -244,7 +242,6 @@ public partial class TagManagerViewModel : ObservableObject
                         ? (OptionLowerCount != realLower.ToString() ? $"{realLower}({OptionLowerCount})" : $"{realLower}")
                         : $"{realLower} (비었음)";
 
-                    string codeDigits = realDigits.ToString();
                     string codeLower = realLower.ToString();
 
                     newItem = new TagItem
@@ -286,10 +283,7 @@ public partial class TagManagerViewModel : ObservableObject
         }
     }
 
-    private static bool IsAllDigits(string value)
-    {
-        return value.All(char.IsDigit);
-    }
+
 
     private static bool IsAsciiLetterOrDigit(char c)
     {
