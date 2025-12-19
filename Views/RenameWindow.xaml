@@ -45,7 +45,8 @@
                                         Margin="0,0,0,0"
                                         Height="32"
                                         VerticalContentAlignment="Center"
-                                        BlockedCharacters="&lt;&gt;:&quot;\/:*?"
+                                        FilterMode="Block"
+                                        Filter="WindowsFileNameInvalid"
                                         Drop="RuleTextBox_Drop"
                                         PreviewDragOver="RuleTextBox_PreviewDragOver"
                                         Text="{Binding RuleFormat, UpdateSourceTrigger=PropertyChanged}" />
@@ -137,18 +138,22 @@
                     <ContentControl.Resources>
                         <DataTemplate x:Key="NumTemplate">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="0,0,4,0"
-                                           VerticalAlignment="Center"
-                                           Text="시작 값 :" />
-                                <TextBox Width="100"
+                                <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="시작 값 :" />
+                                <controls:FilterTextBox
+                                         Width="100"
                                          Margin="0,0,8,0"
                                          VerticalContentAlignment="Center"
+                                         FilterMode="Allow"
+                                         Filter="Digits"
                                          Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 <TextBlock Margin="0,0,4,0"
                                            VerticalAlignment="Center"
                                            Text="자리 수 :" />
-                                <TextBox Width="100"
+                                <controls:FilterTextBox
+                                         Width="100"
                                          VerticalContentAlignment="Center"
+                                         FilterMode="Allow"
+                                         Filter="Digits"
                                          Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </StackPanel>
                         </DataTemplate>
@@ -157,22 +162,31 @@
                                 <TextBlock Margin="0,0,4,0"
                                            VerticalAlignment="Center"
                                            Text="시작 값 : " />
-                                <TextBox Width="100"
+                                <controls:FilterTextBox
+                                         Width="100"
                                          Margin="0,0,8,0"
                                          VerticalContentAlignment="Center"
+                                         FilterMode="Allow"
+                                         Filter="AlphaDigits"
                                          Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 <TextBlock Margin="0,0,4,0"
                                            VerticalAlignment="Center"
                                            Text="자리 수 : " />
-                                <TextBox Width="100"
+                                <controls:FilterTextBox
+                                         Width="100"
                                          Margin="0,0,8,0"
                                          VerticalContentAlignment="Center"
+                                         FilterMode="Allow"
+                                         Filter="Digits"
                                          Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 <TextBlock Margin="0,0,4,0"
                                            VerticalAlignment="Center"
                                            Text="소문자 수 : " />
-                                <TextBox Width="100"
+                                <controls:FilterTextBox
+                                         Width="100"
                                          VerticalContentAlignment="Center"
+                                         FilterMode="Allow"
+                                         Filter="Digits"
                                          Text="{Binding DataContext.TagManager.OptionLowerCount, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </StackPanel>
                         </DataTemplate>
