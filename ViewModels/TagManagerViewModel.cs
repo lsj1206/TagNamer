@@ -27,36 +27,6 @@ public partial class TagManagerViewModel : ObservableObject
     };
 
     [ObservableProperty]
-    private string optionDigits = "1";
-
-    // 자리 수 옵션 예외 처리
-    partial void OnOptionDigitsChanged(string value)
-    {
-        // 입력값이 비어있으면 1로 변경
-        if (string.IsNullOrWhiteSpace(value)){
-            OptionDigits = "1";
-            return;
-        }
-
-        if (int.TryParse(value, out int result))
-        {
-            // 0이 입력되면 1로 변경
-            if (result < 1) result = 1;
-            // 윈도우 파일명 제한이 확장자 255자이기 때문에 250 제한
-            if (result > 100) result = 100;
-            // 옵션값이 변경되었을 경우에만 변경
-            if (OptionDigits != result.ToString())
-                OptionDigits = result.ToString();
-        }
-        else
-        {
-            // TryParse는 실패하면 false를 반환
-            // overflow가 발생한 경우 1로 변경
-            OptionDigits = "1";
-        }
-    }
-
-    [ObservableProperty]
     private string optionStartValue = "";
 
     // 시작 값 옵션 예외 처리
@@ -64,10 +34,10 @@ public partial class TagManagerViewModel : ObservableObject
     {
         if (SelectedTagType == "[Number]")
         {
-            // 입력값이 비어있거나 무효일때 1로 변경
+            // 입력값이 비어있거나 무효일때 0으로 변경
             if (string.IsNullOrWhiteSpace(value))
             {
-                OptionStartValue = "1";
+                OptionStartValue = "0";
                 return;
             }
 
@@ -83,8 +53,8 @@ public partial class TagManagerViewModel : ObservableObject
         }
         else if (SelectedTagType == "[AtoZ]")
         {
-            // AtoZ일 경우 비어있으면 A로 변경
-            if (string.IsNullOrWhiteSpace(value))
+            // AtoZ일 경우 비어있거나 알파벳이 아니면 A로 변경
+            if (string.IsNullOrWhiteSpace(value) || !value.All(char.IsLetter))
             {
                 OptionStartValue = "A";
                 return;
@@ -95,28 +65,64 @@ public partial class TagManagerViewModel : ObservableObject
     }
 
     [ObservableProperty]
-    private string optionDateFormat = "";
+    private string optionDigits = "1";
+
+    // 자리 수 옵션 예외 처리
+    partial void OnOptionDigitsChanged(string value)
+    {
+        // 입력값이 비어있으면 1로 변경
+        if (string.IsNullOrWhiteSpace(value)){
+            OptionDigits = "1";
+            return;
+        }
+
+        if (int.TryParse(value, out int result))
+        {
+            // 0이 입력되면 1로 변경
+            if (result < 1) result = 1;
+            // 윈도우 파일명 제한이 확장자 255자이기 때문에 100자 제한
+            if (result > 100) result = 100;
+            // 옵션값이 변경되었을 경우에만 변경
+            if (OptionDigits != result.ToString())
+                OptionDigits = result.ToString();
+        }
+        else
+        {
+            // TryParse는 실패하면 false를 반환
+            // overflow가 발생한 경우 1로 변경
+            OptionDigits = "1";
+        }
+    }
 
     [ObservableProperty]
     private string optionLowerCount = "";
 
     partial void OnOptionLowerCountChanged(string value)
     {
-        if (string.IsNullOrEmpty(value)) return;
+        // 입력값이 비어있으면 0으로 변경
+        if (string.IsNullOrWhiteSpace(value)){
+            OptionLowerCount = "0";
+            return;
+        }
 
         if (int.TryParse(value, out int result))
         {
-            if (result > 255) result = 255;
-            if (result < 0) result = 0;
-
+            // 자리 수가 최대 100자이기 때문에 100자 제한
+            if (result > 100) result = 100;
+            // 옵션값이 변경되었을 경우에만 변경
             if (OptionLowerCount != result.ToString())
                 OptionLowerCount = result.ToString();
         }
         else
         {
-            OptionLowerCount = "";
+            // TryParse는 실패하면 false를 반환
+            // overflow가 발생한 경우 100으로 변경
+            OptionLowerCount = "100";
         }
     }
+
+    [ObservableProperty]
+    private string optionDateFormat = "";
 
     private int _numTagCount = 0;
     private int _atozTagCount = 0;
@@ -174,54 +180,37 @@ public partial class TagManagerViewModel : ObservableObject
             case "[Number]":
                 _numTagCount++;
                 {
-                    // 자리수 계산
-                    string displayDigits = OptionDigits;
-                    string codeDigits = OptionDigits;
-
-                    // 시작값 계산
+                    // 생성 전 최종 검역
                     OnOptionStartValueChanged(OptionStartValue);
-                    long.TryParse(OptionStartValue, out long realStart);
-                    string displayStart = OptionStartValue;
-                    string codeStart = OptionStartValue;
+                    OnOptionDigitsChanged(OptionDigits);
 
                      newItem = new TagItem
                     {
                         DisplayName = $"[Number{_numTagCount}]",
-                        Code = $"[Number:{codeStart}:{codeDigits}]",
-                        ToolTip = $"시작 값 : {displayStart}\n자리 수 : {displayDigits}"
+                        Code = $"[Number:{OptionStartValue}:{OptionDigits}]",
+                        ToolTip = $"시작 값 : {OptionStartValue}\n자리 수 : {OptionDigits}"
                     };
-                    newItem.Options.Add($"시작 값 : {displayStart}");
-                    newItem.Options.Add($"자리 수 : {displayDigits}");
+                    newItem.Options.Add($"시작 값 : {OptionStartValue}");
+                    newItem.Options.Add($"자리 수 : {OptionDigits}");
                 }
                 break;
             case "[AtoZ]":
                 _atozTagCount++;
                 {
-                    // 자리수 계산
-                    string displayDigits = OptionDigits;
-                    string codeDigits = OptionDigits;
-
-                    // 시작값 처리
+                    // 생성 전 최종 검역
                     OnOptionStartValueChanged(OptionStartValue);
-                    string realStart = OptionStartValue;
-                    string displayStart = OptionStartValue;
-
-                    // LowerCount
-                    int.TryParse(OptionLowerCount, out int l);
-                    int realLower = l < 0 ? 0 : l;
-                    string displayLower = string.IsNullOrEmpty(OptionLowerCount) ? $"{realLower} (비었음)" : $"{realLower}";
-
-                    string codeLower = realLower.ToString();
+                    OnOptionDigitsChanged(OptionDigits);
+                    OnOptionLowerCountChanged(OptionLowerCount);
 
                     newItem = new TagItem
                     {
                         DisplayName = $"[AtoZ{_atozTagCount}]",
-                        Code = $"[AtoZ:{realStart}:{codeDigits}:{codeLower}]",
-                        ToolTip = $"시작 값 : {displayStart}\n자리 수 : {displayDigits}\n소문자 수 : {displayLower}"
+                        Code = $"[AtoZ:{OptionStartValue}:{OptionDigits}:{OptionLowerCount}]",
+                        ToolTip = $"시작 값 : {OptionStartValue}\n자리 수 : {OptionDigits}\n소문자 수 : {OptionLowerCount}"
                     };
-                    newItem.Options.Add($"시작 값 : {displayStart}");
-                    newItem.Options.Add($"자리 수 : {displayDigits}");
-                    newItem.Options.Add($"소문자 수 : {displayLower}");
+                    newItem.Options.Add($"시작 값 : {OptionStartValue}");
+                    newItem.Options.Add($"자리 수 : {OptionDigits}");
+                    newItem.Options.Add($"소문자 수 : {OptionLowerCount}");
                 }
                 break;
             case "[Today]":
