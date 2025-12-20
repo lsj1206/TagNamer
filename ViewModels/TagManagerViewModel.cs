@@ -64,7 +64,7 @@ public partial class TagManagerViewModel : ObservableObject
     {
         if (SelectedTagType == "[Number]")
         {
-            // 입력값이 비어있거나 무효하면 1로 변경
+            // 입력값이 비어있거나 무효일때 1로 변경
             if (string.IsNullOrWhiteSpace(value))
             {
                 OptionStartValue = "1";
@@ -73,8 +73,6 @@ public partial class TagManagerViewModel : ObservableObject
 
             if (long.TryParse(value, out long result))
             {
-                // Number일 경우 시작값은 0 이상
-                if (result < 0) result = 0;
                 if (OptionStartValue != result.ToString())
                     OptionStartValue = result.ToString();
             }
@@ -89,7 +87,10 @@ public partial class TagManagerViewModel : ObservableObject
             if (string.IsNullOrWhiteSpace(value))
             {
                 OptionStartValue = "A";
+                return;
             }
+            if (OptionStartValue != value)
+                OptionStartValue = value;
         }
     }
 
