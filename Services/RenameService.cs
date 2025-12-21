@@ -10,6 +10,9 @@ namespace TagNamer.Services;
 
 public class RenameService : IRenameService
 {
+    private static readonly Regex _numberTagRegex = new(@"\[Number:(\d+):(\d+)\]", RegexOptions.Compiled);
+    private static readonly Regex _atozTagRegex = new(@"\[AtoZ:([a-zA-Z]*):(\d+):(\d+)\]", RegexOptions.Compiled);
+
     private readonly IFileService _fileService;
 
     public RenameService(IFileService fileService)
@@ -37,70 +40,56 @@ public class RenameService : IRenameService
             var item = itemList[i];
             string newName = ruleFormat;
 
-            // 1. 고정 태그 처리 (파일마다 값이 다른 것들)
+            // 고정 태그 처리 (파일마다 값이 다른 것들)
             newName = newName.Replace("[Name.origin]", Path.GetFileNameWithoutExtension(item.OriginalName));
             newName = newName.Replace("[Name.prev]", Path.GetFileNameWithoutExtension(item.OriginalName));
 
-            // 2. [Number] 처리 (MatchEvaluator 사용)
-            // 태그 형식: [Number:시작값:자리수]  (파라미터 필수, 순서 변경됨)
-            newName = Regex.Replace(newName, @"\[Number:(\d+):(\d+)\]", match =>
+            // [Number:시작 값:자리 수]
+            newName = _numberTagRegex.Replace(newName, match =>
             {
-                int digits = 0;
-                long startValue = 1;
+                // Group[1] = 시작 값, Group[2] = 자리 수
+                if (!long.TryParse(match.Groups[1].Value, out long startValue) || startValue < 0)
+                    startValue = 0;
 
-                // 순서 변경: Group[1] = StartValue, Group[2] = Digits
-                long.TryParse(match.Groups[1].Value, out startValue);
-                int.TryParse(match.Groups[2].Value, out digits);
+                if (!int.TryParse(match.Groups[2].Value, out int digits) || digits <= 0)
+                    digits = 1;
 
-                if (digits <= 0) digits = 1;
-                if (startValue < 0) startValue = 0;
-
-                long currentValue = startValue + i; // 인덱스 i를 더함
+                long currentValue = startValue + i;
                 return currentValue.ToString().PadLeft(digits, '0');
             });
 
-            // [AtoZ] 처리
-            // 태그 형식: [AtoZ:시작값:자리수:소문자수] (파라미터 필수, 순서 변경됨)
-            // StartValue는 알파벳([a-zA-Z]*)
-            newName = Regex.Replace(newName, @"\[AtoZ:([a-zA-Z]*):(\d+):(\d+)\]", match =>
+            // [AtoZ:시작 값:자리 수:소문자 수]
+            newName = _atozTagRegex.Replace(newName, match =>
             {
-                int digits = 1;
-                string startValueStr = "A";
-                int lowerCount = 0;
-
-                // 순서 변경: Group[1] = StartValue, Group[2] = Digits, Group[3] = Lower
-                startValueStr = match.Groups[1].Value;
-                int.TryParse(match.Groups[2].Value, out digits);
-                int.TryParse(match.Groups[3].Value, out lowerCount);
-
+                // Group[1] = 시작 값, Group[2] = 자리 수, Group[3] = 소문자 수
+                string startValueStr = match.Groups[1].Value.ToUpper();
                 if (string.IsNullOrEmpty(startValueStr)) startValueStr = "A";
-                if (digits <= 0) digits = 1;
 
-                startValueStr = startValueStr.ToUpper();
+                if (!int.TryParse(match.Groups[2].Value, out int digits) || digits <= 0)
+                    digits = 1;
 
-                // 자리수 보정: 입력값이 자리수보다 짧으면 뒤에 'A'를 채움
+                if (!int.TryParse(match.Groups[3].Value, out int lowerCount) || lowerCount < 0)
+                    lowerCount = 0;
+
+                // 자리수 보정
                 if (startValueStr.Length < digits)
                 {
                     startValueStr = startValueStr.PadRight(digits, 'A');
                 }
 
-                long startNum = ExcelColumnToNumber(startValueStr);
-                long currentNum = startNum + i; // 인덱스 i를 더함
-                string alphaStr = NumberToExcelColumn(currentNum);
+                long startNum = AlphaToNum(startValueStr);
+                long currentNum = startNum + i;
+                string alphaStr = NumToAlpha(currentNum);
 
-                // 소문자 처리: 뒤에서부터 lowerCount만큼
+                // 소문자 처리
                 if (lowerCount > 0)
                 {
                     if (lowerCount >= alphaStr.Length)
-                    {
-                        alphaStr = alphaStr.ToLower();
-                    }
-                    else
-                    {
-                        string upperPart = alphaStr.Substring(0, alphaStr.Length - lowerCount);
-                        string lowerPart = alphaStr.Substring(alphaStr.Length - lowerCount).ToLower();
-                        alphaStr = upperPart + lowerPart;
-                    }
+                        return alphaStr.ToLower();
+
+                    string upperPart = alphaStr.Substring(0, alphaStr.Length - lowerCount);
+                    string lowerPart = alphaStr.Substring(alphaStr.Length - lowerCount).ToLower();
+                    return upperPart + lowerPart;
                 }
 
                 return alphaStr;
@@ -155,7 +144,7 @@ public class RenameService : IRenameService
         return Regex.Replace(input, Regex.Escape(search), replacement.Replace("$", "$$"), RegexOptions.IgnoreCase);
     }
 
-    private long ExcelColumnToNumber(string column)
+    private long AlphaToNum(string column)
     {
         long result = 0;
         foreach (char c in column)
@@ -166,7 +155,7 @@ public class RenameService : IRenameService
         return result;
     }
 
-    private string NumberToExcelColumn(long number)
+    private string NumToAlpha(long number)
     {
         string column = "";
         while (number > 0)
