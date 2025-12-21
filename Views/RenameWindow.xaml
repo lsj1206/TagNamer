@@ -179,18 +179,30 @@
                         </DataTemplate>
                         <DataTemplate x:Key="DateTemplate">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="형식 : " />
-                                <TextBox Width="200"
-                                         VerticalContentAlignment="Center"
-                                         Text="{Binding DataContext.TagManager.OptionDateFormat, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <ComboBox Width="70" ItemsSource="{Binding DataContext.TagManager.DatePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          SelectedItem="{Binding DataContext.TagManager.OptionDatePart1, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <controls:FilterTextBox Width="40" Margin="4,0" Filter="WindowsFileNameInvalid" FilterMode="Block" VerticalContentAlignment="Center"
+                                                        Text="{Binding DataContext.TagManager.OptionDateSep1, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <ComboBox Width="70" ItemsSource="{Binding DataContext.TagManager.DatePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          SelectedItem="{Binding DataContext.TagManager.OptionDatePart2, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <controls:FilterTextBox Width="40" Margin="4,0" Filter="WindowsFileNameInvalid" FilterMode="Block" VerticalContentAlignment="Center"
+                                                        Text="{Binding DataContext.TagManager.OptionDateSep2, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <ComboBox Width="70" ItemsSource="{Binding DataContext.TagManager.DatePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          SelectedItem="{Binding DataContext.TagManager.OptionDatePart3, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </StackPanel>
                         </DataTemplate>
                         <DataTemplate x:Key="TimeTemplate">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="형식 : " />
-                                <TextBox Width="200"
-                                         VerticalContentAlignment="Center"
-                                         Text="{Binding DataContext.TagManager.OptionDateFormat, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <ComboBox Width="70" ItemsSource="{Binding DataContext.TagManager.TimePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          SelectedItem="{Binding DataContext.TagManager.OptionTimePart1, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <controls:FilterTextBox Width="40" Margin="4,0" Filter="WindowsFileNameInvalid" FilterMode="Block" VerticalContentAlignment="Center"
+                                                        Text="{Binding DataContext.TagManager.OptionTimeSep1, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <ComboBox Width="70" ItemsSource="{Binding DataContext.TagManager.TimePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          SelectedItem="{Binding DataContext.TagManager.OptionTimePart2, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <controls:FilterTextBox Width="40" Margin="4,0" Filter="WindowsFileNameInvalid" FilterMode="Block" VerticalContentAlignment="Center"
+                                                        Text="{Binding DataContext.TagManager.OptionTimeSep2, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                <ComboBox Width="70" ItemsSource="{Binding DataContext.TagManager.TimePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
+                                          SelectedItem="{Binding DataContext.TagManager.OptionTimePart3, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </StackPanel>
                         </DataTemplate>
                     </ContentControl.Resources>

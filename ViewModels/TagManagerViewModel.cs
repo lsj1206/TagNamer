@@ -10,8 +10,13 @@ namespace TagNamer.ViewModels;
 
 public partial class TagManagerViewModel : ObservableObject
 {
+    // 생성된 태그
     public ObservableCollection<TagItem> CreatedTags { get; } = new();
+    // 태그 종류
     public ObservableCollection<string> TagTypes { get; } = new() { "[Number]", "[AtoZ]", "[Today]", "[Time.now]" };
+    // 날짜/시간 선택 항목 소스
+    public List<string> DatePartTypes { get; } = new() { "-", "YYYY", "YY", "MM", "DD" };
+    public List<string> TimePartTypes { get; } = new() { "-", "HH", "MM", "SS" };
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TagTypeDescription))]
@@ -121,8 +126,19 @@ public partial class TagManagerViewModel : ObservableObject
         }
     }
 
-    [ObservableProperty]
-    private string optionDateFormat = "";
+    // 날짜용 세부 옵션
+    [ObservableProperty] private string optionDatePart1 = "YY";
+    [ObservableProperty] private string optionDateSep1 = "";
+    [ObservableProperty] private string optionDatePart2 = "MM";
+    [ObservableProperty] private string optionDateSep2 = "";
+    [ObservableProperty] private string optionDatePart3 = "DD";
+
+    // 시간용 세부 옵션
+    [ObservableProperty] private string optionTimePart1 = "HH";
+    [ObservableProperty] private string optionTimeSep1 = "";
+    [ObservableProperty] private string optionTimePart2 = "MM";
+    [ObservableProperty] private string optionTimeSep2 = "";
+    [ObservableProperty] private string optionTimePart3 = "SS";
 
     private int _numTagCount = 0;
     private int _atozTagCount = 0;
@@ -138,7 +154,7 @@ public partial class TagManagerViewModel : ObservableObject
         DeleteTagCommand = new RelayCommand<TagItem>(DeleteTag);
 
         // 초기 기본 태그 추가
-        AddFixedTags();
+        AddStandardTags();
         SelectedTagType = TagTypes.FirstOrDefault() ?? "[Number]";
     }
 
@@ -150,14 +166,14 @@ public partial class TagManagerViewModel : ObservableObject
         }
     }
 
-    private void AddFixedTags()
+    private void AddStandardTags()
     {
         CreatedTags.Add(new TagItem
         {
             DisplayName = "[Name.origin]",
             Code = "[Name.origin]",
             ToolTip = "파일이 추가될 당시의 파일명을 입력합니다.",
-            IsFixed = true
+            IsStandard = true
         });
 
         CreatedTags.Add(new TagItem
@@ -165,7 +181,7 @@ public partial class TagManagerViewModel : ObservableObject
             DisplayName = "[Name.prev]",
             Code = "[Name.prev]",
             ToolTip = "마지막으로 변경된 파일명을 입력합니다.\n처음엔 원본 파일명이 입력됩니다.",
-            IsFixed = true
+            IsStandard = true
         });
     }
 
@@ -215,23 +231,48 @@ public partial class TagManagerViewModel : ObservableObject
                 break;
             case "[Today]":
                 _todayTagCount++;
-                newItem = new TagItem
                 {
-                    DisplayName = $"[Today{_todayTagCount}]",
-                    Code = $"[Today:{OptionDateFormat}]",
-                    ToolTip = $"{OptionDateFormat}"
-                };
-                newItem.Options.Add($"형식 : {OptionDateFormat}");
+                    // 파트 조합 (용이한 관리를 위해 리스트 이용)
+                    var parts = new List<string>();
+                    if (OptionDatePart1 != "-") parts.Add(OptionDatePart1);
+                    if (!string.IsNullOrEmpty(OptionDateSep1)) parts.Add(OptionDateSep1);
+                    if (OptionDatePart2 != "-") parts.Add(OptionDatePart2);
+                    if (!string.IsNullOrEmpty(OptionDateSep2)) parts.Add(OptionDateSep2);
+                    if (OptionDatePart3 != "-") parts.Add(OptionDatePart3);
+
+                    string finalFormat = string.Join("", parts);
+                    if (string.IsNullOrEmpty(finalFormat)) finalFormat = "YYYYMMDD"; // 최소 방어 코드
+
+                    newItem = new TagItem
+                    {
+                        DisplayName = $"[Today{_todayTagCount}]",
+                        Code = $"[Today:{finalFormat}]",
+                        ToolTip = $"형식 : {finalFormat}"
+                    };
+                    newItem.Options.Add($"형식 : {finalFormat}");
+                }
                 break;
             case "[Time.now]":
                 _nowTagCount++;
-                newItem = new TagItem
                 {
-                    DisplayName = $"[Time.now{_nowTagCount}]",
-                    Code = $"[Time.now:{OptionDateFormat}]",
-                    ToolTip = $"{OptionDateFormat}"
-                };
-                newItem.Options.Add($"형식 : {OptionDateFormat}");
+                    var parts = new List<string>();
+                    if (OptionTimePart1 != "-") parts.Add(OptionTimePart1);
+                    if (!string.IsNullOrEmpty(OptionTimeSep1)) parts.Add(OptionTimeSep1);
+                    if (OptionTimePart2 != "-") parts.Add(OptionTimePart2);
+                    if (!string.IsNullOrEmpty(OptionTimeSep2)) parts.Add(OptionTimeSep2);
+                    if (OptionTimePart3 != "-") parts.Add(OptionTimePart3);
+
+                    string finalFormat = string.Join("", parts);
+                    if (string.IsNullOrEmpty(finalFormat)) finalFormat = "HHMMSS";
+
+                    newItem = new TagItem
+                    {
+                        DisplayName = $"[Time.now{_nowTagCount}]",
+                        Code = $"[Time.now:{finalFormat}]",
+                        ToolTip = $"형식 : {finalFormat}"
+                    };
+                    newItem.Options.Add($"형식 : {finalFormat}");
+                }
                 break;
         }
 

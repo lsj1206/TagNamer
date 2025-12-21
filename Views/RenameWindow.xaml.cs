@@ -56,7 +56,7 @@ public partial class RenameWindow : System.Windows.Window
             menu.Items.Add(insertLastItem);
 
             // 고정 태그는 삭제 메뉴를 노출하지 않음
-            if (!tagItem.IsFixed)
+            if (!tagItem.IsStandard)
             {
                 menu.Items.Add(new Separator());
                 // 태그 삭제
