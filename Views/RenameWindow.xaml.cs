@@ -21,11 +21,6 @@ public partial class RenameWindow : System.Windows.Window
         }
     }
 
-    private void TagItem_MouseLeftButtonUp(object sender, MouseButtonEventArgs e)
-    {
-        // 좌클릭 기능 제거 (요청사항)
-    }
-
     private void TagItem_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
     {
         if (sender is FrameworkElement element && element.DataContext is TagItem tagItem)
