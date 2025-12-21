@@ -55,29 +55,31 @@
 
         <!-- 생성된 태그 목록 -->
         <GroupBox Grid.Row="1" Margin="0,8,0,0" Header="생성된 태그 목록">
-            <ItemsControl Margin="0,-8,0,0" ItemsSource="{Binding TagManager.CreatedTags}">
-                <ItemsControl.ItemsPanel>
-                    <ItemsPanelTemplate>
-                        <WrapPanel Orientation="Horizontal" />
-                    </ItemsPanelTemplate>
-                </ItemsControl.ItemsPanel>
-                <ItemsControl.ItemTemplate>
-                    <DataTemplate>
-                        <Border Margin="4,0"
-                                Padding="8,4"
-                                Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
-                                BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
-                                BorderThickness="1"
-                                CornerRadius="4"
-                                Cursor="Hand"
-                                ToolTip="{Binding ToolTip}"
-                                MouseMove="TagItem_MouseMove"
-                                MouseRightButtonUp="TagItem_MouseRightButtonUp">
-                            <TextBlock FontWeight="Medium" Text="{Binding DisplayName}" />
-                        </Border>
-                    </DataTemplate>
-                </ItemsControl.ItemTemplate>
-            </ItemsControl>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl Margin="0,-4,0,0" ItemsSource="{Binding TagManager.CreatedTags}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="4,4"
+                                    Padding="8,4"
+                                    Background="{DynamicResource SystemControlBackgroundChromeMediumLowBrush}"
+                                    BorderBrush="{DynamicResource SystemControlForegroundBaseLowBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="4"
+                                    Cursor="Hand"
+                                    ToolTip="{Binding ToolTip}"
+                                    MouseMove="TagItem_MouseMove"
+                                    MouseRightButtonUp="TagItem_MouseRightButtonUp">
+                                <TextBlock FontWeight="Medium" Text="{Binding DisplayName}" />
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
         </GroupBox>
 
         <!-- 태그 생성 -->
