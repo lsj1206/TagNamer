@@ -10,7 +10,8 @@ namespace TagNamer.Controls;
 public enum Filter
 {
     None, // 필터 사용 안 함 (수동 설정)
-    WindowsFileNameInvalid, // Windows 파일명 금지 문자 (< > : " / \ | ? *)
+    ValidSpecial, // Windows 파일명에 사용가능한 특수 문자
+    InvalidSpecial, // Windows 파일명에 사용불가능한 특수 문자 (< > : " / \ | ? *)
     Digits, // 숫자 (0-9)
     Alpha, // 영문자 (대소문자)
     AlphaDigits, // 영문자 + 숫자
@@ -209,7 +210,8 @@ public class FilterTextBox : TextBox
         return filter switch
         {
             Filter.None => null,
-            Filter.WindowsFileNameInvalid => "<>:\"/\\|?*",
+            Filter.ValidSpecial => " !@#$%^&()_+-=[]{};',.~",
+            Filter.InvalidSpecial => "<>:\"/\\|?*",
             Filter.Digits => "0123456789",
             Filter.Alpha => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
             Filter.AlphaDigits => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
