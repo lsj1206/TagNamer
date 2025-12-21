@@ -82,14 +82,20 @@
         <ListView x:Name="FileListView"
                   BorderThickness="0"
                   Background="Transparent"
-                  ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                  SelectionMode="Extended"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
                   ItemsSource="{Binding Items}"
                   ItemContainerStyle="{StaticResource FileItemContainerStyle}"
                   AllowDrop="True"
                   KeyDown="ListView_KeyDown"
                   Drop="FileListView_Drop"
-                  PreviewDragOver="FileListView_PreviewDragOver">
+                  DragLeave="FileListView_DragLeave"
+                  PreviewDragOver="FileListView_PreviewDragOver"
+                  PreviewMouseLeftButtonDown="FileListView_PreviewMouseLeftButtonDown"
+                  PreviewMouseLeftButtonUp="FileListView_PreviewMouseLeftButtonUp"
+                  MouseMove="FileListView_MouseMove">
             <ListView.View>
+                <!-- GridView -->
                 <GridView>
                     <GridView.ColumnHeaderContainerStyle>
                         <!-- 헤더 스타일 -->
@@ -166,5 +172,22 @@
                 </GridView>
             </ListView.View>
         </ListView>
+
+        <!-- 드롭 위치 표시선 -->
+        <Canvas x:Name="DragAdornerCanvas" IsHitTestVisible="False">
+            <Border x:Name="DropIndicator"
+                    HorizontalAlignment="Left"
+                    Width="800"
+                    Height="2"
+                    Visibility="Collapsed">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                        <GradientStop Color="#0078D4" Offset="0.66" />
+                        <GradientStop Color="#0078D4" Offset="0.75" />
+                        <GradientStop Color="Transparent" Offset="0.88" />
+                    </LinearGradientBrush>
+                </Border.Background>
+            </Border>
+        </Canvas>
     </Grid>
 </UserControl>
