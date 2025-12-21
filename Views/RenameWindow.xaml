@@ -185,6 +185,7 @@
                                                         Margin="4,0"
                                                         Filter="ValidSpecial"
                                                         FilterMode="Allow"
+                                                        FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
                                                         Text="{Binding DataContext.TagManager.OptionDateSep1, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 <ComboBox Width="70"
@@ -194,6 +195,7 @@
                                                         Margin="4,0"
                                                         Filter="ValidSpecial"
                                                         FilterMode="Allow"
+                                                        FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
                                                         Text="{Binding DataContext.TagManager.OptionDateSep2, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 <ComboBox Width="70"
@@ -210,6 +212,7 @@
                                                         Margin="4,0"
                                                         Filter="ValidSpecial"
                                                         FilterMode="Allow"
+                                                        FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
                                                         Text="{Binding DataContext.TagManager.OptionTimeSep1, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 <ComboBox Width="70"
@@ -219,6 +222,7 @@
                                                         Margin="4,0"
                                                         Filter="ValidSpecial"
                                                         FilterMode="Allow"
+                                                        FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
                                                         Text="{Binding DataContext.TagManager.OptionTimeSep2, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 <ComboBox Width="70"
