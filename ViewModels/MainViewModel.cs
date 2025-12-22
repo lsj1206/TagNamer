@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
@@ -135,6 +136,7 @@ public partial class MainViewModel : ObservableObject
         window.ShowDialog();
     }
 
+    // 목록의 번호를 현재 순서에 맞게 다시 매기는 로직입니다.
     private async void ReorderNumber()
     {
         if (FileList.Items.Count == 0) return;
@@ -148,11 +150,7 @@ public partial class MainViewModel : ObservableObject
             int index = 1;
             foreach (var item in FileList.Items)
             {
-                // 폴더가 아닌 경우에만 번호 부여
-                if (!item.IsFolder)
-                {
-                    item.AddIndex = index++;
-                }
+                item.AddIndex = index++;
             }
             // 다음 추가될 번호 업데이트
             FileList.UpdateNextAddIndex(index);
@@ -241,32 +239,71 @@ public partial class MainViewModel : ObservableObject
     }
 
     // 폴더 추가
-    private void AddFolder()
+    // 폴더 추가 버튼 클릭 시 실행되는 로직입니다.
+    private async void AddFolder()
     {
-        var dialog = new CommonOpenFileDialog
+        try
         {
-            IsFolderPicker = true,
-            Multiselect = true,
-            Title = "폴더 추가"
-        };
-
-        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-        {
-            foreach (var folder in dialog.FileNames)
+            var dialog = new CommonOpenFileDialog
             {
-                var files = _fileService.GetFilesInFolder(folder);
-                foreach (var file in files)
+                IsFolderPicker = true,
+                Multiselect = true,
+                Title = "폴더 추가"
+            };
+
+            // 폴더 선택 창을 띄웁니다.
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                var folderNames = dialog.FileNames.ToList();
+                if (folderNames.Count == 0) return;
+
+                // 선택된 모든 폴더에 대해 처리 방식을 한 번만 묻습니다.
+                // 첫 번째 폴더 이름을 대표로 보여주고, 전체 개수를 전달합니다.
+                var option = await _dialogService.ShowFolderAddOptionAsync(
+                    Path.GetFileName(folderNames[0]),
+                    folderNames.Count);
+
+                // 취소한 경우 중단합니다.
+                if (option == FolderAddOption.Cancel) return;
+
+                foreach (var folder in folderNames)
                 {
-                    var item = _fileService.CreateFileItem(file);
-                    if (item != null)
+                    if (option == FolderAddOption.Files)
                     {
-                        item.UpdateDisplay(ShowExtension);
-                        FileList.AddItem(item);
+                        // '폴더 내 파일 추가' 선택 시: 내부 파일들을 재귀적으로 가져와 추가합니다.
+                        var files = _fileService.GetFilesInFolder(folder);
+                        foreach (var file in files)
+                        {
+                            var item = _fileService.CreateFileItem(file);
+                            if (item != null)
+                            {
+                                item.UpdateDisplay(ShowExtension);
+                                FileList.AddItem(item);
+                            }
+                        }
+                    }
+                    else if (option == FolderAddOption.Folder)
+                    {
+                        // '폴더 추가' 선택 시: 폴더 자체를 목록 아이템으로 추가합니다.
+                        var item = _fileService.CreateFileItem(folder);
+                        if (item != null)
+                        {
+                            item.UpdateDisplay(ShowExtension);
+                            FileList.AddItem(item);
+                        }
                     }
                 }
+
+                // 목록 정렬 및 프리뷰 업데이트를 수행합니다.
+                SortFiles();
+                UpdatePreview();
             }
-            SortFiles();
-            UpdatePreview();
+        }
+        catch (Exception ex)
+        {
+            // 예상치 못한 오류 발생 시 사용자에게 알립니다.
+            System.Diagnostics.Debug.WriteLine($"Error adding folder: {ex.Message}");
+            await _dialogService.ShowConfirmationAsync($"폴더를 추가하는 중 오류가 발생했습니다: {ex.Message}", "오류");
         }
     }
 
@@ -306,6 +343,7 @@ public partial class MainViewModel : ObservableObject
     }
 
     // 목록 정렬
+    // 설정된 정렬 기준에 따라 파일을 정렬합니다.
     private void SortFiles()
     {
         if (FileList.Items.Count == 0) return;
@@ -320,56 +358,106 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    private void ApplyChanges()
+    // 이름 변경 규칙을 실제 파일/폴더에 적용하는 로직입니다.
+    private async void ApplyChanges()
     {
         if (FileList.Items.Count == 0) return;
-        _renameService.ApplyRename(FileList.Items, ShowExtension);
+
+        // 실제 이름 변경 작업을 수행하고 실패한 항목 리스트를 받습니다.
+        var failedItems = _renameService.ApplyRename(FileList.Items, ShowExtension);
+
+        // 실패한 항목이 있으면 사용자에게 알림을 띄웁니다.
+        if (failedItems.Count > 0)
+        {
+            string message = $"{failedItems.Count}개의 항목을 변경하지 못했습니다.";
+            await _dialogService.ShowConfirmationAsync(message, "이름 변경 실패");
+        }
     }
 
+    // 변경된 이름을 이전 상태로 되돌리는 로직입니다.
     private void UndoChanges()
     {
         if (FileList.Items.Count == 0) return;
         _renameService.UndoRename(FileList.Items, ShowExtension);
     }
 
+    // 현재 설정된 규칙에 따라 변경될 이름의 미리보기를 업데이트합니다.
     private void UpdatePreview()
     {
         if (FileList.Items.Count == 0) return;
         _renameService.UpdatePreview(FileList.Items, _renameViewModel.ResolvedRuleFormat, _renameViewModel.TagManager, ShowExtension);
     }
 
-    public void AddDroppedItems(string[] paths)
+    // 외부에서 파일이나 폴더를 드래그 앤 드롭했을 때 실행되는 로직입니다.
+    public async void AddDroppedItems(string[] paths)
     {
-        if (paths == null || paths.Length == 0) return;
-
-        foreach (var path in paths)
+        try
         {
-            if (System.IO.File.Exists(path))
+            if (paths == null || paths.Length == 0) return;
+
+            // 드롭된 경로들을 파일과 폴더로 분리합니다.
+            var files = paths.Where(System.IO.File.Exists).ToList();
+            var folders = paths.Where(System.IO.Directory.Exists).ToList();
+
+            // 파일들은 즉시 추가합니다.
+            foreach (var filePath in files)
             {
-                // 파일인 경우
-                var item = _fileService.CreateFileItem(path);
+                var item = _fileService.CreateFileItem(filePath);
                 if (item != null)
                 {
                     item.UpdateDisplay(ShowExtension);
                     FileList.AddItem(item);
                 }
             }
-            else if (System.IO.Directory.Exists(path))
+
+            // 폴더가 포함된 경우 처리 방식을 한 번만 묻습니다.
+            if (folders.Count > 0)
             {
-                // 폴더인 경우
-                var filePaths = _fileService.GetFilesInFolder(path);
-                foreach (var filePath in filePaths)
+                var option = await _dialogService.ShowFolderAddOptionAsync(
+                    Path.GetFileName(folders[0]),
+                    folders.Count);
+
+                if (option != FolderAddOption.Cancel)
                 {
-                    var item = _fileService.CreateFileItem(filePath);
-                    if (item != null)
+                    foreach (var folderPath in folders)
                     {
-                        item.UpdateDisplay(ShowExtension);
-                        FileList.AddItem(item);
+                        if (option == FolderAddOption.Files)
+                        {
+                            // 폴더 내부의 모든 파일들을 재귀적으로 찾아 추가합니다.
+                            var filePaths = _fileService.GetFilesInFolder(folderPath);
+                            foreach (var filePath in filePaths)
+                            {
+                                var item = _fileService.CreateFileItem(filePath);
+                                if (item != null)
+                                {
+                                    item.UpdateDisplay(ShowExtension);
+                                    FileList.AddItem(item);
+                                }
+                            }
+                        }
+                        else if (option == FolderAddOption.Folder)
+                        {
+                            // 폴더 자체를 목록에 추가합니다.
+                            var item = _fileService.CreateFileItem(folderPath);
+                            if (item != null)
+                            {
+                                item.UpdateDisplay(ShowExtension);
+                                FileList.AddItem(item);
+                            }
+                        }
                     }
                 }
             }
+
+            // 모든 항목 추가 후 정렬 및 프리뷰를 업데이트합니다.
+            SortFiles();
+            UpdatePreview();
         }
-        SortFiles();
-        UpdatePreview(); // 파일 추가 시에도 프리뷰 업데이트
+        catch (Exception ex)
+        {
+            // 드롭 처리 중 오류 발생 시 알림을 표시합니다.
+            System.Diagnostics.Debug.WriteLine($"Error adding dropped items: {ex.Message}");
+            await _dialogService.ShowConfirmationAsync($"항목을 추가하는 중 오류가 발생했습니다: {ex.Message}", "오류");
+        }
     }
 }

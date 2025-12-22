@@ -11,18 +11,39 @@ public class FileService : IFileService
     {
         try
         {
-            var fileInfo = new FileInfo(path);
-            return new FileItem
+            if (File.Exists(path))
             {
-                OriginalName = fileInfo.Name,
-                NewName = fileInfo.Name,
-                Path = path,
-                DirectoryName = Path.GetDirectoryName(path) ?? string.Empty,
-                Size = fileInfo.Length,
-                CreatedDate = fileInfo.CreationTime,
-                ModifiedDate = fileInfo.LastWriteTime,
-                AddIndex = null
-            };
+                var fileInfo = new FileInfo(path);
+                return new FileItem
+                {
+                    OriginalName = fileInfo.Name,
+                    NewName = fileInfo.Name,
+                    Path = path,
+                    DirectoryName = Path.GetDirectoryName(path) ?? string.Empty,
+                    Size = fileInfo.Length,
+                    CreatedDate = fileInfo.CreationTime,
+                    ModifiedDate = fileInfo.LastWriteTime,
+                    IsFolder = false,
+                    AddIndex = null
+                };
+            }
+            else if (Directory.Exists(path))
+            {
+                var dirInfo = new DirectoryInfo(path);
+                return new FileItem
+                {
+                    OriginalName = dirInfo.Name,
+                    NewName = dirInfo.Name,
+                    Path = path,
+                    DirectoryName = Path.GetDirectoryName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)) ?? string.Empty,
+                    Size = 0, // 폴더 크기는 0으로 처리 (계산 비용 문제)
+                    CreatedDate = dirInfo.CreationTime,
+                    ModifiedDate = dirInfo.LastWriteTime,
+                    IsFolder = true,
+                    AddIndex = null
+                };
+            }
+            return null;
         }
         catch (Exception ex)
         {
@@ -70,19 +91,30 @@ public class FileService : IFileService
     {
         try
         {
-            if (!File.Exists(sourcePath)) return false;
+            // 파일인 경우
+            if (File.Exists(sourcePath))
+            {
+                if (File.Exists(destPath) && !string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase))
+                    return false;
 
-            // 대상 파일이 이미 존재하면 실패 (덮어쓰기 방지)
-            if (File.Exists(destPath) && !string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase))
-                return false;
+                File.Move(sourcePath, destPath);
+                return true;
+            }
+            // 폴더인 경우
+            else if (Directory.Exists(sourcePath))
+            {
+                if (Directory.Exists(destPath) && !string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase))
+                    return false;
 
-            // 대소문자만 변경되는 경우를 위해 Move 사용
-            File.Move(sourcePath, destPath);
-            return true;
+                Directory.Move(sourcePath, destPath);
+                return true;
+            }
+
+            return false;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error renaming file: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error renaming file/folder: {ex.Message}");
             return false;
         }
     }

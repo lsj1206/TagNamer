@@ -167,8 +167,9 @@ public class RenameService : IRenameService
         return column;
     }
 
-    public void ApplyRename(IEnumerable<FileItem> items, bool showExtension)
+    public List<FileItem> ApplyRename(IEnumerable<FileItem> items, bool showExtension)
     {
+        var failedItems = new List<FileItem>();
         foreach (var item in items)
         {
             if (string.IsNullOrEmpty(item.NewName) || item.OriginalName == item.NewName) continue;
@@ -183,9 +184,13 @@ public class RenameService : IRenameService
                 item.Path = newPath;
                 item.OriginalName = item.NewName; // 이름 변경 완료 처리
                 item.UpdateDisplay(showExtension);
-                // NewName 초기화? 아니면 유지? -> 유지하는 편이 나음
+            }
+            else
+            {
+                failedItems.Add(item);
             }
         }
+        return failedItems;
     }
 
     public void UndoRename(IEnumerable<FileItem> items, bool showExtension)
@@ -197,7 +202,6 @@ public class RenameService : IRenameService
             if (_fileService.RenameFile(item.Path, item.PreviousPath))
             {
                 // 성공 시
-                item.Path = item.PreviousPath;
                 item.Path = item.PreviousPath;
                 item.OriginalName = Path.GetFileName(item.PreviousPath);
                 item.PreviousPath = string.Empty; // Undo 완료
