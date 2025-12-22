@@ -176,15 +176,19 @@
         <!-- 드롭 위치 표시선 -->
         <Canvas x:Name="DragAdornerCanvas" IsHitTestVisible="False">
             <Border x:Name="DropIndicator"
-                    HorizontalAlignment="Left"
-                    Width="800"
-                    Height="2"
+                    HorizontalAlignment="Stretch"
+                    Width="{Binding ActualWidth, ElementName=FileListView}"
+                    Height="1"
+                    CornerRadius="1.5"
                     Visibility="Collapsed">
+                <Border.Effect>
+                    <DropShadowEffect Color="#0078D4" BlurRadius="4" ShadowDepth="0" Opacity="0.6"/>
+                </Border.Effect>
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                        <GradientStop Color="#0078D4" Offset="0.66" />
-                        <GradientStop Color="#0078D4" Offset="0.75" />
-                        <GradientStop Color="Transparent" Offset="0.88" />
+                        <GradientStop Color="#0078D4" Offset="0" />
+                        <GradientStop Color="#0078D4" Offset="0.85" />
+                        <GradientStop Color="Transparent" Offset="1" />
                     </LinearGradientBrush>
                 </Border.Background>
             </Border>
