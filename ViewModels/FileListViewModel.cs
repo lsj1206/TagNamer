@@ -1,7 +1,7 @@
 using System;
+using System.Linq;
 using System.Collections.ObjectModel;
 using TagNamer.Models;
-using System.Linq;
 
 namespace TagNamer.ViewModels;
 

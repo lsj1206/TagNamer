@@ -1,8 +1,7 @@
-// 이름 변경 규칙 ViewModel
-using System.Collections.ObjectModel;
 using System.Linq;
-using CommunityToolkit.Mvvm.ComponentModel;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
+using CommunityToolkit.Mvvm.ComponentModel;
 using TagNamer.Models;
 
 namespace TagNamer.ViewModels;

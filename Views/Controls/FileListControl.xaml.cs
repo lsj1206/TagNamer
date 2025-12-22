@@ -1,6 +1,6 @@
-using System.Windows.Controls;
-using System.Windows.Input;
 using System.Windows;
+using System.Windows.Input;
+using System.Windows.Controls;
 using TagNamer.ViewModels;
 
 namespace TagNamer.Views.Controls;
