@@ -110,6 +110,23 @@ public partial class FileListControl : UserControl
         return null;
     }
 
+    // 지정된 형식의 하위 요소를 찾는 헬퍼 메서드
+    private static T? FindChild<T>(DependencyObject? parent) where T : DependencyObject
+    {
+        if (parent == null) return null;
+
+        int childrenCount = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+        for (int i = 0; i < childrenCount; i++)
+        {
+            var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+            if (child is T t) return t;
+
+            var result = FindChild<T>(child);
+            if (result != null) return result;
+        }
+        return null;
+    }
+
     private void FileListView_DragLeave(object sender, DragEventArgs e)
     {
         DropIndicator.Visibility = Visibility.Collapsed;
@@ -129,11 +146,32 @@ public partial class FileListControl : UserControl
         {
             e.Effects = DragDropEffects.Move;
             UpdateDropIndicator(e);
+            HandleAutoScroll(e);
         }
         else
         {
             e.Effects = DragDropEffects.None;
             DropIndicator.Visibility = Visibility.Collapsed;
+        }
+    }
+
+    private void HandleAutoScroll(DragEventArgs e)
+    {
+        var scrollViewer = FindChild<ScrollViewer>(FileListView); // FileListView 내부의 ScrollViewer 찾기
+        if (scrollViewer == null) return;
+
+        double tolerance = 30; // 스크롤을 감지할 상/하단 너비
+        Point position = e.GetPosition(FileListView);
+
+        if (position.Y < tolerance)
+        {
+            // 상단 영역에 있으면 위로 스크롤 (이동속도: 2)
+            scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset - 2);
+        }
+        else if (position.Y > FileListView.ActualHeight - tolerance)
+        {
+            // 하단 영역에 있으면 아래로 스크롤 (이동속도: 2)
+            scrollViewer.ScrollToVerticalOffset(scrollViewer.VerticalOffset + 2);
         }
     }
 
