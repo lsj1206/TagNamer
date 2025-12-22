@@ -45,36 +45,6 @@
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
-            <Style.Triggers>
-                <!-- 폴더 템플릿 -->
-                <DataTrigger Binding="{Binding IsFolder}" Value="True">
-                    <Setter Property="Focusable" Value="False"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="ListViewItem">
-                                <Border Margin="0,10,0,2"
-                                        Padding="10,8"
-                                        Background="{StaticResource FolderHeaderBackground}"
-                                        CornerRadius="4">
-                                    <StackPanel Orientation="Horizontal">
-                                        <!-- 폴더 아이콘 -->
-                                        <Image Width="16"
-                                               Height="16"
-                                               Margin="0,0,8,0"
-                                               VerticalAlignment="Center"
-                                               Source="{StaticResource FolderIcon}" />
-                                        <!-- 폴더 경로 -->
-                                        <TextBlock FontSize="14"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="#333333"
-                                                   Text="{Binding Path}" />
-                                    </StackPanel>
-                                </Border>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </DataTrigger>
-            </Style.Triggers>
         </Style>
     </UserControl.Resources>
 
@@ -124,14 +94,20 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <!-- 파일 아이콘 -->
-                                    <Image Width="16"
+                                    <!-- 아이콘 (폴더/파일 구분) -->
+                                    <Image x:Name="ItemIcon"
+                                           Width="16"
                                            Height="16"
                                            Margin="0,2,8,0"
                                            Source="{StaticResource FileIcon}" />
                                     <TextBlock TextTrimming="CharacterEllipsis"
                                                Text="{Binding DisplayOriginalName}" />
                                 </StackPanel>
+                                <DataTemplate.Triggers>
+                                    <DataTrigger Binding="{Binding IsFolder}" Value="True">
+                                        <Setter TargetName="ItemIcon" Property="Source" Value="{StaticResource FolderIcon}" />
+                                    </DataTrigger>
+                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
