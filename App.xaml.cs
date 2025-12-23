@@ -28,6 +28,7 @@ public partial class App : Application
         services.AddSingleton<ISortingService, SortingService>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IRenameService, RenameService>();
+        services.AddSingleton<IWindowService, WindowService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();

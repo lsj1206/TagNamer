@@ -85,7 +85,7 @@ public partial class MainViewModel : ObservableObject
     private readonly ISortingService _sortingService;
     private readonly IFileService _fileService;
     private readonly IRenameService _renameService;
-    private readonly IServiceProvider _serviceProvider;
+    private readonly IWindowService _windowService;
     private readonly RenameViewModel _renameViewModel;
 
     public MainViewModel(
@@ -93,14 +93,14 @@ public partial class MainViewModel : ObservableObject
         ISortingService sortingService,
         IFileService fileService,
         IRenameService renameService,
-        IServiceProvider serviceProvider,
+        IWindowService windowService,
         RenameViewModel renameViewModel)
     {
         _dialogService = dialogService;
         _sortingService = sortingService;
         _fileService = fileService;
         _renameService = renameService;
-        _serviceProvider = serviceProvider;
+        _windowService = windowService;
         _renameViewModel = renameViewModel;
 
         // RenameViewModel의 RuleFormat 변경 시 UI 알림
@@ -128,32 +128,37 @@ public partial class MainViewModel : ObservableObject
 
     private void OpenRenameWindow()
     {
-        var window = _serviceProvider.GetRequiredService<TagNamer.Views.RenameWindow>();
-        var viewModel = _serviceProvider.GetRequiredService<RenameViewModel>();
-
-        window.Owner = System.Windows.Application.Current.MainWindow;
-        window.DataContext = viewModel;
-        window.ShowDialog();
+        // View 타입(RenameWindow)을 직접 명시하긴 하지만,
+        // 이는 Generic 제약을 만족하기 위함이며 생성 및 바인딩 로직은 서비스가 담당합니다.
+        _windowService.ShowDialog<TagNamer.Views.RenameWindow>(_renameViewModel);
     }
 
     // 목록의 번호를 현재 순서에 맞게 다시 매기는 로직입니다.
     private async void ReorderNumber()
     {
-        if (FileList.Items.Count == 0) return;
-
-        var result = await _dialogService.ShowConfirmationAsync(
-            "번호를 현재 목록 순서대로 정렬하시겠습니까?\n현재 부여된 번호는 초기화됩니다.",
-            "번호 재정렬");
-
-        if (result)
+        try
         {
-            int index = 1;
-            foreach (var item in FileList.Items)
+            if (FileList.Items.Count == 0) return;
+
+            var result = await _dialogService.ShowConfirmationAsync(
+                "번호를 현재 목록 순서대로 정렬하시겠습니까?\n현재 부여된 번호는 초기화됩니다.",
+                "번호 재정렬");
+
+            if (result)
             {
-                item.AddIndex = index++;
+                int index = 1;
+                foreach (var item in FileList.Items)
+                {
+                    item.AddIndex = index++;
+                }
+                // 다음 추가될 번호 업데이트
+                FileList.UpdateNextAddIndex(index);
             }
-            // 다음 추가될 번호 업데이트
-            FileList.UpdateNextAddIndex(index);
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error reordering numbers: {ex.Message}");
+            await _dialogService.ShowConfirmationAsync($"번호 재정렬 중 오류가 발생했습니다: {ex.Message}", "오류");
         }
     }
 
@@ -310,25 +315,33 @@ public partial class MainViewModel : ObservableObject
     // 파일 삭제
     private async void DeleteFiles(System.Collections.IList? items)
     {
-        if (items == null || items.Count == 0) return;
-
-        // 삭제할 항목 리스트 복사 (순회 중 컬렉션 변경 방지)
-        var itemsToDelete = items.Cast<TagNamer.Models.FileItem>().ToList();
-        int count = itemsToDelete.Count;
-
-        if (ConfirmDeletion)
+        try
         {
-            string message = count == 1
-                ? "선택된 파일을 목록에서 삭제하시겠습니까?"
-                : $"{count}개의 선택된 파일을 목록에서 삭제하시겠습니까?";
+            if (items == null || items.Count == 0) return;
 
-            var result = await _dialogService.ShowConfirmationAsync(message, "삭제 확인");
-            if (!result) return;
+            // 삭제할 항목 리스트 복사 (순회 중 컬렉션 변경 방지)
+            var itemsToDelete = items.Cast<TagNamer.Models.FileItem>().ToList();
+            int count = itemsToDelete.Count;
+
+            if (ConfirmDeletion)
+            {
+                string message = count == 1
+                    ? "선택된 파일을 목록에서 삭제하시겠습니까?"
+                    : $"{count}개의 선택된 파일을 목록에서 삭제하시겠습니까?";
+
+                var result = await _dialogService.ShowConfirmationAsync(message, "삭제 확인");
+                if (!result) return;
+            }
+
+            foreach (var item in itemsToDelete)
+            {
+                FileList.Items.Remove(item);
+            }
         }
-
-        foreach (var item in itemsToDelete)
+        catch (Exception ex)
         {
-            FileList.Items.Remove(item);
+            System.Diagnostics.Debug.WriteLine($"Error deleting files: {ex.Message}");
+            await _dialogService.ShowConfirmationAsync($"파일 삭제 중 오류가 발생했습니다: {ex.Message}", "오류");
         }
     }
 
@@ -361,16 +374,24 @@ public partial class MainViewModel : ObservableObject
     // 이름 변경 규칙을 실제 파일/폴더에 적용하는 로직입니다.
     private async void ApplyChanges()
     {
-        if (FileList.Items.Count == 0) return;
-
-        // 실제 이름 변경 작업을 수행하고 실패한 항목 리스트를 받습니다.
-        var failedItems = _renameService.ApplyRename(FileList.Items, ShowExtension);
-
-        // 실패한 항목이 있으면 사용자에게 알림을 띄웁니다.
-        if (failedItems.Count > 0)
+        try
         {
-            string message = $"{failedItems.Count}개의 항목을 변경하지 못했습니다.";
-            await _dialogService.ShowConfirmationAsync(message, "이름 변경 실패");
+            if (FileList.Items.Count == 0) return;
+
+            // 실제 이름 변경 작업을 수행하고 실패한 항목 리스트를 받습니다.
+            var failedItems = _renameService.ApplyRename(FileList.Items, ShowExtension);
+
+            // 실패한 항목이 있으면 사용자에게 알림을 띄웁니다.
+            if (failedItems.Count > 0)
+            {
+                string message = $"{failedItems.Count}개의 항목을 변경하지 못했습니다.";
+                await _dialogService.ShowConfirmationAsync(message, "이름 변경 실패");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"Error applying changes: {ex.Message}");
+            await _dialogService.ShowConfirmationAsync($"이름 변경 적용 중 오류가 발생했습니다: {ex.Message}", "오류");
         }
     }
 
