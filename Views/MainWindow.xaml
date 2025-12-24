@@ -44,5 +44,9 @@
                 <controls:FileListControl DataContext="{Binding FileList}" />
             </Border>
         </Grid>
+
+        <!-- 스낵바 알림 레이어 (가장 위에 표시) -->
+        <controls:SnackbarControl Grid.Row="0" Grid.RowSpan="3"
+                                 DataContext="{Binding Snackbar}" />
     </Grid>
 </Window>

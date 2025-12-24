@@ -23,6 +23,10 @@ public partial class FileItem : ObservableObject
 
     // 자동 계산 속성
     public string NewName { get; set; } = string.Empty;
+
+    // 원본 이름과 새 이름이 다른지 여부를 반환합니다.
+    public bool IsChanged => !string.IsNullOrEmpty(NewName) && OriginalName != NewName;
+
     public long Size { get; set; }
     public bool IsFolder { get; set; }
 

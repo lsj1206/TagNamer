@@ -15,6 +15,7 @@ public partial class MainViewModel : ObservableObject
 {
     private bool _isUpdatingSortDirection;
 
+    public SnackbarViewModel Snackbar { get; }
     public FileListViewModel FileList { get; } = new();
 
     public enum SortType
@@ -81,26 +82,32 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand ApplyExtensionCommand { get; }
     public IRelayCommand ReorderNumberCommand { get; }
 
+    private readonly IWindowService _windowService;
     private readonly IDialogService _dialogService;
-    private readonly ISortingService _sortingService;
+    private readonly ISnackbarService _snackbarService;
     private readonly IFileService _fileService;
     private readonly IRenameService _renameService;
-    private readonly IWindowService _windowService;
+    private readonly ISortingService _sortingService;
+
     private readonly RenameViewModel _renameViewModel;
 
     public MainViewModel(
+        IWindowService windowService,
         IDialogService dialogService,
-        ISortingService sortingService,
+        ISnackbarService snackbarService,
         IFileService fileService,
         IRenameService renameService,
-        IWindowService windowService,
+        ISortingService sortingService,
+        SnackbarViewModel snackbarViewModel,
         RenameViewModel renameViewModel)
     {
+        _windowService = windowService;
         _dialogService = dialogService;
-        _sortingService = sortingService;
+        _snackbarService = snackbarService;
         _fileService = fileService;
         _renameService = renameService;
-        _windowService = windowService;
+        _sortingService = sortingService;
+        Snackbar = snackbarViewModel;
         _renameViewModel = renameViewModel;
 
         // RenameViewModel의 RuleFormat 변경 시 UI 알림
@@ -153,12 +160,12 @@ public partial class MainViewModel : ObservableObject
                 }
                 // 다음 추가될 번호 업데이트
                 FileList.UpdateNextAddIndex(index);
+                _snackbarService.Show("번호 재정렬이 완료되었습니다.", Services.SnackbarType.Success);
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error reordering numbers: {ex.Message}");
-            await _dialogService.ShowConfirmationAsync($"번호 재정렬 중 오류가 발생했습니다: {ex.Message}", "오류");
+            _snackbarService.Show($"번호 재정렬 중 오류: {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -220,26 +227,34 @@ public partial class MainViewModel : ObservableObject
     // 파일 추가
     private void AddFiles()
     {
-        var dialog = new CommonOpenFileDialog
+        try
         {
-            IsFolderPicker = false,
-            Multiselect = true,
-            Title = "파일 추가"
-        };
-
-        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-        {
-            foreach (var file in dialog.FileNames)
+            var dialog = new CommonOpenFileDialog
             {
-                var item = _fileService.CreateFileItem(file);
-                if (item != null)
+                IsFolderPicker = false,
+                Multiselect = true,
+                Title = "파일 추가"
+            };
+
+            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            {
+                foreach (var file in dialog.FileNames)
                 {
-                    item.UpdateDisplay(ShowExtension);
-                    FileList.AddItem(item);
+                    var item = _fileService.CreateFileItem(file);
+                    if (item != null)
+                    {
+                        item.UpdateDisplay(ShowExtension);
+                        FileList.AddItem(item);
+                    }
                 }
+                SortFiles();
+                UpdatePreview();
+                _snackbarService.Show($"{dialog.FileNames.Count()}개의 파일이 추가되었습니다.", Services.SnackbarType.Success);
             }
-            SortFiles();
-            UpdatePreview();
+        }
+        catch (Exception ex)
+        {
+            _snackbarService.Show($"파일 추가 중 오류가 발생했습니다: {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -302,13 +317,13 @@ public partial class MainViewModel : ObservableObject
                 // 목록 정렬 및 프리뷰 업데이트를 수행합니다.
                 SortFiles();
                 UpdatePreview();
+                _snackbarService.Show("폴더 추가가 완료되었습니다.", Services.SnackbarType.Success);
             }
         }
         catch (Exception ex)
         {
             // 예상치 못한 오류 발생 시 사용자에게 알립니다.
-            System.Diagnostics.Debug.WriteLine($"Error adding folder: {ex.Message}");
-            await _dialogService.ShowConfirmationAsync($"폴더를 추가하는 중 오류가 발생했습니다: {ex.Message}", "오류");
+            _snackbarService.Show($"폴더 추가 중 오류: {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -337,21 +352,23 @@ public partial class MainViewModel : ObservableObject
             {
                 FileList.Items.Remove(item);
             }
+            _snackbarService.Show($"{count}개의 파일이 목록에서 삭제되었습니다.", Services.SnackbarType.Warning);
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error deleting files: {ex.Message}");
-            await _dialogService.ShowConfirmationAsync($"파일 삭제 중 오류가 발생했습니다: {ex.Message}", "오류");
+            _snackbarService.Show($"파일 목록 삭제 중 오류: {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
     // 목록 삭제
     private async Task ListClearAsync()
     {
+        if (FileList.Items.Count == 0) return;
         var result = await _dialogService.ShowConfirmationAsync("파일 목록을 전부 삭제하시겠습니까?", "목록 삭제");
         if (result)
         {
             FileList.Clear();
+            _snackbarService.Show("파일 목록이 전부 삭제되었습니다.", Services.SnackbarType.Warning);
         }
     }
 
@@ -378,20 +395,31 @@ public partial class MainViewModel : ObservableObject
         {
             if (FileList.Items.Count == 0) return;
 
+            // 변경된 내용이 있는지 확인 (OriginalName/Extension과 NewName/Extension 비교)
+            bool hasChanges = FileList.Items.Any(i => i.IsChanged);
+            if (!hasChanges)
+            {
+                _snackbarService.Show("변경할 내용이 없습니다.", Services.SnackbarType.Info);
+                return;
+            }
+
             // 실제 이름 변경 작업을 수행하고 실패한 항목 리스트를 받습니다.
             var failedItems = _renameService.ApplyRename(FileList.Items, ShowExtension);
 
             // 실패한 항목이 있으면 사용자에게 알림을 띄웁니다.
             if (failedItems.Count > 0)
             {
-                string message = $"{failedItems.Count}개의 항목을 변경하지 못했습니다.";
-                await _dialogService.ShowConfirmationAsync(message, "이름 변경 실패");
+                string message = $"{failedItems.Count}개의 이름 변경에 실패했습니다.";
+                _snackbarService.Show(message, Services.SnackbarType.Warning, 5000);
+            }
+            else
+            {
+                _snackbarService.Show("이름이 변경되었습니다.", Services.SnackbarType.Success);
             }
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error applying changes: {ex.Message}");
-            await _dialogService.ShowConfirmationAsync($"이름 변경 적용 중 오류가 발생했습니다: {ex.Message}", "오류");
+            _snackbarService.Show($"이름 변경 적용 중 오류: {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -399,7 +427,24 @@ public partial class MainViewModel : ObservableObject
     private void UndoChanges()
     {
         if (FileList.Items.Count == 0) return;
-        _renameService.UndoRename(FileList.Items, ShowExtension);
+
+        // 되돌릴 수 있는 항목(PreviousPath가 있는 항목)이 있는지 확인
+        bool canUndo = FileList.Items.Any(i => !string.IsNullOrEmpty(i.PreviousPath));
+        if (!canUndo)
+        {
+            _snackbarService.Show("이름 변경 기록이 없습니다.", Services.SnackbarType.Info);
+            return;
+        }
+
+        try
+        {
+            _renameService.UndoRename(FileList.Items, ShowExtension);
+            _snackbarService.Show("이름을 되돌렸습니다.", Services.SnackbarType.Warning);
+        }
+        catch (Exception ex)
+        {
+            _snackbarService.Show($"되돌리기 중 오류: {ex.Message}", Services.SnackbarType.Error);
+        }
     }
 
     // 현재 설정된 규칙에 따라 변경될 이름의 미리보기를 업데이트합니다.
@@ -473,12 +518,12 @@ public partial class MainViewModel : ObservableObject
             // 모든 항목 추가 후 정렬 및 프리뷰를 업데이트합니다.
             SortFiles();
             UpdatePreview();
+            _snackbarService.Show("목록이 추가되었습니다.", Services.SnackbarType.Success);
         }
         catch (Exception ex)
         {
             // 드롭 처리 중 오류 발생 시 알림을 표시합니다.
-            System.Diagnostics.Debug.WriteLine($"Error adding dropped items: {ex.Message}");
-            await _dialogService.ShowConfirmationAsync($"항목을 추가하는 중 오류가 발생했습니다: {ex.Message}", "오류");
+            _snackbarService.Show($"목록 추가 중 오류: {ex.Message}", Services.SnackbarType.Error);
         }
     }
 }

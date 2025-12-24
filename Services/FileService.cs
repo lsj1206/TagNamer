@@ -7,6 +7,13 @@ namespace TagNamer.Services;
 
 public class FileService : IFileService
 {
+    private readonly ISnackbarService _snackbarService;
+
+    public FileService(ISnackbarService snackbarService)
+    {
+        _snackbarService = snackbarService;
+    }
+
     public FileItem? CreateFileItem(string path)
     {
         try
@@ -47,7 +54,7 @@ public class FileService : IFileService
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error creating file item: {ex.Message}");
+            _snackbarService.Show($"파일 정보를 읽는 중 오류가 발생했습니다: {ex.Message}", SnackbarType.Error);
             return null;
         }
     }
@@ -77,11 +84,11 @@ public class FileService : IFileService
             }
             catch (UnauthorizedAccessException)
             {
-                System.Diagnostics.Debug.WriteLine($"Access denied to: {currentDir}");
+                _snackbarService.Show($"폴더 접근 권한이 없습니다: {currentDir}", SnackbarType.Warning);
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"Error processing folder {currentDir}: {ex.Message}");
+                _snackbarService.Show($"폴더 스캔 중 오류 발생: {ex.Message}", SnackbarType.Error);
             }
         }
         return files;
@@ -95,7 +102,10 @@ public class FileService : IFileService
             if (File.Exists(sourcePath))
             {
                 if (File.Exists(destPath) && !string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    _snackbarService.Show("대상 경로에 이미 파일이 존재합니다.", SnackbarType.Warning);
                     return false;
+                }
 
                 File.Move(sourcePath, destPath);
                 return true;
@@ -104,17 +114,21 @@ public class FileService : IFileService
             else if (Directory.Exists(sourcePath))
             {
                 if (Directory.Exists(destPath) && !string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase))
+                {
+                    _snackbarService.Show("대상 경로에 이미 폴더가 존재합니다.", SnackbarType.Warning);
                     return false;
+                }
 
                 Directory.Move(sourcePath, destPath);
                 return true;
             }
 
+            _snackbarService.Show("소스 파일을 찾을 수 없습니다.", SnackbarType.Error);
             return false;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error renaming file/folder: {ex.Message}");
+            _snackbarService.Show($"이름 변경 실패: {ex.Message}", SnackbarType.Error);
             return false;
         }
     }

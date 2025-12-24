@@ -1,6 +1,6 @@
-﻿using System.Data;
+﻿using System;
+using System.Data;
 using System.Windows;
-using System.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ModernWpf;
 using TagNamer.Services;
@@ -24,14 +24,16 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Services
+        services.AddSingleton<IWindowService, WindowService>();
         services.AddSingleton<IDialogService, DialogService>();
-        services.AddSingleton<ISortingService, SortingService>();
+        services.AddSingleton<ISnackbarService, SnackbarService>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IRenameService, RenameService>();
-        services.AddSingleton<IWindowService, WindowService>();
+        services.AddSingleton<ISortingService, SortingService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddSingleton<SnackbarViewModel>();
         services.AddSingleton<TagManagerViewModel>();
         services.AddSingleton<RenameViewModel>();
 
@@ -44,14 +46,20 @@ public partial class App : Application
 
     protected override void OnStartup(StartupEventArgs e)
     {
-        base.OnStartup(e);
+        try
+        {
+            base.OnStartup(e);
 
-        // ModernWpf 테마 설정 (Light 모드)
-        ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
+            // ModernWpf 테마 설정 (Light 모드)
+            ThemeManager.Current.ApplicationTheme = ApplicationTheme.Light;
 
-        var mainWindow = Services.GetRequiredService<MainWindow>();
-        mainWindow.DataContext = Services.GetRequiredService<MainViewModel>();
-        mainWindow.Show();
+            var mainWindow = Services.GetRequiredService<MainWindow>();
+            mainWindow.DataContext = Services.GetRequiredService<MainViewModel>();
+            mainWindow.Show();
+        }
+        catch (Exception ex)
+        {
+            Shutdown();
+        }
     }
 }
-
