@@ -293,21 +293,23 @@ public partial class MainViewModel : ObservableObject
     partial void OnSortAscendingChanged(bool value)
     {
         if (_isUpdatingSortDirection || !value) return;
-
-        _isUpdatingSortDirection = true;
-        SortDescending = false;
-        _isUpdatingSortDirection = false;
-
-        SortFiles();
+        UpdateSortDirection(isAscending: true);
     }
 
     // 내림차순
     partial void OnSortDescendingChanged(bool value)
     {
         if (_isUpdatingSortDirection || !value) return;
+        UpdateSortDirection(isAscending: false);
+    }
 
+    private void UpdateSortDirection(bool isAscending)
+    {
         _isUpdatingSortDirection = true;
-        SortAscending = false;
+        if (isAscending)
+            SortDescending = false;
+        else
+            SortAscending = false;
         _isUpdatingSortDirection = false;
         SortFiles();
     }
