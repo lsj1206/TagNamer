@@ -412,15 +412,7 @@ public partial class MainViewModel : ObservableObject
             _snackbarService.Show("변경된 기록이 없습니다.", Services.SnackbarType.Info);
             return;
         }
-
-        try
-        {
-            _renameService.UndoRename(FileList.Items, ShowExtension);
-        }
-        catch (Exception ex)
-        {
-            _snackbarService.Show($"되돌리기 중 오류: {ex.Message}", Services.SnackbarType.Error);
-        }
+        _renameService.UndoRename(FileList.Items, ShowExtension);
     }
 
 }
