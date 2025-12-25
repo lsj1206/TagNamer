@@ -57,7 +57,7 @@ public partial class App : Application
             mainWindow.DataContext = Services.GetRequiredService<MainViewModel>();
             mainWindow.Show();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             Shutdown();
         }
