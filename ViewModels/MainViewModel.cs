@@ -143,29 +143,21 @@ public partial class MainViewModel : ObservableObject
     // 목록의 번호를 현재 순서에 맞게 다시 매기는 로직입니다.
     private async void ReorderNumber()
     {
-        try
-        {
-            if (FileList.Items.Count == 0) return;
+        if (FileList.Items.Count == 0) return;
 
-            var result = await _dialogService.ShowConfirmationAsync(
-                "번호를 현재 목록 순서대로 정렬하시겠습니까?\n현재 부여된 번호는 초기화됩니다.",
+        var result = await _dialogService.ShowConfirmationAsync(
+                "번호를 현재 순서대로 정렬하시겠습니까?\n기존 번호는 초기화됩니다.",
                 "번호 재정렬");
 
-            if (result)
-            {
-                int index = 1;
-                foreach (var item in FileList.Items)
-                {
-                    item.AddIndex = index++;
-                }
-                // 다음 추가될 번호 업데이트
-                FileList.UpdateNextAddIndex(index);
-                _snackbarService.Show("번호 재정렬이 완료되었습니다.", Services.SnackbarType.Success);
-            }
-        }
-        catch (Exception ex)
+        if (result)
         {
-            _snackbarService.Show($"번호 재정렬 중 오류: {ex.Message}", Services.SnackbarType.Error);
+            int index = 1;
+            foreach (var item in FileList.Items)
+            {
+                item.AddIndex = index++;
+            }
+            FileList.UpdateNextAddIndex(index);
+            _snackbarService.Show("번호를 재정렬합니다.", Services.SnackbarType.Success);
         }
     }
 
@@ -238,23 +230,44 @@ public partial class MainViewModel : ObservableObject
 
             if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
             {
-                foreach (var file in dialog.FileNames)
+                var fileNames = dialog.FileNames.ToList();
+                int totalCount = fileNames.Count;
+                int successCount = 0;
+
+                foreach (var file in fileNames)
                 {
                     var item = _fileService.CreateFileItem(file);
                     if (item != null)
                     {
                         item.UpdateDisplay(ShowExtension);
-                        FileList.AddItem(item);
+                        if (FileList.AddItem(item))
+                        {
+                            successCount++;
+                        }
                     }
                 }
+
                 SortFiles();
                 UpdatePreview();
-                _snackbarService.Show($"{dialog.FileNames.Count()}개의 파일이 추가되었습니다.", Services.SnackbarType.Success);
+
+                // 스낵바 알림 분기
+                if (successCount == 0)
+                {
+                    _snackbarService.Show("목록에 이미 파일 존재합니다.", Services.SnackbarType.Error);
+                }
+                else if (successCount < totalCount)
+                {
+                    _snackbarService.Show($"{totalCount}개중 {successCount}개를 추가합니다.", Services.SnackbarType.Warning);
+                }
+                else
+                {
+                    _snackbarService.Show($"{successCount}개 파일을 추가합니다.", Services.SnackbarType.Success);
+                }
             }
         }
         catch (Exception ex)
         {
-            _snackbarService.Show($"파일 추가 중 오류가 발생했습니다: {ex.Message}", Services.SnackbarType.Error);
+            _snackbarService.Show($"파일 추가 실패 : {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -286,30 +299,33 @@ public partial class MainViewModel : ObservableObject
                 // 취소한 경우 중단합니다.
                 if (option == FolderAddOption.Cancel) return;
 
+                int successCount = 0;
+                int totalItemsToProcess = 0;
+
                 foreach (var folder in folderNames)
                 {
                     if (option == FolderAddOption.Files)
                     {
-                        // '폴더 내 파일 추가' 선택 시: 내부 파일들을 재귀적으로 가져와 추가합니다.
-                        var files = _fileService.GetFilesInFolder(folder);
+                        var files = _fileService.GetFilesInFolder(folder).ToList();
+                        totalItemsToProcess += files.Count;
                         foreach (var file in files)
                         {
                             var item = _fileService.CreateFileItem(file);
                             if (item != null)
                             {
                                 item.UpdateDisplay(ShowExtension);
-                                FileList.AddItem(item);
+                                if (FileList.AddItem(item)) successCount++;
                             }
                         }
                     }
                     else if (option == FolderAddOption.Folder)
                     {
-                        // '폴더 추가' 선택 시: 폴더 자체를 목록 아이템으로 추가합니다.
+                        totalItemsToProcess++;
                         var item = _fileService.CreateFileItem(folder);
                         if (item != null)
                         {
                             item.UpdateDisplay(ShowExtension);
-                            FileList.AddItem(item);
+                            if (FileList.AddItem(item)) successCount++;
                         }
                     }
                 }
@@ -317,13 +333,24 @@ public partial class MainViewModel : ObservableObject
                 // 목록 정렬 및 프리뷰 업데이트를 수행합니다.
                 SortFiles();
                 UpdatePreview();
-                _snackbarService.Show("폴더 추가가 완료되었습니다.", Services.SnackbarType.Success);
+
+                if (successCount == 0 && totalItemsToProcess > 0)
+                {
+                    _snackbarService.Show("목록에 이미 존재합니다.", Services.SnackbarType.Error);
+                }
+                else if (successCount < totalItemsToProcess)
+                {
+                    _snackbarService.Show($"{totalItemsToProcess}개중 {successCount}개를 추가합니다.", Services.SnackbarType.Warning);
+                }
+                else if (successCount > 0)
+                {
+                    _snackbarService.Show($"{successCount}개를 추가합니다.", Services.SnackbarType.Success);
+                }
             }
         }
         catch (Exception ex)
         {
-            // 예상치 못한 오류 발생 시 사용자에게 알립니다.
-            _snackbarService.Show($"폴더 추가 중 오류: {ex.Message}", Services.SnackbarType.Error);
+            _snackbarService.Show($"폴더 추가 실패 : {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -352,11 +379,11 @@ public partial class MainViewModel : ObservableObject
             {
                 FileList.Items.Remove(item);
             }
-            _snackbarService.Show($"{count}개의 파일이 목록에서 삭제되었습니다.", Services.SnackbarType.Warning);
+            _snackbarService.Show($"{count}개를 목록에서 제거합니다.", Services.SnackbarType.Warning);
         }
         catch (Exception ex)
         {
-            _snackbarService.Show($"파일 목록 삭제 중 오류: {ex.Message}", Services.SnackbarType.Error);
+            _snackbarService.Show($"목록 제거 실패 : {ex.Message}", Services.SnackbarType.Error);
         }
     }
 
@@ -368,7 +395,7 @@ public partial class MainViewModel : ObservableObject
         if (result)
         {
             FileList.Clear();
-            _snackbarService.Show("파일 목록이 전부 삭제되었습니다.", Services.SnackbarType.Warning);
+            _snackbarService.Show("목록을 전부 제거합니다.", Services.SnackbarType.Success);
         }
     }
 
@@ -399,23 +426,12 @@ public partial class MainViewModel : ObservableObject
             bool hasChanges = FileList.Items.Any(i => i.IsChanged);
             if (!hasChanges)
             {
-                _snackbarService.Show("변경할 내용이 없습니다.", Services.SnackbarType.Info);
+                _snackbarService.Show("변경된 규칙이 없습니다.", Services.SnackbarType.Info);
                 return;
             }
 
-            // 실제 이름 변경 작업을 수행하고 실패한 항목 리스트를 받습니다.
-            var failedItems = _renameService.ApplyRename(FileList.Items, ShowExtension);
-
-            // 실패한 항목이 있으면 사용자에게 알림을 띄웁니다.
-            if (failedItems.Count > 0)
-            {
-                string message = $"{failedItems.Count}개의 이름 변경에 실패했습니다.";
-                _snackbarService.Show(message, Services.SnackbarType.Warning, 5000);
-            }
-            else
-            {
-                _snackbarService.Show("이름이 변경되었습니다.", Services.SnackbarType.Success);
-            }
+            // 실제 이름 변경 작업을 수행합니다. (서비스 내부에서 결과 보고)
+            _renameService.ApplyRename(FileList.Items, ShowExtension);
         }
         catch (Exception ex)
         {
@@ -432,14 +448,13 @@ public partial class MainViewModel : ObservableObject
         bool canUndo = FileList.Items.Any(i => !string.IsNullOrEmpty(i.PreviousPath));
         if (!canUndo)
         {
-            _snackbarService.Show("이름 변경 기록이 없습니다.", Services.SnackbarType.Info);
+            _snackbarService.Show("변경된 기록이 없습니다.", Services.SnackbarType.Info);
             return;
         }
 
         try
         {
             _renameService.UndoRename(FileList.Items, ShowExtension);
-            _snackbarService.Show("이름을 되돌렸습니다.", Services.SnackbarType.Warning);
         }
         catch (Exception ex)
         {
@@ -457,54 +472,41 @@ public partial class MainViewModel : ObservableObject
     // 외부에서 파일이나 폴더를 드래그 앤 드롭했을 때 실행되는 로직입니다.
     public async void AddDroppedItems(string[] paths)
     {
-        try
+        if (paths == null || paths.Length == 0) return;
+
+        // 드롭된 경로들을 파일과 폴더로 분리합니다.
+        var files = paths.Where(System.IO.File.Exists).ToList();
+        var folders = paths.Where(System.IO.Directory.Exists).ToList();
+
+        // 파일들은 즉시 추가합니다.
+        foreach (var filePath in files)
         {
-            if (paths == null || paths.Length == 0) return;
-
-            // 드롭된 경로들을 파일과 폴더로 분리합니다.
-            var files = paths.Where(System.IO.File.Exists).ToList();
-            var folders = paths.Where(System.IO.Directory.Exists).ToList();
-
-            // 파일들은 즉시 추가합니다.
-            foreach (var filePath in files)
+            var item = _fileService.CreateFileItem(filePath);
+            if (item != null)
             {
-                var item = _fileService.CreateFileItem(filePath);
-                if (item != null)
-                {
-                    item.UpdateDisplay(ShowExtension);
-                    FileList.AddItem(item);
-                }
+                item.UpdateDisplay(ShowExtension);
+                FileList.AddItem(item);
             }
+        }
 
-            // 폴더가 포함된 경우 처리 방식을 한 번만 묻습니다.
-            if (folders.Count > 0)
-            {
-                var option = await _dialogService.ShowFolderAddOptionAsync(
+        // 폴더가 포함된 경우 처리 방식을 한 번만 묻습니다.
+        if (folders.Count > 0)
+        {
+            var option = await _dialogService.ShowFolderAddOptionAsync(
                     Path.GetFileName(folders[0]),
                     folders.Count);
 
-                if (option != FolderAddOption.Cancel)
+            if (option != FolderAddOption.Cancel)
+            {
+                foreach (var folderPath in folders)
                 {
-                    foreach (var folderPath in folders)
+                    if (option == FolderAddOption.Files)
                     {
-                        if (option == FolderAddOption.Files)
+                        // 폴더 내부의 모든 파일들을 재귀적으로 찾아 추가합니다.
+                        var filePaths = _fileService.GetFilesInFolder(folderPath);
+                        foreach (var filePath in filePaths)
                         {
-                            // 폴더 내부의 모든 파일들을 재귀적으로 찾아 추가합니다.
-                            var filePaths = _fileService.GetFilesInFolder(folderPath);
-                            foreach (var filePath in filePaths)
-                            {
-                                var item = _fileService.CreateFileItem(filePath);
-                                if (item != null)
-                                {
-                                    item.UpdateDisplay(ShowExtension);
-                                    FileList.AddItem(item);
-                                }
-                            }
-                        }
-                        else if (option == FolderAddOption.Folder)
-                        {
-                            // 폴더 자체를 목록에 추가합니다.
-                            var item = _fileService.CreateFileItem(folderPath);
+                            var item = _fileService.CreateFileItem(filePath);
                             if (item != null)
                             {
                                 item.UpdateDisplay(ShowExtension);
@@ -512,18 +514,21 @@ public partial class MainViewModel : ObservableObject
                             }
                         }
                     }
+                    else if (option == FolderAddOption.Folder)
+                    {
+                        // 폴더 자체를 목록에 추가합니다.
+                        var item = _fileService.CreateFileItem(folderPath);
+                        if (item != null)
+                        {
+                            item.UpdateDisplay(ShowExtension);
+                            FileList.AddItem(item);
+                        }
+                    }
                 }
             }
 
-            // 모든 항목 추가 후 정렬 및 프리뷰를 업데이트합니다.
-            SortFiles();
-            UpdatePreview();
-            _snackbarService.Show("목록이 추가되었습니다.", Services.SnackbarType.Success);
-        }
-        catch (Exception ex)
-        {
-            // 드롭 처리 중 오류 발생 시 알림을 표시합니다.
-            _snackbarService.Show($"목록 추가 중 오류: {ex.Message}", Services.SnackbarType.Error);
+        SortFiles();
+        UpdatePreview();
         }
     }
 }

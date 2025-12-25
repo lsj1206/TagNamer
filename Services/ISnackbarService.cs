@@ -2,10 +2,10 @@ namespace TagNamer.Services;
 
 public enum SnackbarType
 {
-    Info,
-    Success,
-    Warning,
-    Error
+    Info,   // 기본
+    Success, // 작업 성공
+    Warning, // 작업 성공 - 경고 (일부 성공)
+    Error // 오류
 }
 
 /// <summary>
@@ -13,11 +13,5 @@ public enum SnackbarType
 /// </summary>
 public interface ISnackbarService
 {
-    /// <summary>
-    /// 스낵바 알림을 표시합니다.
-    /// </summary>
-    /// <param name="message">표시할 메시지 내용</param>
-    /// <param name="type">알림 타입 (색상 결정)</param>
-    /// <param name="durationMs">표시 시간 (밀리초)</param>
     void Show(string message, SnackbarType type = SnackbarType.Info, int durationMs = 2000);
 }

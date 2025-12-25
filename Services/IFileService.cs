@@ -21,5 +21,7 @@ public interface IFileService
     /// <summary>
     /// 파일 또는 폴더의 이름을 변경(이동)합니다.
     /// </summary>
-    bool RenameFile(string sourcePath, string destPath);
+    /// <param name="sourcePath">현재 경로</param>
+    /// <param name="destPath">변경할 새 경로</param>
+    void RenameFile(string sourcePath, string destPath);
 }

@@ -7,7 +7,7 @@
              mc:Ignorable="d"
              HorizontalAlignment="Center"
              VerticalAlignment="Top"
-             Margin="0,-5,0,0">
+             Margin="0">
 
     <UserControl.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />

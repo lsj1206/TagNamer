@@ -16,16 +16,17 @@ public class FileListViewModel
         _nextAddIndex = 1;
     }
 
-    public void AddItem(FileItem item)
+    public bool AddItem(FileItem item)
     {
-        // 중복 체크
+        // 중복 체크 (이미 목록에 있는 경로는 추가하지 않음)
         if (Items.Any(i => i.Path.Equals(item.Path, StringComparison.OrdinalIgnoreCase)))
         {
-            return;
+            return false;
         }
 
         item.AddIndex = _nextAddIndex++;
         Items.Add(item);
+        return true;
     }
 
     public void UpdateNextAddIndex(int nextIndex)
