@@ -345,10 +345,7 @@ public partial class MainViewModel : ObservableObject
             if (!result) return;
         }
 
-        foreach (var item in itemsToDelete)
-        {
-            FileList.Items.Remove(item);
-        }
+        FileList.RemoveItems(itemsToDelete);
         _snackbarService.Show($"{count}개를 목록에서 제거합니다.", Services.SnackbarType.Warning);
     }
 
