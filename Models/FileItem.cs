@@ -18,11 +18,11 @@ public partial class FileItem : ObservableObject
     [ObservableProperty]
     private string displayNewName = string.Empty;
 
-    // Undo를 위한 이전 경로
-    public string PreviousPath { get; set; } = string.Empty;
-
     // 자동 계산 속성
     public string NewName { get; set; } = string.Empty;
+
+    // Undo를 위한 이전 경로
+    public string PreviousPath { get; set; } = string.Empty;
 
     // 원본 이름과 새 이름이 다른지 여부를 반환합니다.
     public bool IsChanged => !string.IsNullOrEmpty(NewName) && OriginalName != NewName;
@@ -37,6 +37,9 @@ public partial class FileItem : ObservableObject
     public DateTime? ModifiedDate { get; set; }
     // 파일 확장자
     public string Extension => IsFolder ? string.Empty : System.IO.Path.GetExtension(OriginalName);
+
+    // 확장자를 제외한 파일명 (중복 호출 방지용)
+    public string NameWithoutExtension => IsFolder ? OriginalName : System.IO.Path.GetFileNameWithoutExtension(OriginalName);
 
     // 파일 크기를 읽기 쉬운 형태로 변환
     public string UnitSize => FormatFileSize(Size);
@@ -73,8 +76,7 @@ public partial class FileItem : ObservableObject
         }
         else
         {
-            DisplayOriginalName = System.IO.Path.GetFileNameWithoutExtension(OriginalName);
-            // NewName에서도 확장자 제거 (단, NewName이 비어있지 않을 때만)
+            DisplayOriginalName = NameWithoutExtension;
             DisplayNewName = string.IsNullOrEmpty(NewName)
                 ? string.Empty
                 : System.IO.Path.GetFileNameWithoutExtension(NewName);

@@ -70,9 +70,8 @@ public class RenameService : IRenameService
             var item = itemList[i];
             string newName = processedFormat;
 
-            string fileNameOnly = Path.GetFileNameWithoutExtension(item.OriginalName);
-            newName = newName.Replace("[Name.origin]", fileNameOnly);
-            newName = newName.Replace("[Name.prev]", fileNameOnly);
+            newName = newName.Replace("[Name.origin]", item.NameWithoutExtension);
+            newName = newName.Replace("[Name.prev]", item.NameWithoutExtension);
 
             newName = _numberTagRegex.Replace(newName, match =>
             {
