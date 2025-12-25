@@ -122,8 +122,8 @@ public partial class MainViewModel : ObservableObject
 
         selectedSortOption = SortOptions.First();
 
-        AddFilesCommand = new RelayCommand(AddFiles);
-        AddFolderCommand = new RelayCommand(AddFolder);
+        AddFilesCommand = new RelayCommand(() => AddFiles(false));
+        AddFolderCommand = new RelayCommand(() => AddFiles(true));
         DeleteFilesCommand = new RelayCommand<System.Collections.IList>(DeleteFiles);
         ListClearCommand = new AsyncRelayCommand(ListClearAsync);
         OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
@@ -138,6 +138,119 @@ public partial class MainViewModel : ObservableObject
         // View 타입(RenameWindow)을 직접 명시하긴 하지만,
         // 이는 Generic 제약을 만족하기 위함이며 생성 및 바인딩 로직은 서비스가 담당합니다.
         _windowService.ShowDialog<TagNamer.Views.RenameWindow>(_renameViewModel);
+    }
+
+    // 현재 설정된 규칙에 따라 변경될 이름의 미리보기를 업데이트합니다.
+    private void UpdatePreview()
+    {
+        if (FileList.Items.Count == 0) return;
+        _renameService.UpdatePreview(FileList.Items, _renameViewModel.ResolvedRuleFormat, _renameViewModel.TagManager, ShowExtension);
+    }
+
+    // 파일/폴더 추가 (다이얼로그 진입점)
+    private async void AddFiles(bool isFolder)
+    {
+        var dialog = new CommonOpenFileDialog
+        {
+            IsFolderPicker = isFolder,
+            Multiselect = true,
+            Title = isFolder ? "폴더 추가" : "파일 추가"
+        };
+
+        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+        {
+            await ProcessFiles(dialog.FileNames);
+        }
+    }
+
+    // 드래그 앤 드롭 진입점
+    public async void DropFiles(string[] paths)
+    {
+        await ProcessFiles(paths);
+    }
+
+    /// <summary>
+    /// 파일 추가 프로세스 전체를 관장합니다.
+    /// </summary>
+    private async Task ProcessFiles(IEnumerable<string> paths)
+    {
+        var finalPaths = await FileScanner(paths);
+        AddFilesToList(finalPaths);
+    }
+
+    /// <summary>
+    /// 입력받은 경로들을 스캔하여 폴더 옵션에 따라 최종 파일/폴더 리스트를 반환합니다.
+    /// </summary>
+    private async Task<List<string>> FileScanner(IEnumerable<string> paths)
+    {
+        if (paths == null) return new List<string>();
+        var rawPaths = paths.ToList();
+        if (rawPaths.Count == 0) return new List<string>();
+
+        var files = rawPaths.Where(File.Exists).ToList();
+        var folders = rawPaths.Where(Directory.Exists).ToList();
+        var finalPaths = new List<string>(files);
+
+        if (folders.Count > 0)
+        {
+            var option = await _dialogService.ShowFolderAddOptionAsync(Path.GetFileName(folders[0]), folders.Count);
+            if (option != FolderAddOption.Cancel)
+            {
+                foreach (var folderPath in folders)
+                {
+                    if (option == FolderAddOption.Files)
+                        finalPaths.AddRange(_fileService.GetFilesInFolder(folderPath));
+                    else if (option == FolderAddOption.Folder)
+                        finalPaths.Add(folderPath);
+                }
+            }
+            else if (files.Count == 0)
+            {
+                return new List<string>();
+            }
+        }
+
+        return finalPaths;
+    }
+
+    /// <summary>
+    /// 준비된 경로들을 기반으로 아이템을 생성하고 목록에 추가합니다.
+    /// </summary>
+    private void AddFilesToList(IEnumerable<string> paths)
+    {
+        var pathList = paths.ToList();
+        int totalCount = pathList.Count;
+        if (totalCount == 0) return;
+
+        int successCount = 0;
+        foreach (var path in pathList)
+        {
+            var item = _fileService.CreateFileItem(path);
+            if (item != null)
+            {
+                item.UpdateDisplay(ShowExtension);
+                if (FileList.AddItem(item))
+                {
+                    successCount++;
+                }
+            }
+        }
+
+        SortFiles();
+        UpdatePreview();
+        // 스낵바 알림
+        if (successCount == 0 && totalCount > 0)
+        {
+            _snackbarService.Show("목록에 이미 존재합니다.", Services.SnackbarType.Error);
+        }
+        else if (successCount < totalCount)
+        {
+            _snackbarService.Show($"{totalCount}개중 {successCount}개를 추가합니다.", Services.SnackbarType.Warning);
+        }
+        else if (successCount > 0)
+        {
+            _snackbarService.Show($"{successCount}개를 추가합니다.", Services.SnackbarType.Success);
+        }
     }
 
     // 목록의 번호를 현재 순서에 맞게 다시 매기는 로직입니다.
@@ -214,95 +327,6 @@ public partial class MainViewModel : ObservableObject
         // 실제 확장자 변경 로직은 여기에 구현 예정
         // 현재는 입력값 정규화만 수행
         ExtensionInput = extension;
-    }
-
-    // 파일 추가
-    private void AddFiles()
-    {
-        try
-        {
-            var dialog = new CommonOpenFileDialog
-            {
-                IsFolderPicker = false,
-                Multiselect = true,
-                Title = "파일 추가"
-            };
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                ProcessAddItems(dialog.FileNames);
-            }
-        }
-        catch (Exception ex)
-        {
-            _snackbarService.Show($"파일 추가 실패 : {ex.Message}", Services.SnackbarType.Error);
-        }
-    }
-
-    // 폴더 추가
-    private async void AddFolder()
-    {
-        try
-        {
-            var dialog = new CommonOpenFileDialog
-            {
-                IsFolderPicker = true,
-                Multiselect = true,
-                Title = "폴더 추가"
-            };
-
-            if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
-            {
-                var folderNames = dialog.FileNames.ToList();
-                if (folderNames.Count == 0) return;
-
-                var option = await _dialogService.ShowFolderAddOptionAsync(Path.GetFileName(folderNames[0]), folderNames.Count);
-                if (option == FolderAddOption.Cancel) return;
-
-                var pathsToAdd = new List<string>();
-                foreach (var folder in folderNames)
-                {
-                    if (option == FolderAddOption.Files)
-                        pathsToAdd.AddRange(_fileService.GetFilesInFolder(folder));
-                    else if (option == FolderAddOption.Folder)
-                        pathsToAdd.Add(folder);
-                }
-
-                ProcessAddItems(pathsToAdd);
-            }
-        }
-        catch (Exception ex)
-        {
-            _snackbarService.Show($"폴더 추가 실패 : {ex.Message}", Services.SnackbarType.Error);
-        }
-    }
-
-    // 외부에서 파일이나 폴더를 드래그 앤 드롭했을 때 실행되는 로직입니다.
-    public async void AddDroppedItems(string[] paths)
-    {
-        if (paths == null || paths.Length == 0) return;
-
-        var files = paths.Where(File.Exists).ToList();
-        var folders = paths.Where(Directory.Exists).ToList();
-        var finalPaths = new List<string>(files);
-
-        if (folders.Count > 0)
-        {
-            var option = await _dialogService.ShowFolderAddOptionAsync(Path.GetFileName(folders[0]), folders.Count);
-            if (option != FolderAddOption.Cancel)
-            {
-                foreach (var folderPath in folders)
-                {
-                    if (option == FolderAddOption.Files)
-                        finalPaths.AddRange(_fileService.GetFilesInFolder(folderPath));
-                    else if (option == FolderAddOption.Folder)
-                        finalPaths.Add(folderPath);
-                }
-            }
-            else if (files.Count == 0) return; // 폴더 취소 시 파일도 없으면 중단
-        }
-
-        ProcessAddItems(finalPaths);
     }
 
     // 파일 삭제
@@ -413,50 +437,4 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // 현재 설정된 규칙에 따라 변경될 이름의 미리보기를 업데이트합니다.
-    private void UpdatePreview()
-    {
-        if (FileList.Items.Count == 0) return;
-        _renameService.UpdatePreview(FileList.Items, _renameViewModel.ResolvedRuleFormat, _renameViewModel.TagManager, ShowExtension);
-    }
-
-    /// <summary>
-    /// 공통 파일/폴더 추가 로직을 처리하고 결과를 알립니다.
-    /// </summary>
-    private void ProcessAddItems(IEnumerable<string> paths)
-    {
-        var pathList = paths.ToList();
-        int totalCount = pathList.Count;
-        if (totalCount == 0) return;
-
-        int successCount = 0;
-        foreach (var path in pathList)
-        {
-            var item = _fileService.CreateFileItem(path);
-            if (item != null)
-            {
-                item.UpdateDisplay(ShowExtension);
-                if (FileList.AddItem(item))
-                {
-                    successCount++;
-                }
-            }
-        }
-
-        SortFiles();
-        UpdatePreview();
-        // 스낵바 알림
-        if (successCount == 0 && totalCount > 0)
-        {
-            _snackbarService.Show("목록에 이미 존재합니다.", Services.SnackbarType.Error);
-        }
-        else if (successCount < totalCount)
-        {
-            _snackbarService.Show($"{totalCount}개중 {successCount}개를 추가합니다.", Services.SnackbarType.Warning);
-        }
-        else if (successCount > 0)
-        {
-            _snackbarService.Show($"{successCount}개를 추가합니다.", Services.SnackbarType.Success);
-        }
-    }
 }

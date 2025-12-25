@@ -222,7 +222,7 @@ public partial class FileListControl : UserControl
             {
                 if (Window.GetWindow(this)?.DataContext is MainViewModel vm)
                 {
-                    vm.AddDroppedItems(files);
+                    vm.DropFiles(files);
                 }
             }
         }
