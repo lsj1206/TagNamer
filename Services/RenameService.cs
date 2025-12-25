@@ -20,6 +20,12 @@ public class RenameService : IRenameService
     private readonly ISnackbarService _snackbarService;
     private readonly IFileService _fileService;
 
+    public enum BatchActionType
+    {
+        ApplyRename,
+        UndoRename,
+    }
+
     public RenameService(IFileService fileService, ISnackbarService snackbarService)
     {
         _snackbarService = snackbarService;
@@ -110,12 +116,12 @@ public class RenameService : IRenameService
     }
 
     /// <summary>
-    /// 배치 이름 변경 작업을 수행하고 통합 보고합니다.
+    /// 이름 변경 작업을 수행합니다.
     /// </summary>
     public void ApplyRename(IEnumerable<FileItem> items, bool showExtension)
     {
         int successCount = 0;
-        var errors = new List<string>();
+        var errors = new List<Exception>();
 
         foreach (var item in items)
         {
@@ -134,20 +140,19 @@ public class RenameService : IRenameService
             }
             catch (Exception ex)
             {
-                errors.Add($"{item.OriginalName} -> {item.NewName}: {ex.Message}");
+                errors.Add(ex);
             }
         }
-
-        ReportBatchResult("변경 적용", successCount, errors);
+        ShowRenameSnackbar(BatchActionType.ApplyRename, successCount, errors);
     }
 
     /// <summary>
-    /// 배치 이름 복구 작업을 수행하고 통합 보고합니다.
+    /// 이름 되돌리기 작업을 수행합니다.
     /// </summary>
     public void UndoRename(IEnumerable<FileItem> items, bool showExtension)
     {
         int successCount = 0;
-        var errors = new List<string>();
+        var errors = new List<Exception>();
 
         foreach (var item in items)
         {
@@ -165,43 +170,57 @@ public class RenameService : IRenameService
             }
             catch (Exception ex)
             {
-                errors.Add($"{item.OriginalName} -> 원본: {ex.Message}");
+                errors.Add(ex);
             }
         }
-
-        ReportBatchResult("변경 취소", successCount, errors);
+        ShowRenameSnackbar(BatchActionType.UndoRename, successCount, errors);
     }
 
     /// <summary>
-    /// 배치 작업 결과를 분석하여 단 한 번의 스낵바 알림을 보냅니다.
+    /// 이름 변경 작업 결과를 분석하여 단 한 번의 스낵바 알림을 표시합니다.
     /// </summary>
-    private void ReportBatchResult(string actionName, int successCount, List<string> errors)
+    private void ShowRenameSnackbar(BatchActionType actionType, int successCount, IReadOnlyList<Exception> errors)
     {
-        if (successCount == 0 && errors.Count == 0) return;
-
+        // 아무 일도 안 일어난 경우
+        if (successCount == 0 && errors.Count == 0)
+            return;
+        // 전부 성공
         if (errors.Count == 0)
         {
-            if (actionName == "변경 적용")
-                _snackbarService.Show($"{successCount}개의 파일 이름 변경 적용", SnackbarType.Success);
-            else if (actionName == "변경 취소")
-                _snackbarService.Show($"{successCount}개의 파일 이름 변경 취소합니다.", SnackbarType.Success);
-            else
-                _snackbarService.Show($"{successCount}개의 항목 {actionName} 완료", SnackbarType.Success);
+            _snackbarService.Show(GetSuccessMessage(actionType, successCount), SnackbarType.Success);
+            return;
         }
-        else if (successCount > 0)
+        // 일부 성공
+        if (successCount > 0)
         {
             _snackbarService.Show($"{successCount}개 성공, {errors.Count}개 실패했습니다.", SnackbarType.Warning);
+            return;
         }
-        else
+        // 전부 실패
+        _snackbarService.Show(GetFailureMessage(actionType, errors), SnackbarType.Error);
+    }
+
+    private static string GetSuccessMessage(BatchActionType actionType, int successCount)
+    {
+        return actionType switch
         {
-            string firstError = errors[0];
-            if (firstError.Contains("찾을 수 없습니다"))
-                _snackbarService.Show("이름 변경 실패 : 원본을 찾을 수 없습니다.", SnackbarType.Error);
-            else if (firstError.Contains("존재합니다"))
-                _snackbarService.Show("이름 변경 실패 : 변경할 이름이 이미 존재합니다.", SnackbarType.Error);
-            else
-                _snackbarService.Show($"{errors.Count}개 항목 {actionName} 실패", SnackbarType.Error);
-        }
+            BatchActionType.ApplyRename => $"{successCount}개의 이름을 변경합니다.",
+            BatchActionType.UndoRename => $"{successCount}개의 이름 변경을 취소합니다.",
+            _ => $"{successCount}개의 작업이 완료되었습니다."
+        };
+    }
+
+    private static string GetFailureMessage(BatchActionType actionType, IReadOnlyList<Exception> errors)
+    {
+        Exception firstError = errors[0];
+
+        return firstError switch
+        {
+            FileNotFoundException => "이름 변경 실패 : 원본을 찾을 수 없습니다.",
+            UnauthorizedAccessException => "이름 변경 실패 : 권한이 없습니다.",
+            IOException => "이름 변경 실패 : 변경할 이름이 이미 존재합니다.",
+            _ => $"{errors.Count}개의 작업이 실패했습니다."
+        };
     }
 
     private string ConvertDateFormat(string input) =>
