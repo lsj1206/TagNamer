@@ -14,7 +14,6 @@ public enum Filter
     InvalidSpecial, // Windows 파일명에 사용불가능한 특수 문자 (< > : " / \ | ? *)
     Digits, // 숫자 (0-9)
     Alpha, // 영문자 (대소문자)
-    AlphaDigits, // 영문자 + 숫자
 }
 
 public enum FilterMode
@@ -214,7 +213,6 @@ public class FilterTextBox : TextBox
             Filter.InvalidSpecial => "<>:\"/\\|?*",
             Filter.Digits => "0123456789",
             Filter.Alpha => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz",
-            Filter.AlphaDigits => "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789",
             _ => null
         };
     }
@@ -230,7 +228,7 @@ public class FilterTextBox : TextBox
 
         _isFiltering = true;
 
-        // 1프레임 딜레이를 통해서 입력이 막힌다는 느낌을 제공
+        // 딜레이를 사용해서 입력불가를 UX로 표현
         Dispatcher.BeginInvoke(() =>
         {
             try
