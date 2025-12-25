@@ -332,34 +332,27 @@ public partial class MainViewModel : ObservableObject
     // 파일 삭제
     private async void DeleteFiles(System.Collections.IList? items)
     {
-        try
+        if (items == null || items.Count == 0) return;
+
+        // 삭제할 항목 리스트 복사 (순회 중 컬렉션 변경 방지)
+        var itemsToDelete = items.Cast<TagNamer.Models.FileItem>().ToList();
+        int count = itemsToDelete.Count;
+
+        if (ConfirmDeletion)
         {
-            if (items == null || items.Count == 0) return;
+            string message = count == 1
+                ? "선택된 파일을 목록에서 삭제하시겠습니까?"
+                : $"{count}개의 선택된 파일을 목록에서 삭제하시겠습니까?";
 
-            // 삭제할 항목 리스트 복사 (순회 중 컬렉션 변경 방지)
-            var itemsToDelete = items.Cast<TagNamer.Models.FileItem>().ToList();
-            int count = itemsToDelete.Count;
-
-            if (ConfirmDeletion)
-            {
-                string message = count == 1
-                    ? "선택된 파일을 목록에서 삭제하시겠습니까?"
-                    : $"{count}개의 선택된 파일을 목록에서 삭제하시겠습니까?";
-
-                var result = await _dialogService.ShowConfirmationAsync(message, "삭제 확인");
-                if (!result) return;
-            }
-
-            foreach (var item in itemsToDelete)
-            {
-                FileList.Items.Remove(item);
-            }
-            _snackbarService.Show($"{count}개를 목록에서 제거합니다.", Services.SnackbarType.Warning);
+            var result = await _dialogService.ShowConfirmationAsync(message, "삭제 확인");
+            if (!result) return;
         }
-        catch (Exception ex)
+
+        foreach (var item in itemsToDelete)
         {
-            _snackbarService.Show($"목록 제거 실패 : {ex.Message}", Services.SnackbarType.Error);
+            FileList.Items.Remove(item);
         }
+        _snackbarService.Show($"{count}개를 목록에서 제거합니다.", Services.SnackbarType.Warning);
     }
 
     // 목록 삭제
