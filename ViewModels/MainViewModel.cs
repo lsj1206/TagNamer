@@ -386,25 +386,18 @@ public partial class MainViewModel : ObservableObject
     // 이름 변경 규칙을 실제 파일/폴더에 적용하는 로직입니다.
     private async void ApplyChanges()
     {
-        try
-        {
-            if (FileList.Items.Count == 0) return;
+        if (FileList.Items.Count == 0) return;
 
-            // 변경된 내용이 있는지 확인 (OriginalName/Extension과 NewName/Extension 비교)
-            bool hasChanges = FileList.Items.Any(i => i.IsChanged);
-            if (!hasChanges)
-            {
-                _snackbarService.Show("변경된 규칙이 없습니다.", Services.SnackbarType.Info);
-                return;
-            }
-
-            // 실제 이름 변경 작업을 수행합니다. (서비스 내부에서 결과 보고)
-            _renameService.ApplyRename(FileList.Items, ShowExtension);
-        }
-        catch (Exception ex)
+        // 변경된 내용이 있는지 확인 (OriginalName/Extension과 NewName/Extension 비교)
+        bool hasChanges = FileList.Items.Any(i => i.IsChanged);
+        if (!hasChanges)
         {
-            _snackbarService.Show($"이름 변경 적용 중 오류: {ex.Message}", Services.SnackbarType.Error);
+            _snackbarService.Show("변경된 규칙이 없습니다.", Services.SnackbarType.Info);
+            return;
         }
+
+        // 실제 이름 변경 작업을 수행합니다. (서비스 내부에서 결과 보고)
+        _renameService.ApplyRename(FileList.Items, ShowExtension);
     }
 
     // 변경된 이름을 이전 상태로 되돌리는 로직입니다.
