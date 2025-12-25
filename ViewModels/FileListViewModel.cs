@@ -1,7 +1,9 @@
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using TagNamer.Models;
+using TagNamer.Services;
 
 namespace TagNamer.ViewModels;
 
@@ -32,6 +34,52 @@ public class FileListViewModel
     public void UpdateNextAddIndex(int nextIndex)
     {
         _nextAddIndex = nextIndex;
+    }
+
+    /// <summary>
+    /// 목록을 정렬합니다.
+    /// </summary>
+    public void Sorting(ISortingService sortingService, MainViewModel.SortOption option, bool ascending)
+    {
+        if (Items.Count == 0) return;
+
+        var sortedItems = sortingService.Sort(Items, option, ascending);
+
+        Items.Clear();
+        foreach (var item in sortedItems)
+        {
+            Items.Add(item);
+        }
+    }
+
+    /// <summary>
+    /// 여러 아이템을 목록에서 제거합니다.
+    /// </summary>
+    /// <returns>삭제된 아이템 개수</returns>
+    public int RemoveItems(IEnumerable<FileItem> itemsToRemove)
+    {
+        if (itemsToRemove == null) return 0;
+
+        var itemList = itemsToRemove.ToList();
+        foreach (var item in itemList)
+        {
+            Items.Remove(item);
+        }
+
+        return itemList.Count;
+    }
+
+    /// <summary>
+    /// 현재 순서대로 번호를 재정렬합니다.
+    /// </summary>
+    public void ReorderIndex()
+    {
+        int index = 1;
+        foreach (var item in Items)
+        {
+            item.AddIndex = index++;
+        }
+        _nextAddIndex = index;
     }
 
     public void MoveItems(System.Collections.Generic.List<FileItem> itemsToMove, int targetIndex, bool isBottom)

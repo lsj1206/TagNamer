@@ -264,12 +264,7 @@ public partial class MainViewModel : ObservableObject
 
         if (result)
         {
-            int index = 1;
-            foreach (var item in FileList.Items)
-            {
-                item.AddIndex = index++;
-            }
-            FileList.UpdateNextAddIndex(index);
+            FileList.ReorderIndex();
             _snackbarService.Show("번호를 재정렬합니다.", Services.SnackbarType.Success);
         }
     }
@@ -370,19 +365,9 @@ public partial class MainViewModel : ObservableObject
     }
 
     // 목록 정렬
-    // 설정된 정렬 기준에 따라 파일을 정렬합니다.
     private void SortFiles()
     {
-        if (FileList.Items.Count == 0) return;
-
-        var sortedItems = _sortingService.Sort(FileList.Items, SelectedSortOption, SortAscending);
-
-        // 정렬된 리스트 반영
-        FileList.Items.Clear();
-        foreach (var item in sortedItems)
-        {
-            FileList.Items.Add(item);
-        }
+        FileList.Sorting(_sortingService, SelectedSortOption, SortAscending);
     }
 
     // 이름 변경 규칙을 실제 파일/폴더에 적용하는 로직입니다.
