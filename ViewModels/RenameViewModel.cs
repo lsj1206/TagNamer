@@ -13,22 +13,8 @@ public partial class RenameViewModel : ObservableObject
 
     public TagManagerViewModel TagManager { get; }
 
-    // 실제 파일명 변경 로직에서 사용할 변환된 규칙 문자열
-    public string ResolvedRuleFormat
-    {
-        get
-        {
-            var resolved = RuleFormat;
-            foreach (var tag in TagManager.CreatedTags)
-            {
-                if (!string.IsNullOrEmpty(tag.DisplayName) && !string.IsNullOrEmpty(tag.Code))
-                {
-                    resolved = resolved.Replace(tag.DisplayName, tag.Code);
-                }
-            }
-            return resolved;
-        }
-    }
+    // RenameService에서 TagItem list를 순회하며 직접 매칭하고 치환
+    public string ResolvedRuleFormat => RuleFormat;
 
     /// 규칙에 태그 추가
     /// 'isForward' 앞에 추가할지 여부 (true: 맨 앞, false: 맨 뒤)

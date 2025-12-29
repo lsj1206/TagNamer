@@ -14,8 +14,6 @@ namespace TagNamer.Services;
 /// </summary>
 public class RenameService : IRenameService
 {
-    private static readonly Regex _numberTagRegex = new(@"\[Number:(\d+):(\d+)\]", RegexOptions.Compiled);
-    private static readonly Regex _atozTagRegex = new(@"\[AtoZ:([a-zA-Z]*):(\d+):(\d+)\]", RegexOptions.Compiled);
 
     private readonly ISnackbarService _snackbarService;
     private readonly IFileService _fileService;
@@ -47,64 +45,78 @@ public class RenameService : IRenameService
         var itemList = items.ToList();
         if (itemList.Count == 0) return;
 
-        string processedFormat = ruleFormat;
+        // 입력된 규칙(ruleFormat)에 해당 태그의 DisplayName이 포함되어 있는지 확인합니다.
+        var activeTags = tagManager.CreatedTags
+            .Where(t => ruleFormat.IndexOf(t.DisplayName, StringComparison.OrdinalIgnoreCase) >= 0)
+            .ToList();
+
+        // 날짜/시간 태그 계산 결과를 캐싱하여 반복적인 DateTime 포맷팅을 방지합니다.
+        var dateCache = new Dictionary<string, string>();
         DateTime now = DateTime.Now;
-
-        // 공통 태그 사전 처리
-        if (processedFormat.Contains("[Today]", StringComparison.OrdinalIgnoreCase))
-        {
-            string format = string.IsNullOrWhiteSpace(tagManager.OptionDateFormat) ? "yyyyMMdd" : tagManager.OptionDateFormat;
-            string dateStr = now.ToString(ConvertDateFormat(format));
-            processedFormat = ReplaceCaseInsensitive(processedFormat, "[Today]", dateStr);
-        }
-
-        if (processedFormat.Contains("[Time.now]", StringComparison.OrdinalIgnoreCase))
-        {
-            string format = string.IsNullOrWhiteSpace(tagManager.OptionDateFormat) ? "HHmmss" : tagManager.OptionDateFormat;
-            string timeStr = now.ToString(ConvertDateFormat(format));
-            processedFormat = ReplaceCaseInsensitive(processedFormat, "[Time.now]", timeStr);
-        }
 
         for (int i = 0; i < itemList.Count; i++)
         {
             var item = itemList[i];
-            string newName = processedFormat;
+            string newName = ruleFormat;
 
-            newName = newName.Replace("[Name.origin]", item.NameWithoutExtension);
-            newName = newName.Replace("[Name.prev]", item.NameWithoutExtension);
-
-            newName = _numberTagRegex.Replace(newName, match =>
+            foreach (var tag in activeTags)
             {
-                if (!long.TryParse(match.Groups[1].Value, out long startValue) || startValue < 0)
-                    startValue = 0;
-                if (!int.TryParse(match.Groups[2].Value, out int digits) || digits <= 0)
-                    digits = 1;
-                return (startValue + i).ToString().PadLeft(digits, '0');
-            });
-
-            newName = _atozTagRegex.Replace(newName, match =>
-            {
-                string startValueStr = match.Groups[1].Value.ToUpper();
-                if (string.IsNullOrEmpty(startValueStr)) startValueStr = "A";
-                if (!int.TryParse(match.Groups[2].Value, out int digits) || digits <= 0)
-                    digits = 1;
-                if (!int.TryParse(match.Groups[3].Value, out int lowerCount) || lowerCount < 0)
-                    lowerCount = 0;
-
-                if (startValueStr.Length < digits)
-                    startValueStr = startValueStr.PadRight(digits, 'A');
-
-                long startNum = AlphaToNum(startValueStr);
-                string alphaStr = NumToAlpha(startNum + i);
-
-                if (lowerCount > 0)
+                string replacement = "";
+                switch (tag.Type)
                 {
-                    if (lowerCount >= alphaStr.Length) return alphaStr.ToLower();
-                    return alphaStr.Substring(0, alphaStr.Length - lowerCount) +
-                           alphaStr.Substring(alphaStr.Length - lowerCount).ToLower();
+                    case TagType.NameOrigin:
+                    case TagType.NamePrev:
+                        // 원본 이름 또는 이전 이름 사용
+                        replacement = item.NameWithoutExtension;
+                        break;
+                    case TagType.Number:
+                        // 숫자 태그: 시작값 + 인덱스
+                        if (tag.Params is NumberTagParams numP)
+                            replacement = (numP.StartValue + i).ToString().PadLeft(numP.Digits, '0');
+                        break;
+                    case TagType.AtoZ:
+                        // 알파벳 태그: 알파벳 연산 수행
+                        if (tag.Params is AtoZTagParams azP)
+                        {
+                            long startNum = AlphaToNum(azP.StartValue);
+                            string alphaStr = NumToAlpha(startNum + i);
+
+                            // 소문자 변환 옵션 처리
+                            if (azP.LowerCount > 0)
+                            {
+                                if (azP.LowerCount >= alphaStr.Length) replacement = alphaStr.ToLower();
+                                else replacement = alphaStr.Substring(0, alphaStr.Length - azP.LowerCount) +
+                                                 alphaStr.Substring(alphaStr.Length - azP.LowerCount).ToLower();
+                            }
+                            else
+                            {
+                                replacement = alphaStr;
+                            }
+                        }
+                        break;
+                    case TagType.Today:
+                    case TagType.TimeNow:
+                        // 날짜/시간 태그: 캐시된 값 사용 또는 포맷팅 후 캐싱
+                        if (tag.Params is DateTimeTagParams dtP)
+                        {
+                            if (!dateCache.TryGetValue(tag.DisplayName, out string? cachedDate))
+                            {
+                                string format = string.IsNullOrWhiteSpace(dtP.Format) ?
+                                    (tag.Type == TagType.Today ? "yyyyMMdd" : "HHmmss") : dtP.Format;
+                                cachedDate = now.ToString(ConvertDateFormat(format));
+                                dateCache[tag.DisplayName] = cachedDate;
+                            }
+                            replacement = cachedDate;
+                        }
+                        break;
                 }
-                return alphaStr;
-            });
+
+                // 계산된 값으로 태그 치환 (대소문자 무시)
+                if (!string.IsNullOrEmpty(replacement))
+                {
+                     newName = ReplaceCaseInsensitive(newName, tag.DisplayName, replacement);
+                }
+            }
 
             if (!item.IsFolder)
                 newName += Path.GetExtension(item.OriginalName);

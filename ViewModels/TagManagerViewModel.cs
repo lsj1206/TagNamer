@@ -24,8 +24,8 @@ public partial class TagManagerViewModel : ObservableObject
     {
         "[Number]" => "규칙대로 순차적으로 증가하는 수를 입력하는 태그",
         "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그",
-        "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\n대소문자 구분없이 년:YYYY/YY 월:MM 일:DD",
-        "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\n대소문자 구분없이 시:HH 분:MM 초:SS",
+        "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\nYYYY/YY(년) MM(월) DD(일)",
+        "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\nHH(시) MM(분) SS(초)",
         _ => ""
     };
 
@@ -146,7 +146,7 @@ public partial class TagManagerViewModel : ObservableObject
         CreatedTags.Add(new TagItem
         {
             DisplayName = "[Name.origin]",
-            Code = "[Name.origin]",
+            Type = TagType.NameOrigin,
             ToolTip = "파일이 추가될 당시의 파일명을 입력합니다.",
             IsStandard = true
         });
@@ -154,7 +154,7 @@ public partial class TagManagerViewModel : ObservableObject
         CreatedTags.Add(new TagItem
         {
             DisplayName = "[Name.prev]",
-            Code = "[Name.prev]",
+            Type = TagType.NamePrev,
             ToolTip = "마지막으로 변경된 파일명을 입력합니다.\n처음엔 원본 파일명이 입력됩니다.",
             IsStandard = true
         });
@@ -184,7 +184,12 @@ public partial class TagManagerViewModel : ObservableObject
                      newItem = new TagItem
                     {
                         DisplayName = $"[Number{currentCount}]",
-                        Code = $"[Number:{OptionStartValue}:{OptionDigits}]",
+                        Type = TagType.Number,
+                        Params = new NumberTagParams
+                        {
+                            StartValue = long.Parse(OptionStartValue),
+                            Digits = int.Parse(OptionDigits)
+                        },
                         ToolTip = $"시작 값 : {OptionStartValue}\n자리 수 : {OptionDigits}"
                     };
                     newItem.Options.Add($"시작 값 : {OptionStartValue}");
@@ -198,10 +203,26 @@ public partial class TagManagerViewModel : ObservableObject
                     OnOptionDigitsChanged(OptionDigits);
                     OnOptionLowerCountChanged(OptionLowerCount);
 
+                    string startValue = OptionStartValue.ToUpper();
+                    int digits = int.Parse(OptionDigits);
+
+                    // 시작 값의 길이가 자리 수 옵션보다 짧을 경우, 뒤에 'A'를 채워서 길이를 맞춥니다.
+                    // 예: Start="B", Digits=3 -> "BAA"
+                    if (startValue.Length < digits)
+                    {
+                        startValue = startValue.PadRight(digits, 'A');
+                    }
+
                     newItem = new TagItem
                     {
                         DisplayName = $"[AtoZ{currentCount}]",
-                        Code = $"[AtoZ:{OptionStartValue}:{OptionDigits}:{OptionLowerCount}]",
+                        Type = TagType.AtoZ,
+                        Params = new AtoZTagParams
+                        {
+                            StartValue = startValue,
+                            Digits = digits,
+                            LowerCount = int.Parse(OptionLowerCount)
+                        },
                         ToolTip = $"시작 값 : {OptionStartValue}\n자리 수 : {OptionDigits}\n소문자 수 : {OptionLowerCount}"
                     };
                     newItem.Options.Add($"시작 값 : {OptionStartValue}");
@@ -213,7 +234,8 @@ public partial class TagManagerViewModel : ObservableObject
                 newItem = new TagItem
                 {
                     DisplayName = $"[Today{currentCount}]",
-                    Code = $"[Today:{OptionDateFormat}]",
+                    Type = TagType.Today,
+                    Params = new DateTimeTagParams { Format = OptionDateFormat },
                     ToolTip = $"{OptionDateFormat}"
                 };
                 newItem.Options.Add($"형식 : {OptionDateFormat}");
@@ -222,7 +244,8 @@ public partial class TagManagerViewModel : ObservableObject
                 newItem = new TagItem
                 {
                     DisplayName = $"[Time.now{currentCount}]",
-                    Code = $"[Time.now:{OptionDateFormat}]",
+                    Type = TagType.TimeNow,
+                    Params = new DateTimeTagParams { Format = OptionDateFormat },
                     ToolTip = $"{OptionDateFormat}"
                 };
                 newItem.Options.Add($"형식 : {OptionDateFormat}");
