@@ -70,7 +70,10 @@ public partial class MainViewModel : ObservableObject
     private bool showExtension = false;
 
     [ObservableProperty]
-    private string extensionInput = string.Empty;
+    private bool isIndividualEditMode = false;
+
+    // [ObservableProperty]
+    // private string extensionInput = string.Empty;
 
     public IRelayCommand AddFilesCommand { get; }
     public IRelayCommand AddFolderCommand { get; }
@@ -80,6 +83,7 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand ApplyChangesCommand { get; }
     public IRelayCommand UndoChangesCommand { get; }
     public IRelayCommand ApplyExtensionCommand { get; }
+    public IRelayCommand ChangeExtensionCommand { get; }
     public IRelayCommand ReorderNumberCommand { get; }
 
     private readonly IWindowService _windowService;
@@ -129,7 +133,8 @@ public partial class MainViewModel : ObservableObject
         OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
         ApplyChangesCommand = new RelayCommand(ApplyChanges);
         UndoChangesCommand = new RelayCommand(UndoChanges);
-        ApplyExtensionCommand = new RelayCommand(ApplyExtension);
+        // ApplyExtensionCommand = new RelayCommand(ApplyExtension);
+        ChangeExtensionCommand = new RelayCommand(ChangeExtension); // 기능 미구현
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
     }
 
@@ -309,6 +314,7 @@ public partial class MainViewModel : ObservableObject
         SortFiles();
     }
 
+    /*
     private void ApplyExtension()
     {
         if (string.IsNullOrWhiteSpace(ExtensionInput))
@@ -325,6 +331,7 @@ public partial class MainViewModel : ObservableObject
         // 현재는 입력값 정규화만 수행
         ExtensionInput = extension;
     }
+    */
 
     // 파일 삭제
     private async void DeleteFiles(System.Collections.IList? items)
@@ -399,4 +406,9 @@ public partial class MainViewModel : ObservableObject
         _renameService.UndoRename(FileList.Items, ShowExtension);
     }
 
+    private void ChangeExtension()
+    {
+        // 기능 미구현
+        _snackbarService.Show("확장자 변경 기능은 준비 중입니다.", SnackbarType.Info);
+    }
 }
