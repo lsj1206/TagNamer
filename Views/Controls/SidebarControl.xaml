@@ -63,13 +63,13 @@
                             Command="{Binding ReorderNumberCommand}"
                             Style="{StaticResource SidebarButtonStyle}" />
                     <Button Content="확장자 변경"
-                            Command="{Binding ChangeExtensionCommand}"
+                            Command="{Binding ExtensionCommand}"
                             Style="{StaticResource SidebarButtonStyle}" />
-                    <CheckBox Content="개별 수정"
-                              IsChecked="{Binding IsIndividualEditMode}" />
                     <CheckBox Content="확장자 표시"
                               IsChecked="{Binding ShowExtension}" />
-                    <CheckBox Content="삭제 확인창 표시"
+                    <CheckBox Content="개별 수정"
+                              IsChecked="{Binding IsIndividualEditMode}" />
+                    <CheckBox Content="삭제 확인 표시"
                               IsChecked="{Binding ConfirmDeletion}" />
                 </StackPanel>
 

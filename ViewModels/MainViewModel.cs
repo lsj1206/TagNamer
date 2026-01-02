@@ -72,9 +72,6 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool isIndividualEditMode = false;
 
-    // [ObservableProperty]
-    // private string extensionInput = string.Empty;
-
     public IRelayCommand AddFilesCommand { get; }
     public IRelayCommand AddFolderCommand { get; }
     public IRelayCommand<System.Collections.IList> DeleteFilesCommand { get; }
@@ -82,8 +79,7 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand OpenRuleSettingsCommand { get; }
     public IRelayCommand ApplyChangesCommand { get; }
     public IRelayCommand UndoChangesCommand { get; }
-    public IRelayCommand ApplyExtensionCommand { get; }
-    public IRelayCommand ChangeExtensionCommand { get; }
+    public IRelayCommand ExtensionCommand { get; }
     public IRelayCommand ReorderNumberCommand { get; }
 
     private readonly IWindowService _windowService;
@@ -94,6 +90,7 @@ public partial class MainViewModel : ObservableObject
     private readonly ISortingService _sortingService;
 
     private readonly RenameViewModel _renameViewModel;
+    private readonly ExtensionViewModel _extensionViewModel;
 
     public MainViewModel(
         IWindowService windowService,
@@ -103,7 +100,8 @@ public partial class MainViewModel : ObservableObject
         IRenameService renameService,
         ISortingService sortingService,
         SnackbarViewModel snackbarViewModel,
-        RenameViewModel renameViewModel)
+        RenameViewModel renameViewModel,
+        ExtensionViewModel extensionViewModel)
     {
         _windowService = windowService;
         _dialogService = dialogService;
@@ -113,6 +111,7 @@ public partial class MainViewModel : ObservableObject
         _sortingService = sortingService;
         Snackbar = snackbarViewModel;
         _renameViewModel = renameViewModel;
+        _extensionViewModel = extensionViewModel;
 
         // RenameViewModel의 RuleFormat 변경 시 UI 알림
         _renameViewModel.PropertyChanged += (s, e) =>
@@ -133,8 +132,7 @@ public partial class MainViewModel : ObservableObject
         OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
         ApplyChangesCommand = new RelayCommand(ApplyChanges);
         UndoChangesCommand = new RelayCommand(UndoChanges);
-        // ApplyExtensionCommand = new RelayCommand(ApplyExtension);
-        ChangeExtensionCommand = new RelayCommand(ChangeExtension); // 기능 미구현
+        ExtensionCommand = new RelayCommand(Extension);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
     }
 
@@ -314,25 +312,6 @@ public partial class MainViewModel : ObservableObject
         SortFiles();
     }
 
-    /*
-    private void ApplyExtension()
-    {
-        if (string.IsNullOrWhiteSpace(ExtensionInput))
-            return;
-
-        // 점으로 시작하지 않으면 자동으로 추가
-        var extension = ExtensionInput.Trim();
-        if (!extension.StartsWith('.'))
-        {
-            extension = "." + extension;
-        }
-
-        // 실제 확장자 변경 로직은 여기에 구현 예정
-        // 현재는 입력값 정규화만 수행
-        ExtensionInput = extension;
-    }
-    */
-
     // 파일 삭제
     private async void DeleteFiles(System.Collections.IList? items)
     {
@@ -406,9 +385,25 @@ public partial class MainViewModel : ObservableObject
         _renameService.UndoRename(FileList.Items, ShowExtension);
     }
 
-    private void ChangeExtension()
+    private void Extension()
     {
-        // 기능 미구현
-        _snackbarService.Show("확장자 변경 기능은 준비 중입니다.", SnackbarType.Info);
+        // ExtensionViewModel은 Transient이므로 매번 새로 받아오거나, Factory 패턴을 써야 하지만
+        // 여기서는 간단하게 DI로 주입받은 인스턴스(하나)를 재사용하거나,
+        // MainViewModel 생성자에서 Transient로 하나만 받아와서 재사용하는 방식을 씁니다.
+        // 다만 Transient인데 주입받으면 그 인스턴스는 계속 유지됩니다.
+        // 상태 초기화(Initialize)를 하므로 재사용해도 문제없습니다.
+
+        // 1. 상태 초기화
+        _extensionViewModel.Initialize(FileList.Items);
+
+        // 2. 다이얼로그 표시
+        var result = _windowService.ShowDialog<TagNamer.Views.ExtensionWindow>(_extensionViewModel);
+
+        // 3. 결과 처리 (변경 사항이 있으면 미리보기 갱신)
+        if (result == true)
+        {
+            UpdatePreview();
+            _snackbarService.Show("확장자 변경 규칙이 적용되었습니다.", SnackbarType.Success);
+        }
     }
 }

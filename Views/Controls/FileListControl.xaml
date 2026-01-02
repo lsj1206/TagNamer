@@ -101,7 +101,7 @@
                                            Margin="0,2,8,0"
                                            Source="{StaticResource FileIcon}" />
                                     <TextBlock TextTrimming="CharacterEllipsis"
-                                               Text="{Binding DisplayOriginalName}" />
+                                               Text="{Binding DisplayBaseName}" />
                                 </StackPanel>
                                 <DataTemplate.Triggers>
                                     <DataTrigger Binding="{Binding IsFolder}" Value="True">
@@ -129,7 +129,7 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock Foreground="{StaticResource TextSecondary}"
-                                           Text="{Binding UnitSize}" />
+                                           Text="{Binding DisplaySize}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>
@@ -140,7 +140,7 @@
                             <DataTemplate>
                                 <TextBlock Foreground="#999999"
                                            TextTrimming="CharacterEllipsis"
-                                           Text="{Binding DirectoryName}"
+                                           Text="{Binding Directory}"
                                            ToolTip="{Binding Path}" />
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
