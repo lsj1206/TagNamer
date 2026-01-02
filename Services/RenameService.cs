@@ -65,8 +65,6 @@ public class RenameService : IRenameService
                 switch (tag.Type)
                 {
                     case TagType.NameOrigin:
-                    case TagType.NamePrev:
-                        // 원본 이름 또는 이전 이름 사용
                         replacement = item.BaseName;
                         break;
                     case TagType.Number:

@@ -5,7 +5,6 @@ namespace TagNamer.Models;
 public enum TagType
 {
     NameOrigin, // 원본 이름
-    NamePrev,   // 이전 이름
     Number,     // 숫자 증가
     AtoZ,       // 알파벳 증가
     Today,      // 오늘 날짜
@@ -44,8 +43,8 @@ public class TagItem
     // 태그 파라미터
     public object? Params { get; set; }
 
-    // 고정 태그 여부
+    // 기본 태그 구분
     public bool IsStandard { get; set; } = false;
-    // 삭제 가능 여부
+    // 삭제 가능 구분
     public bool IsDeletable => !IsStandard;
 }

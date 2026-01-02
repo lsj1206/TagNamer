@@ -33,6 +33,7 @@ public partial class App : Application
 
         // ViewModels
         services.AddTransient<MainViewModel>();
+        services.AddTransient<ExtensionViewModel>();
         services.AddSingleton<SnackbarViewModel>();
         services.AddSingleton<TagManagerViewModel>();
         services.AddSingleton<RenameViewModel>();
@@ -40,6 +41,7 @@ public partial class App : Application
         // Views
         services.AddSingleton<MainWindow>();
         services.AddTransient<TagNamer.Views.RenameWindow>();
+        services.AddTransient<TagNamer.Views.ExtensionWindow>();
 
         return services.BuildServiceProvider();
     }

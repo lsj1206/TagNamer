@@ -150,14 +150,6 @@ public partial class TagManagerViewModel : ObservableObject
             ToolTip = "파일이 추가될 당시의 파일명을 입력합니다.",
             IsStandard = true
         });
-
-        CreatedTags.Add(new TagItem
-        {
-            DisplayName = "[Name.prev]",
-            Type = TagType.NamePrev,
-            ToolTip = "마지막으로 변경된 파일명을 입력합니다.\n처음엔 원본 파일명이 입력됩니다.",
-            IsStandard = true
-        });
     }
 
     private void CreateTag()
