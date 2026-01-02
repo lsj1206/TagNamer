@@ -13,7 +13,6 @@ namespace TagNamer.ViewModels;
 
 public partial class MainViewModel : ObservableObject
 {
-    private bool _isUpdatingSortDirection;
 
     public SnackbarViewModel Snackbar { get; }
     public FileListViewModel FileList { get; } = new();
@@ -58,10 +57,7 @@ public partial class MainViewModel : ObservableObject
     private SortOption selectedSortOption;
 
     [ObservableProperty]
-    private bool sortAscending = true;
-
-    [ObservableProperty]
-    private bool sortDescending;
+    private bool isSortAscending = true;
 
     [ObservableProperty]
     private bool confirmDeletion = true;
@@ -281,37 +277,6 @@ public partial class MainViewModel : ObservableObject
         }
     }
 
-    // 정렬 기준 선택
-    partial void OnSelectedSortOptionChanged(SortOption value)
-    {
-        SortFiles();
-    }
-
-    // 오름차순
-    partial void OnSortAscendingChanged(bool value)
-    {
-        if (_isUpdatingSortDirection || !value) return;
-        UpdateSortDirection(isAscending: true);
-    }
-
-    // 내림차순
-    partial void OnSortDescendingChanged(bool value)
-    {
-        if (_isUpdatingSortDirection || !value) return;
-        UpdateSortDirection(isAscending: false);
-    }
-
-    private void UpdateSortDirection(bool isAscending)
-    {
-        _isUpdatingSortDirection = true;
-        if (isAscending)
-            SortDescending = false;
-        else
-            SortAscending = false;
-        _isUpdatingSortDirection = false;
-        SortFiles();
-    }
-
     // 파일 삭제
     private async void DeleteFiles(System.Collections.IList? items)
     {
@@ -350,7 +315,19 @@ public partial class MainViewModel : ObservableObject
     // 목록 정렬
     private void SortFiles()
     {
-        FileList.Sorting(_sortingService, SelectedSortOption, SortAscending);
+        FileList.Sorting(_sortingService, SelectedSortOption, IsSortAscending);
+    }
+
+    // 정렬 기준 선택
+    partial void OnSelectedSortOptionChanged(SortOption value)
+    {
+        SortFiles();
+    }
+
+    // 정렬 방향 (토글) 변경 시
+    partial void OnIsSortAscendingChanged(bool value)
+    {
+        SortFiles();
     }
 
     // 이름 변경 규칙을 실제 파일/폴더에 적용하는 로직입니다.

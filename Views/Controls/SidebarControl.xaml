@@ -80,25 +80,16 @@
                     <TextBlock Margin="0,0,0,4"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
-                               Text="정렬 기준" />
+                               Text="정렬" />
                     <ComboBox HorizontalAlignment="Stretch"
                               Margin="0,0,0,4"
                               ItemsSource="{Binding SortOptions}"
                               SelectedItem="{Binding SelectedSortOption}"
                               DisplayMemberPath="Display" />
-
-                    <TextBlock Margin="0,4,0,4"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
-                               Text="정렬 방향" />
-                    <StackPanel Orientation="Vertical">
-                        <RadioButton Content="오름차순"
-                                    GroupName="SortDirection"
-                                    IsChecked="{Binding SortAscending, Mode=TwoWay}" />
-                        <RadioButton Content="내림차순"
-                                    GroupName="SortDirection"
-                                    IsChecked="{Binding SortDescending, Mode=TwoWay}" />
-                    </StackPanel>
+                    <ui:ToggleSwitch IsOn="{Binding IsSortAscending}"
+                                     OnContent="오름차순"
+                                     OffContent="내림차순"
+                                     Margin="0,4,0,0" />
                 </StackPanel>
 
             </StackPanel>
