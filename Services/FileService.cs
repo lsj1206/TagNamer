@@ -10,6 +10,8 @@ namespace TagNamer.Services;
 /// </summary>
 public class FileService : IFileService
 {
+    private static readonly string[] SizeSuffixes = ["B", "KB", "MB", "GB", "TB"];
+
     public FileService()
     {
     }
@@ -24,11 +26,9 @@ public class FileService : IFileService
             var fileInfo = new FileInfo(path);
             return new FileItem
             {
-                OriginalName = fileInfo.Name,
-                NewName = fileInfo.Name,
                 Path = path,
-                DirectoryName = Path.GetDirectoryName(path) ?? string.Empty,
                 Size = fileInfo.Length,
+                DisplaySize = FormatFileSize(fileInfo.Length),
                 CreatedDate = fileInfo.CreationTime,
                 ModifiedDate = fileInfo.LastWriteTime,
                 IsFolder = false,
@@ -40,10 +40,7 @@ public class FileService : IFileService
             var dirInfo = new DirectoryInfo(path);
             return new FileItem
             {
-                OriginalName = dirInfo.Name,
-                NewName = dirInfo.Name,
                 Path = path,
-                DirectoryName = Path.GetDirectoryName(path.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar)) ?? string.Empty,
                 Size = 0, // 폴더 크기는 성능을 위해 사용하지 않음.
                 CreatedDate = dirInfo.CreationTime,
                 ModifiedDate = dirInfo.LastWriteTime,
@@ -109,5 +106,16 @@ public class FileService : IFileService
         {
             throw new FileNotFoundException("원본 파일 또는 폴더를 찾을 수 없습니다.");
         }
+    }
+    /// <summary>
+    /// 파일 크기를 읽기 쉬운 형태로 변환합니다.
+    /// </summary>
+    private static string FormatFileSize(long bytes)
+    {
+        if (bytes <= 0) return "0 B";
+        int i = (int)Math.Log(bytes, 1024);
+        i = Math.Min(i, SizeSuffixes.Length - 1);
+        double readable = bytes / Math.Pow(1024, i);
+        return $"{readable:0.#} {SizeSuffixes[i]}";
     }
 }
