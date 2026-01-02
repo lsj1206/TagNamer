@@ -6,80 +6,92 @@ namespace TagNamer.Models;
 
 public partial class FileItem : ObservableObject
 {
-    // 필수 속성
-    public required string OriginalName { get; set; }
-    public required string DirectoryName { get; set; }
-    public required string Path { get; set; }
-
-    // 표시용 속성
-    [ObservableProperty]
-    private string displayOriginalName = string.Empty;
-
-    [ObservableProperty]
-    private string displayNewName = string.Empty;
-
-    // 자동 계산 속성
-    public string NewName { get; set; } = string.Empty;
-
-    // Undo를 위한 이전 경로
-    public string PreviousPath { get; set; } = string.Empty;
-
-    // 원본 이름과 새 이름이 다른지 여부를 반환합니다.
-    public bool IsChanged => !string.IsNullOrEmpty(NewName) && OriginalName != NewName;
-
-    public long Size { get; set; }
-    public bool IsFolder { get; set; }
-
-    [ObservableProperty]
-    private int? addIndex;  // 파일만 번호, 폴더는 null
-    // 파일 날짜 정보
-    public DateTime? CreatedDate { get; set; }
-    public DateTime? ModifiedDate { get; set; }
-    // 파일 확장자
-    public string Extension => IsFolder ? string.Empty : System.IO.Path.GetExtension(OriginalName);
-
-    // 확장자를 제외한 파일명 (중복 호출 방지용)
-    public string NameWithoutExtension => IsFolder ? OriginalName : System.IO.Path.GetFileNameWithoutExtension(OriginalName);
-
-    // 파일 크기를 읽기 쉬운 형태로 변환
-    public string UnitSize => FormatFileSize(Size);
-    private static string FormatFileSize(long bytes)
+    // 파일명이 포함된 전체 경로
+    private string _path = default!;
+    public required string Path
     {
-        if (bytes == 0) return string.Empty;
-
-        string[] sizes = ["B", "KB", "MB", "GB", "TB"];
-        double len = bytes;
-        int order = 0;
-
-        while (len >= 1024 && order < sizes.Length - 1)
+        get => _path;
+        set
         {
-            order++;
-            len /= 1024;
+            if (SetProperty(ref _path, value))
+            {
+                ParsePathInfo();
+            }
         }
-
-        return $"{len:0.#} {sizes[order]}";
     }
 
+    // 기본 데이터
+    public string Directory { get; private set; } = string.Empty;
+    public string BaseName { get; private set; } = string.Empty;
+    public string BaseExtension { get; private set; } = string.Empty;
+    public long Size { get; set; }
+    public DateTime? CreatedDate { get; set; }
+    public DateTime? ModifiedDate { get; set; }
+
+    // 변경 데이터
+    public string NewName { get; set; } = string.Empty;
+    public string NewExtension { get; set; } = string.Empty;
+
+    // 표시용 번호/이름/확장자/크기
+    [ObservableProperty]
+    private int? addIndex;
+    [ObservableProperty]
+    private string displayBaseName = string.Empty;
+    [ObservableProperty]
+    private string displayNewName = string.Empty;
+    public string DisplaySize { get; set; } = string.Empty;
+
+    // 파일/폴더 구분
+    public bool IsFolder { get; set; }
+
+    // Undo를 위한 변경전 정보
+    public string PreviousPath { get; set; } = string.Empty;
+
+    // 변경 여부: 이름이나 확장자 중 하나라도 바뀌면 변경된 것임
+    public bool IsChanged =>
+        (!string.IsNullOrEmpty(NewName) && BaseName != NewName) ||
+        (!string.IsNullOrEmpty(NewExtension) && BaseExtension != NewExtension);
+
+    private void ParsePathInfo()
+    {
+        if (IsFolder)
+        {
+            // 폴더일 경우: Directory는 상위 폴더 경로, BaseName은 폴더명
+            Directory = System.IO.Path.GetDirectoryName(_path.TrimEnd(System.IO.Path.DirectorySeparatorChar, System.IO.Path.AltDirectorySeparatorChar)) ?? string.Empty;
+            BaseName = System.IO.Path.GetFileName(_path); // 폴더명
+            BaseExtension = string.Empty;
+        }
+        else
+        {
+            Directory = System.IO.Path.GetDirectoryName(_path) ?? string.Empty;
+            BaseName = System.IO.Path.GetFileNameWithoutExtension(_path);
+            BaseExtension = System.IO.Path.GetExtension(_path);
+        }
+
+        // 초기화: 변경될 값들은 원본 값으로 시작
+        NewName = BaseName;
+        NewExtension = BaseExtension;
+    }
+
+    // 확장자 표시 여부에 따라 표시 이름 변경
     public void UpdateDisplay(bool showExtension)
     {
         if (IsFolder)
         {
-            DisplayOriginalName = OriginalName;
+            DisplayBaseName = BaseName;
             DisplayNewName = NewName;
             return;
         }
 
         if (showExtension)
         {
-            DisplayOriginalName = OriginalName;
-            DisplayNewName = NewName;
+            DisplayBaseName = BaseName + BaseExtension;
+            DisplayNewName = NewName + NewExtension;
         }
         else
         {
-            DisplayOriginalName = NameWithoutExtension;
-            DisplayNewName = string.IsNullOrEmpty(NewName)
-                ? string.Empty
-                : System.IO.Path.GetFileNameWithoutExtension(NewName);
+            DisplayBaseName = BaseName;
+            DisplayNewName = NewName;
         }
     }
 }

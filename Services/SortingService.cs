@@ -30,14 +30,14 @@ public class SortingService : ISortingService
             case SortType.NamePath:
                 // 윈도우 탐색기 방식의 자연스러운 정렬(숫자 인식 등) 적용
                 sortedItems = isAscending
-                    ? itemList.OrderBy(x => x.OriginalName, _naturalComparer)
-                    : itemList.OrderByDescending(x => x.OriginalName, _naturalComparer);
+                    ? itemList.OrderBy(x => x.BaseName, _naturalComparer)
+                    : itemList.OrderByDescending(x => x.BaseName, _naturalComparer);
                 break;
             case SortType.PathNumber:
             case SortType.PathName:
                 sortedItems = isAscending
-                    ? itemList.OrderBy(x => x.DirectoryName, _naturalComparer)
-                    : itemList.OrderByDescending(x => x.DirectoryName, _naturalComparer);
+                    ? itemList.OrderBy(x => x.Directory, _naturalComparer)
+                    : itemList.OrderByDescending(x => x.Directory, _naturalComparer);
                 break;
             case SortType.Size:
                 sortedItems = isAscending
@@ -83,10 +83,10 @@ public class SortingService : ISortingService
                     : sortedItems.ThenByDescending(x => x.Path, _naturalComparer);
                 break;
             case SortType.PathName:
-                // 경로가 같을 경우 이름(OriginalName) 순으로 정렬
+                // 경로가 같을 경우 이름(BaseName) 순으로 정렬
                 sortedItems = isAscending
-                    ? sortedItems.ThenBy(x => x.OriginalName, _naturalComparer)
-                    : sortedItems.ThenByDescending(x => x.OriginalName, _naturalComparer);
+                    ? sortedItems.ThenBy(x => x.BaseName, _naturalComparer)
+                    : sortedItems.ThenByDescending(x => x.BaseName, _naturalComparer);
                 break;
         }
 

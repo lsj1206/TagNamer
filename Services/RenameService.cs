@@ -36,7 +36,7 @@ public class RenameService : IRenameService
         {
             foreach (var item in items)
             {
-                item.NewName = item.OriginalName;
+                item.NewName = item.BaseName;
                 item.UpdateDisplay(showExtension);
             }
             return;
@@ -67,7 +67,7 @@ public class RenameService : IRenameService
                     case TagType.NameOrigin:
                     case TagType.NamePrev:
                         // 원본 이름 또는 이전 이름 사용
-                        replacement = item.NameWithoutExtension;
+                        replacement = item.BaseName;
                         break;
                     case TagType.Number:
                         // 숫자 태그: 시작값 + 인덱스
@@ -118,8 +118,6 @@ public class RenameService : IRenameService
                 }
             }
 
-            if (!item.IsFolder)
-                newName += Path.GetExtension(item.OriginalName);
 
             item.NewName = newName;
             item.UpdateDisplay(showExtension);
@@ -136,16 +134,17 @@ public class RenameService : IRenameService
 
         foreach (var item in items)
         {
-            if (string.IsNullOrEmpty(item.NewName) || item.OriginalName == item.NewName) continue;
+            if (!item.IsChanged) continue;
 
             try
             {
-                string newPath = Path.Combine(item.DirectoryName, item.NewName);
+                // 실제 파일명: NewName + NewExtension
+                string newFullName = item.NewName + item.NewExtension;
+                string newPath = Path.Combine(item.Directory, newFullName);
                 _fileService.RenameFile(item.Path, newPath);
 
                 item.PreviousPath = item.Path;
                 item.Path = newPath;
-                item.OriginalName = item.NewName;
                 item.UpdateDisplay(showExtension);
                 successCount++;
             }
@@ -174,7 +173,6 @@ public class RenameService : IRenameService
                 _fileService.RenameFile(item.Path, item.PreviousPath);
 
                 item.Path = item.PreviousPath;
-                item.OriginalName = Path.GetFileName(item.PreviousPath);
                 item.PreviousPath = string.Empty;
                 item.UpdateDisplay(showExtension);
                 successCount++;
