@@ -17,7 +17,10 @@ public interface IDialogService
     /// <summary>
     /// 폴더 추가 시 방식을 묻는 대화 상자를 표시합니다.
     /// </summary>
-    /// <param name="firstFolderName">첫 번째 폴더 이름 (또는 대표 이름)</param>
-    /// <param name="count">추가하려는 폴더의 총 개수</param>
     Task<FolderAddOption> ShowFolderAddOptionAsync(string firstFolderName, int count = 1);
+
+    /// <summary>
+    /// 수동으로 파일 이름을 입력받는 대화 상자를 표시합니다.
+    /// </summary>
+    Task<string?> ShowManualEditAsync(string currentName);
 }

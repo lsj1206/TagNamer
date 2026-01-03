@@ -30,14 +30,13 @@ public class RenameService : IRenameService
         _fileService = fileService;
     }
 
-    public void UpdatePreview(IEnumerable<FileItem> items, string ruleFormat, TagManagerViewModel tagManager, bool showExtension)
+    public void UpdatePreview(IEnumerable<FileItem> items, string ruleFormat, TagManagerViewModel tagManager)
     {
         if (string.IsNullOrEmpty(ruleFormat))
         {
             foreach (var item in items)
             {
                 item.NewName = item.BaseName;
-                item.UpdateDisplay(showExtension);
             }
             return;
         }
@@ -118,32 +117,30 @@ public class RenameService : IRenameService
 
 
             item.NewName = newName;
-            item.UpdateDisplay(showExtension);
         }
     }
 
     /// <summary>
     /// 이름 변경 작업을 수행합니다.
     /// </summary>
-    public void ApplyRename(IEnumerable<FileItem> items, bool showExtension)
+    public void ApplyRename(IEnumerable<FileItem> items)
     {
         int successCount = 0;
         var errors = new List<Exception>();
+        var targetItems = items.Where(i => i.IsChanged).ToList();
 
-        foreach (var item in items)
+        if (targetItems.Count == 0) return;
+
+        foreach (var item in targetItems)
         {
-            if (!item.IsChanged) continue;
-
             try
             {
-                // 실제 파일명: NewName + NewExtension
                 string newFullName = item.NewName + item.NewExtension;
                 string newPath = Path.Combine(item.Directory, newFullName);
                 _fileService.RenameFile(item.Path, newPath);
 
                 item.PreviousPath = item.Path;
                 item.Path = newPath;
-                item.UpdateDisplay(showExtension);
                 successCount++;
             }
             catch (Exception ex)
@@ -151,13 +148,14 @@ public class RenameService : IRenameService
                 errors.Add(ex);
             }
         }
+
         ShowRenameSnackbar(BatchActionType.ApplyRename, successCount, errors);
     }
 
     /// <summary>
     /// 이름 되돌리기 작업을 수행합니다.
     /// </summary>
-    public void UndoRename(IEnumerable<FileItem> items, bool showExtension)
+    public void UndoRename(IEnumerable<FileItem> items)
     {
         int successCount = 0;
         var errors = new List<Exception>();
@@ -172,7 +170,6 @@ public class RenameService : IRenameService
 
                 item.Path = item.PreviousPath;
                 item.PreviousPath = string.Empty;
-                item.UpdateDisplay(showExtension);
                 successCount++;
             }
             catch (Exception ex)

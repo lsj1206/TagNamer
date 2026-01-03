@@ -29,8 +29,13 @@ public partial class FileItem : ObservableObject
     public DateTime? ModifiedDate { get; set; }
 
     // 변경 데이터
-    public string NewName { get; set; } = string.Empty;
-    public string NewExtension { get; set; } = string.Empty;
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsChanged))]
+    private string newName = string.Empty;
+
+    [ObservableProperty]
+    [NotifyPropertyChangedFor(nameof(IsChanged))]
+    private string newExtension = string.Empty;
 
     // 표시용 번호/이름/확장자/크기
     [ObservableProperty]
@@ -52,6 +57,13 @@ public partial class FileItem : ObservableObject
         (!string.IsNullOrEmpty(NewName) && BaseName != NewName) ||
         (!string.IsNullOrEmpty(NewExtension) && BaseExtension != NewExtension);
 
+    // NewName이나 NewExtension이 바뀔 때마다 표시용 이름도 갱신
+    // (UpdateDisplay 호출 시 필요한 showExtension 상태를 모르므로
+    // 기본적으로 마지막 상태를 기억하거나, setter에서 명시적으로 호출 필요)
+    private bool _lastShowExtension = false;
+    partial void OnNewNameChanged(string value) => UpdateDisplay(_lastShowExtension);
+    partial void OnNewExtensionChanged(string value) => UpdateDisplay(_lastShowExtension);
+
     private void ParsePathInfo()
     {
         if (IsFolder)
@@ -71,11 +83,15 @@ public partial class FileItem : ObservableObject
         // 초기화: 변경될 값들은 원본 값으로 시작
         NewName = BaseName;
         NewExtension = BaseExtension;
+
+        // 정보가 바뀌었으므로 표시 이름도 갱신
+        UpdateDisplay(_lastShowExtension);
     }
 
     // 확장자 표시 여부에 따라 표시 이름 변경
     public void UpdateDisplay(bool showExtension)
     {
+        _lastShowExtension = showExtension;
         if (IsFolder)
         {
             DisplayBaseName = BaseName;

@@ -12,6 +12,29 @@ public partial class FileListControl : UserControl
         InitializeComponent();
     }
 
+    private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+    {
+    }
+
+    // 리스트 아이템 더블 클릭 핸들러
+    private void FileListView_MouseDoubleClick(object sender, MouseButtonEventArgs e)
+    {
+        if (Window.GetWindow(this)?.DataContext is MainViewModel vm)
+        {
+            // 클릭된 요소로부터 ListViewItem을 찾아 데이터 컨텍스트(FileItem)를 가져옵니다.
+            var listViewItem = FindAnchestor<ListViewItem>((DependencyObject)e.OriginalSource);
+            var item = listViewItem?.DataContext as TagNamer.Models.FileItem;
+
+            if (item != null && vm.ManualEditMode)
+            {
+                if (vm.ManualEditCommand.CanExecute(item))
+                {
+                    vm.ManualEditCommand.Execute(item);
+                }
+            }
+        }
+    }
+
     private void ListView_KeyDown(object sender, KeyEventArgs e)
     {
         if (e.Key == Key.Delete)
@@ -38,7 +61,10 @@ public partial class FileListControl : UserControl
         ListViewItem? listViewItem = FindAnchestor<ListViewItem>((DependencyObject)e.OriginalSource);
         if (listViewItem != null && listViewItem.IsSelected)
         {
-            // 이미 선택된 항목을 클릭한 경우, 드래그일 가능성이 큼.
+            // 더블 클릭일 때는 수동 편집을 위해 이벤트를 가로채지 않습니다.
+            if (e.ClickCount >= 2) return;
+
+            // 이미 선택된 항목을 클릭한 경우(단일 클릭), 드래그일 가능성이 큼.
             // WPF의 기본 동작(다른 선택 해제)을 방지하기 위해 이벤트를 처리함.
             _isPotentialDrag = true;
             e.Handled = true;

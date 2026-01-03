@@ -8,6 +8,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using Microsoft.WindowsAPICodePack.Dialogs;
 using Microsoft.Extensions.DependencyInjection;
 using TagNamer.Services;
+using TagNamer.Models;
 
 namespace TagNamer.ViewModels;
 
@@ -65,8 +66,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool showExtension = false;
 
+
     [ObservableProperty]
-    private bool isIndividualEditMode = false;
+    private bool manualEditMode = false;
 
     public IRelayCommand AddFilesCommand { get; }
     public IRelayCommand AddFolderCommand { get; }
@@ -77,6 +79,7 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand UndoChangesCommand { get; }
     public IRelayCommand ExtensionCommand { get; }
     public IRelayCommand ReorderNumberCommand { get; }
+    public IAsyncRelayCommand<FileItem> ManualEditCommand { get; }
 
     private readonly IWindowService _windowService;
     private readonly IDialogService _dialogService;
@@ -130,6 +133,7 @@ public partial class MainViewModel : ObservableObject
         UndoChangesCommand = new RelayCommand(UndoChanges);
         ExtensionCommand = new RelayCommand(Extension);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
+        ManualEditCommand = new AsyncRelayCommand<FileItem>(ManualEditAsync);
     }
 
     private void OpenRenameWindow()
@@ -143,7 +147,7 @@ public partial class MainViewModel : ObservableObject
     private void UpdatePreview()
     {
         if (FileList.Items.Count == 0) return;
-        _renameService.UpdatePreview(FileList.Items, _renameViewModel.ResolvedRuleFormat, _renameViewModel.TagManager, ShowExtension);
+        _renameService.UpdatePreview(FileList.Items, _renameViewModel.ResolvedRuleFormat, _renameViewModel.TagManager);
     }
 
     // 파일/폴더 추가 (다이얼로그 진입점)
@@ -344,7 +348,19 @@ public partial class MainViewModel : ObservableObject
         }
 
         // 실제 이름 변경 작업을 수행합니다. (서비스 내부에서 결과 보고)
-        _renameService.ApplyRename(FileList.Items, ShowExtension);
+        _renameService.ApplyRename(FileList.Items);
+    }
+
+    // 개별 파일 수동 편집
+    private async Task ManualEditAsync(FileItem? item)
+    {
+        if (item == null || !ManualEditMode) return;
+
+        var newName = await _dialogService.ShowManualEditAsync(item.NewName);
+        if (newName != null)
+        {
+            item.NewName = newName;
+        }
     }
 
     // 변경된 이름을 이전 상태로 되돌리는 로직입니다.
@@ -359,7 +375,7 @@ public partial class MainViewModel : ObservableObject
             _snackbarService.Show("변경된 기록이 없습니다.", Services.SnackbarType.Info);
             return;
         }
-        _renameService.UndoRename(FileList.Items, ShowExtension);
+        _renameService.UndoRename(FileList.Items);
     }
 
     private void Extension()

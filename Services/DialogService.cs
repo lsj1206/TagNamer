@@ -66,4 +66,47 @@ public class DialogService : IDialogService
             _ => FolderAddOption.Cancel                              // 작업 취소
         };
     }
+
+    /// <summary>
+    /// 수동으로 파일 이름을 입력받는 대화 상자를 표시합니다.
+    /// </summary>
+    public async Task<string?> ShowManualEditAsync(string currentName)
+    {
+        var window = Application.Current.MainWindow;
+        if (window == null) return null;
+
+        var textBox = new System.Windows.Controls.TextBox
+        {
+            Text = currentName,
+            Margin = new Thickness(0, 10, 0, 0),
+            VerticalAlignment = VerticalAlignment.Center
+        };
+
+        var dialog = new ContentDialog
+        {
+            Title = "수동 이름 변경",
+            Content = new System.Windows.Controls.StackPanel
+            {
+                Children =
+                {
+                    new System.Windows.Controls.TextBlock { Text = "변경할 파일명을 입력하세요:" },
+                    textBox
+                }
+            },
+            PrimaryButtonText = "확인",
+            CloseButtonText = "취소",
+            DefaultButton = ContentDialogButton.Primary,
+            Owner = window
+        };
+
+        // 다이얼로그가 뜨자마자 텍스트박스에 포커스를 주고 전체 선택합니다.
+        dialog.Opened += (s, e) =>
+        {
+            textBox.Focus();
+            textBox.SelectAll();
+        };
+
+        var result = await dialog.ShowAsync();
+        return result == ContentDialogResult.Primary ? textBox.Text : null;
+    }
 }

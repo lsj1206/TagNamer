@@ -63,7 +63,8 @@
                   PreviewDragOver="FileListView_PreviewDragOver"
                   PreviewMouseLeftButtonDown="FileListView_PreviewMouseLeftButtonDown"
                   PreviewMouseLeftButtonUp="FileListView_PreviewMouseLeftButtonUp"
-                  MouseMove="FileListView_MouseMove">
+                  MouseMove="FileListView_MouseMove"
+                  MouseDoubleClick="FileListView_MouseDoubleClick">
             <ListView.View>
                 <!-- GridView -->
                 <GridView>
