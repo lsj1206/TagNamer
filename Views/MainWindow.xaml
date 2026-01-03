@@ -10,8 +10,8 @@
         ui:WindowHelper.UseModernWindowStyle="True"
         WindowStartupLocation="CenterScreen"
         Height="640"
-        MinHeight="600"
-        Width="1200"
+        MinHeight="540"
+        Width="1136"
         MinWidth="960"
         Title="TagNamer">
 
