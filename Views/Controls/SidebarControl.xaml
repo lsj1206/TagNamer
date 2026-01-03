@@ -30,7 +30,7 @@
 
             <StackPanel Orientation="Vertical">
 
-                <!-- 최상단: 메인 기능 -->
+                <!-- 메인 기능 -->
                 <StackPanel Orientation="Vertical">
                     <Button Content="파일 추가"
                             Command="{Binding AddFilesCommand}"
@@ -54,7 +54,7 @@
 
                 <Separator Margin="0,8,0,8" />
 
-                <!-- 중단: 보조 기능 -->
+                <!-- 보조 기능 -->
                 <StackPanel Orientation="Vertical">
                     <Button Content="목록 삭제"
                             Command="{Binding ListClearCommand}"
@@ -67,17 +67,13 @@
                             Style="{StaticResource SidebarButtonStyle}" />
                     <CheckBox Content="확장자 표시"
                               IsChecked="{Binding ShowExtension}" />
-                    <CheckBox Content="개별 수정"
-                              IsChecked="{Binding IsIndividualEditMode}" />
+                    <CheckBox Content="수동 변경 활성화"
+                              IsChecked="{Binding ManualEditMode}" />
                     <CheckBox Content="삭제 확인 표시"
                               IsChecked="{Binding ConfirmDeletion}" />
-                </StackPanel>
-
-                <Separator Margin="0,8,0,8" />
-
-                <!-- 최하단: 정렬 -->
-                <StackPanel>
+                <!-- 정렬 -->
                     <TextBlock Margin="0,0,0,4"
+                               FontSize="12"
                                FontWeight="SemiBold"
                                Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
                                Text="정렬" />
@@ -88,13 +84,9 @@
                               DisplayMemberPath="Display" />
                     <ui:ToggleSwitch IsOn="{Binding IsSortAscending}"
                                      OnContent="오름차순"
-                                     OffContent="내림차순"
-                                     Margin="0,4,0,0" />
+                                     OffContent="내림차순" />
                 </StackPanel>
-
             </StackPanel>
-
         </Border>
-
     </ScrollViewer>
 </UserControl>

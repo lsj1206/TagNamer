@@ -9,7 +9,7 @@
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
         WindowStartupLocation="CenterScreen"
-        Height="720"
+        Height="640"
         MinHeight="600"
         Width="1200"
         MinWidth="960"
