@@ -77,7 +77,6 @@ public partial class MainViewModel : ObservableObject
     public IRelayCommand OpenRuleSettingsCommand { get; }
     public IRelayCommand ApplyChangesCommand { get; }
     public IRelayCommand UndoChangesCommand { get; }
-    public IRelayCommand ExtensionCommand { get; }
     public IRelayCommand ReorderNumberCommand { get; }
     public IAsyncRelayCommand<FileItem> ManualEditCommand { get; }
 
@@ -89,7 +88,6 @@ public partial class MainViewModel : ObservableObject
     private readonly ISortingService _sortingService;
 
     private readonly RenameViewModel _renameViewModel;
-    private readonly ExtensionViewModel _extensionViewModel;
 
     public MainViewModel(
         IWindowService windowService,
@@ -99,8 +97,7 @@ public partial class MainViewModel : ObservableObject
         IRenameService renameService,
         ISortingService sortingService,
         SnackbarViewModel snackbarViewModel,
-        RenameViewModel renameViewModel,
-        ExtensionViewModel extensionViewModel)
+        RenameViewModel renameViewModel)
     {
         _windowService = windowService;
         _dialogService = dialogService;
@@ -110,7 +107,6 @@ public partial class MainViewModel : ObservableObject
         _sortingService = sortingService;
         Snackbar = snackbarViewModel;
         _renameViewModel = renameViewModel;
-        _extensionViewModel = extensionViewModel;
 
         // RenameViewModel의 RuleFormat 변경 시 UI 알림
         _renameViewModel.PropertyChanged += (s, e) =>
@@ -131,7 +127,6 @@ public partial class MainViewModel : ObservableObject
         OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
         ApplyChangesCommand = new RelayCommand(ApplyChanges);
         UndoChangesCommand = new RelayCommand(UndoChanges);
-        ExtensionCommand = new RelayCommand(Extension);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
         ManualEditCommand = new AsyncRelayCommand<FileItem>(ManualEditAsync);
     }
@@ -378,25 +373,4 @@ public partial class MainViewModel : ObservableObject
         _renameService.UndoRename(FileList.Items);
     }
 
-    private void Extension()
-    {
-        // ExtensionViewModel은 Transient이므로 매번 새로 받아오거나, Factory 패턴을 써야 하지만
-        // 여기서는 간단하게 DI로 주입받은 인스턴스(하나)를 재사용하거나,
-        // MainViewModel 생성자에서 Transient로 하나만 받아와서 재사용하는 방식을 씁니다.
-        // 다만 Transient인데 주입받으면 그 인스턴스는 계속 유지됩니다.
-        // 상태 초기화(Initialize)를 하므로 재사용해도 문제없습니다.
-
-        // 1. 상태 초기화
-        _extensionViewModel.Initialize(FileList.Items);
-
-        // 2. 다이얼로그 표시
-        var result = _windowService.ShowDialog<TagNamer.Views.ExtensionWindow>(_extensionViewModel);
-
-        // 3. 결과 처리 (변경 사항이 있으면 미리보기 갱신)
-        if (result == true)
-        {
-            UpdatePreview();
-            _snackbarService.Show("확장자 변경 규칙이 적용되었습니다.", SnackbarType.Success);
-        }
-    }
 }

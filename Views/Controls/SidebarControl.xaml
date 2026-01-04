@@ -62,9 +62,6 @@
                     <Button Content="번호 재정렬"
                             Command="{Binding ReorderNumberCommand}"
                             Style="{StaticResource SidebarButtonStyle}" />
-                    <Button Content="확장자 변경"
-                            Command="{Binding ExtensionCommand}"
-                            Style="{StaticResource SidebarButtonStyle}" />
                     <CheckBox Content="확장자 표시"
                               IsChecked="{Binding ShowExtension}" />
                     <CheckBox Content="수동 변경 활성화"

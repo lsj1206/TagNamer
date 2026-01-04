@@ -135,7 +135,7 @@ public class RenameService : IRenameService
         {
             try
             {
-                string newFullName = item.NewName + item.NewExtension;
+                string newFullName = item.NewName + item.BaseExtension;
                 string newPath = Path.Combine(item.Directory, newFullName);
                 _fileService.RenameFile(item.Path, newPath);
 
