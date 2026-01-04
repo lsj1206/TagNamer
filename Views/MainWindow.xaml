@@ -9,9 +9,9 @@
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
         WindowStartupLocation="CenterScreen"
-        Height="640"
+        Height="600"
         MinHeight="540"
-        Width="1136"
+        Width="1066"
         MinWidth="960"
         Title="TagNamer">
 
