@@ -8,7 +8,7 @@
         mc:Ignorable="d"
         ui:WindowHelper.UseModernWindowStyle="True"
         Height="480"
-        Width="720"
+        Width="640"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
         Title="규칙 설정">
@@ -147,7 +147,7 @@
                                                         Filter="Digits"
                                                         Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="자리 수 :" />
-                                <controls:FilterTextBox Width="100"
+                                <controls:FilterTextBox Width="80"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
@@ -164,14 +164,14 @@
                                                         Filter="Alpha"
                                                         Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="자리 수 : " />
-                                <controls:FilterTextBox Width="100"
+                                <controls:FilterTextBox Width="80"
                                                         Margin="0,0,8,0"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
                                                         Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="소문자 수 : " />
-                                <controls:FilterTextBox Width="100"
+                                <controls:FilterTextBox Width="80"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
