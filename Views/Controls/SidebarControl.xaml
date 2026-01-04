@@ -42,6 +42,7 @@
                             Command="{Binding ListClearCommand}"
                             Style="{StaticResource SidebarButtonStyle}" />
                 </StackPanel>
+
                 <Separator Margin="0,0,0,8" />
 
                 <!-- 파일 이름 변경 -->
@@ -58,15 +59,29 @@
                     <Button Content="변경 취소"
                             Command="{Binding UndoChangesCommand}"
                             Style="{StaticResource SidebarButtonStyle}" />
+                <!-- 정렬 -->
+                    <TextBlock Margin="0,0,0,4"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
+                               Text="정렬" />
+                    <ComboBox HorizontalAlignment="Stretch"
+                              Margin="0,0,0,2"
+                              ItemsSource="{Binding SortOptions}"
+                              SelectedItem="{Binding SelectedSortOption}"
+                              DisplayMemberPath="Display" />
+                    <ui:ToggleSwitch IsOn="{Binding IsSortAscending}"
+                                     OnContent="오름차순"
+                                     OffContent="내림차순" />
+                    <Button Content="번호 재정렬"
+                            Command="{Binding ReorderNumberCommand}"
+                            Style="{StaticResource SidebarButtonStyle}" />
                 </StackPanel>
 
                 <Separator Margin="0,0,0,8" />
 
-                <!-- 보조 기능 -->
+                <!-- 기타 -->
                 <StackPanel Orientation="Vertical">
-                    <Button Content="번호 재정렬"
-                            Command="{Binding ReorderNumberCommand}"
-                            Style="{StaticResource SidebarButtonStyle}" />
                     <Grid Margin="0">
                         <CheckBox Content="개별 변경 모드"
                                   IsChecked="{Binding ManualEditMode}"
@@ -108,19 +123,6 @@
                                VerticalAlignment="Center"
                                ToolTip="파일을 제거할 때 확인 창을 띄웁니다." />
                     </Grid>
-                    <TextBlock Margin="0,0,0,4"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SystemControlForegroundBaseHighBrush}"
-                               Text="정렬" />
-                    <ComboBox HorizontalAlignment="Stretch"
-                              Margin="0,0,0,4"
-                              ItemsSource="{Binding SortOptions}"
-                              SelectedItem="{Binding SelectedSortOption}"
-                              DisplayMemberPath="Display" />
-                    <ui:ToggleSwitch IsOn="{Binding IsSortAscending}"
-                                     OnContent="오름차순"
-                                     OffContent="내림차순" />
                 </StackPanel>
             </StackPanel>
         </Border>
