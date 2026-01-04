@@ -67,12 +67,47 @@
                     <Button Content="번호 재정렬"
                             Command="{Binding ReorderNumberCommand}"
                             Style="{StaticResource SidebarButtonStyle}" />
-                    <CheckBox Content="수동 변경 활성화"
-                              IsChecked="{Binding ManualEditMode}" />
-                    <CheckBox Content="확장자 표시"
-                              IsChecked="{Binding ShowExtension}" />
-                    <CheckBox Content="삭제 확인 표시"
-                              IsChecked="{Binding ConfirmDeletion}" />
+                    <Grid Margin="0">
+                        <CheckBox Content="개별 변경 모드"
+                                  IsChecked="{Binding ManualEditMode}"
+                                  VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource HelpIcon}"
+                               Width="12" Height="12"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center">
+                               <Image.ToolTip>
+                                <ToolTip>
+                                    <TextBlock TextWrapping="Wrap">
+                                        파일을 더블 클릭해 이름을 개별 수정할 수 있습니다.
+                                        <LineBreak/>
+                                        개별 수정 후 적용 이전에 규칙을 변경할 경우 수정사항이 사라집니다.
+                                        <LineBreak/>
+                                        규칙 설정 이후에 개별 수정하는 경우에는 수정사항이 반영됩니다.
+                                    </TextBlock>
+                                </ToolTip>
+                            </Image.ToolTip>
+                        </Image>
+                    </Grid>
+                    <Grid Margin="0">
+                        <CheckBox Content="확장자 표시"
+                                  IsChecked="{Binding ShowExtension}"
+                                  VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource HelpIcon}"
+                               Width="12" Height="12"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               ToolTip="파일 목록에 확장자 표시 여부를 설정합니다." />
+                    </Grid>
+                    <Grid Margin="0">
+                        <CheckBox Content="삭제 확인 표시"
+                                  IsChecked="{Binding ConfirmDeletion}"
+                                  VerticalAlignment="Center"/>
+                        <Image Source="{StaticResource HelpIcon}"
+                               Width="12" Height="12"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"
+                               ToolTip="파일을 제거할 때 확인 창을 띄웁니다." />
+                    </Grid>
                     <TextBlock Margin="0,0,0,4"
                                FontSize="12"
                                FontWeight="SemiBold"
