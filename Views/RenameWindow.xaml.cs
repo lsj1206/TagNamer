@@ -17,7 +17,7 @@ public partial class RenameWindow : System.Windows.Window
     {
         if (e.LeftButton == MouseButtonState.Pressed && sender is FrameworkElement element && element.DataContext is TagItem tagItem)
         {
-            DragDrop.DoDragDrop(element, tagItem.DisplayName, DragDropEffects.Copy);
+            DragDrop.DoDragDrop(element, tagItem.TagName, DragDropEffects.Copy);
         }
     }
 
@@ -34,8 +34,8 @@ public partial class RenameWindow : System.Windows.Window
             {
                  RuleTextBox.Focus();
                  RuleTextBox.CaretIndex = 0;
-                 RuleTextBox.SelectedText = tagItem.DisplayName;
-                 RuleTextBox.CaretIndex = tagItem.DisplayName.Length;
+                 RuleTextBox.SelectedText = tagItem.TagName;
+                 RuleTextBox.CaretIndex = tagItem.TagName.Length;
             };
             menu.Items.Add(insertFirstItem);
 
@@ -45,7 +45,7 @@ public partial class RenameWindow : System.Windows.Window
             {
                 RuleTextBox.Focus();
                 RuleTextBox.CaretIndex = RuleTextBox.Text.Length;
-                RuleTextBox.SelectedText = tagItem.DisplayName;
+                RuleTextBox.SelectedText = tagItem.TagName;
                 RuleTextBox.CaretIndex = RuleTextBox.Text.Length; // 커서 맨 뒤로
             };
             menu.Items.Add(insertLastItem);

@@ -44,9 +44,9 @@ public class RenameService : IRenameService
         var itemList = items.ToList();
         if (itemList.Count == 0) return;
 
-        // 입력된 규칙(ruleFormat)에 해당 태그의 DisplayName이 포함되어 있는지 확인합니다.
+        // 입력된 규칙(ruleFormat)에 해당 태그의 TagName이 포함되어 있는지 확인합니다.
         var activeTags = tagManager.CreatedTags
-            .Where(t => ruleFormat.IndexOf(t.DisplayName, StringComparison.OrdinalIgnoreCase) >= 0)
+            .Where(t => ruleFormat.IndexOf(t.TagName, StringComparison.OrdinalIgnoreCase) >= 0)
             .ToList();
 
         // 날짜/시간 태그 계산 결과를 캐싱하여 반복적인 DateTime 포맷팅을 방지합니다.
@@ -96,12 +96,12 @@ public class RenameService : IRenameService
                         // 날짜/시간 태그: 캐시된 값 사용 또는 포맷팅 후 캐싱
                         if (tag.Params is DateTimeTagParams dtP)
                         {
-                            if (!dateCache.TryGetValue(tag.DisplayName, out string? cachedDate))
+                            if (!dateCache.TryGetValue(tag.TagName, out string? cachedDate))
                             {
                                 string format = string.IsNullOrWhiteSpace(dtP.Format) ?
                                     (tag.Type == TagType.Today ? "yyyyMMdd" : "HHmmss") : dtP.Format;
                                 cachedDate = now.ToString(ConvertDateFormat(format));
-                                dateCache[tag.DisplayName] = cachedDate;
+                                dateCache[tag.TagName] = cachedDate;
                             }
                             replacement = cachedDate;
                         }
@@ -111,7 +111,7 @@ public class RenameService : IRenameService
                 // 계산된 값으로 태그 치환 (대소문자 무시)
                 if (!string.IsNullOrEmpty(replacement))
                 {
-                     newName = ReplaceCaseInsensitive(newName, tag.DisplayName, replacement);
+                     newName = ReplaceCaseInsensitive(newName, tag.TagName, replacement);
                 }
             }
 

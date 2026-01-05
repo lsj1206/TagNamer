@@ -145,7 +145,7 @@ public partial class TagManagerViewModel : ObservableObject
     {
         CreatedTags.Add(new TagItem
         {
-            DisplayName = "[Name.origin]",
+            TagName = "[Name.origin]",
             Type = TagType.NameOrigin,
             ToolTip = "파일이 추가될 당시의 파일명을 입력합니다.",
             IsStandard = true
@@ -156,7 +156,7 @@ public partial class TagManagerViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(SelectedTagType)) return;
 
-        // DisplayName Counter
+        // TagName Counter
         if (!_tagCounts.ContainsKey(SelectedTagType))
             _tagCounts[SelectedTagType] = 0;
 
@@ -175,7 +175,7 @@ public partial class TagManagerViewModel : ObservableObject
 
                      newItem = new TagItem
                     {
-                        DisplayName = $"[Number{currentCount}]",
+                        TagName = $"[Number{currentCount}]",
                         Type = TagType.Number,
                         Params = new NumberTagParams
                         {
@@ -207,7 +207,7 @@ public partial class TagManagerViewModel : ObservableObject
 
                     newItem = new TagItem
                     {
-                        DisplayName = $"[AtoZ{currentCount}]",
+                        TagName = $"[AtoZ{currentCount}]",
                         Type = TagType.AtoZ,
                         Params = new AtoZTagParams
                         {
@@ -225,7 +225,7 @@ public partial class TagManagerViewModel : ObservableObject
             case "[Today]":
                 newItem = new TagItem
                 {
-                    DisplayName = $"[Today{currentCount}]",
+                    TagName = $"[Today{currentCount}]",
                     Type = TagType.Today,
                     Params = new DateTimeTagParams { Format = OptionDateFormat },
                     ToolTip = $"{OptionDateFormat}"
@@ -235,7 +235,7 @@ public partial class TagManagerViewModel : ObservableObject
             case "[Time.now]":
                 newItem = new TagItem
                 {
-                    DisplayName = $"[Time.now{currentCount}]",
+                    TagName = $"[Time.now{currentCount}]",
                     Type = TagType.TimeNow,
                     Params = new DateTimeTagParams { Format = OptionDateFormat },
                     ToolTip = $"{OptionDateFormat}"

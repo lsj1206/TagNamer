@@ -34,7 +34,7 @@ public class DateTimeTagParams
 
 public class TagItem
 {
-    public string DisplayName { get; set; } = string.Empty;
+    public string TagName { get; set; } = string.Empty;
     public string ToolTip { get; set; } = string.Empty;
     public List<string> Options { get; set; } = new();
 
