@@ -25,15 +25,15 @@
             <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
                 <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                            Text="규칙을 입력하세요. " />
-                <TextBlock Cursor="Help"
-                           FontSize="12"
-                           Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                           Text="사용 방법"
-                           TextDecorations="Underline">
-                    <TextBlock.ToolTip>
+                <Image Source="{StaticResource HelpIcon}"
+                       Width="14" Height="14"
+                       Margin="0,0,0,0"
+                       VerticalAlignment="Center"
+                       Cursor="Help">
+                    <Image.ToolTip>
                         <ToolTip Content="{Binding RuleGuildTooltip}"/>
-                    </TextBlock.ToolTip>
-                </TextBlock>
+                    </Image.ToolTip>
+                </Image>
             </StackPanel>
 
             <Grid>
