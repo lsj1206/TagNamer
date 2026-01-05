@@ -137,6 +137,7 @@
                                 VerticalAlignment="Top"
                                 Content="{Binding TagManager.SelectedTagType}">
                     <ContentControl.Resources>
+                        <!-- Number 태그 -->
                         <DataTemplate x:Key="NumTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="시작 값 :" />
@@ -154,6 +155,7 @@
                                                         Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </StackPanel>
                         </DataTemplate>
+                        <!-- AtoZ 태그 -->
                         <DataTemplate x:Key="AtoZTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="시작 값 : " />
@@ -178,6 +180,7 @@
                                                         Text="{Binding DataContext.TagManager.OptionLowerCount, RelativeSource={RelativeSource AncestorType=Window}}" />
                             </StackPanel>
                         </DataTemplate>
+                        <!-- Today 태그 -->
                         <DataTemplate x:Key="DateTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <ComboBox Width="70"
@@ -205,6 +208,7 @@
                                           SelectedItem="{Binding DataContext.TagManager.OptionDatePart3, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </StackPanel>
                         </DataTemplate>
+                        <!-- Time.Now 태그 -->
                         <DataTemplate x:Key="TimeTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <ComboBox Width="70"
