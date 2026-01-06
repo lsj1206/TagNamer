@@ -125,8 +125,23 @@ public partial class TagManagerViewModel : ObservableObject
         }
     }
 
-    [ObservableProperty]
-    private string optionDateFormat = "";
+    // 날짜/시간 드롭다운 항목
+    public ObservableCollection<string> DatePartTypes { get; } = new() { "-", "YY", "YYYY", "MM", "DD" };
+    public ObservableCollection<string> TimePartTypes { get; } = new() { "-", "HH", "MM", "SS" };
+
+    // 날짜 옵션
+    [ObservableProperty] private string optionDatePart1 = "YY";
+    [ObservableProperty] private string optionDatePart2 = "MM";
+    [ObservableProperty] private string optionDatePart3 = "DD";
+    [ObservableProperty] private string optionDateSep1 = "";
+    [ObservableProperty] private string optionDateSep2 = "";
+
+    // 시간 옵션
+    [ObservableProperty] private string optionTimePart1 = "HH";
+    [ObservableProperty] private string optionTimePart2 = "MM";
+    [ObservableProperty] private string optionTimePart3 = "SS";
+    [ObservableProperty] private string optionTimeSep1 = "";
+    [ObservableProperty] private string optionTimeSep2 = "";
 
     public IRelayCommand CreateTagCommand { get; }
     public IRelayCommand<TagItem> DeleteTagCommand { get; }
@@ -227,20 +242,34 @@ public partial class TagManagerViewModel : ObservableObject
                 {
                     TagName = $"[Today{currentCount}]",
                     Type = TagType.Today,
-                    Params = new DateTimeTagParams { Format = OptionDateFormat },
-                    ToolTip = $"{OptionDateFormat}"
+                    Params = new DateTimeTagParams
+                    {
+                        Part1 = OptionDatePart1,
+                        Part2 = OptionDatePart2,
+                        Part3 = OptionDatePart3,
+                        Sep1 = OptionDateSep1,
+                        Sep2 = OptionDateSep2
+                    },
+                    ToolTip = GetDateTimeToolTip(OptionDatePart1, OptionDateSep1, OptionDatePart2, OptionDateSep2, OptionDatePart3)
                 };
-                newItem.Options.Add($"형식 : {OptionDateFormat}");
+                newItem.Options.Add($"형식 : {newItem.ToolTip}");
                 break;
             case "[Time.now]":
                 newItem = new TagItem
                 {
                     TagName = $"[Time.now{currentCount}]",
                     Type = TagType.TimeNow,
-                    Params = new DateTimeTagParams { Format = OptionDateFormat },
-                    ToolTip = $"{OptionDateFormat}"
+                    Params = new DateTimeTagParams
+                    {
+                        Part1 = OptionTimePart1,
+                        Part2 = OptionTimePart2,
+                        Part3 = OptionTimePart3,
+                        Sep1 = OptionTimeSep1,
+                        Sep2 = OptionTimeSep2
+                    },
+                    ToolTip = GetDateTimeToolTip(OptionTimePart1, OptionTimeSep1, OptionTimePart2, OptionTimeSep2, OptionTimePart3)
                 };
-                newItem.Options.Add($"형식 : {OptionDateFormat}");
+                newItem.Options.Add($"형식 : {newItem.ToolTip}");
                 break;
         }
 
@@ -248,6 +277,18 @@ public partial class TagManagerViewModel : ObservableObject
         {
             CreatedTags.Add(newItem);
         }
+    }
+
+    private string GetDateTimeToolTip(string p1, string s1, string p2, string s2, string p3)
+    {
+        var parts = new List<string>();
+        if (p1 != "-") parts.Add(p1);
+        parts.Add(s1);
+        if (p2 != "-") parts.Add(p2);
+        parts.Add(s2);
+        if (p3 != "-") parts.Add(p3);
+
+        return string.Join("", parts);
     }
 
     private void DeleteTag(TagItem? item)

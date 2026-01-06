@@ -98,9 +98,7 @@ public class RenameService : IRenameService
                         {
                             if (!dateCache.TryGetValue(tag.TagName, out string? cachedDate))
                             {
-                                string format = string.IsNullOrWhiteSpace(dtP.Format) ?
-                                    (tag.Type == TagType.Today ? "yyyyMMdd" : "HHmmss") : dtP.Format;
-                                cachedDate = now.ToString(ConvertDateFormat(format));
+                                cachedDate = FormatDateTime(dtP, now, tag.Type);
                                 dateCache[tag.TagName] = cachedDate;
                             }
                             replacement = cachedDate;
@@ -227,8 +225,35 @@ public class RenameService : IRenameService
         };
     }
 
-    private string ConvertDateFormat(string input) =>
-        input.Replace("YYYY", "yyyy").Replace("YY", "yy").Replace("DD", "dd").Replace("AA", "tt");
+    private string FormatDateTime(DateTimeTagParams p, DateTime now, TagType type)
+    {
+        var result = new System.Text.StringBuilder();
+
+        result.Append(GetPartValue(p.Part1, now, type));
+        result.Append(p.Sep1);
+
+        result.Append(GetPartValue(p.Part2, now, type));
+        result.Append(p.Sep2);
+
+        result.Append(GetPartValue(p.Part3, now, type));
+
+        return result.ToString();
+    }
+
+    private string GetPartValue(string part, DateTime now, TagType type)
+    {
+        return part switch
+        {
+            "YY" => now.ToString("yy"),
+            "YYYY" => now.ToString("yyyy"),
+            "MM" => type == TagType.TimeNow ? now.ToString("mm") : now.ToString("MM"),
+            "DD" => now.ToString("dd"),
+            "HH" => now.ToString("HH"),
+            "SS" => now.ToString("ss"),
+            "-" => string.Empty,
+            _ => string.Empty
+        };
+    }
 
     private string ReplaceCaseInsensitive(string input, string search, string replacement) =>
         Regex.Replace(input, Regex.Escape(search), replacement.Replace("$", "$$"), RegexOptions.IgnoreCase);

@@ -29,7 +29,14 @@ public class AtoZTagParams
 // Date/Time 태그 파라미터
 public class DateTimeTagParams
 {
-    public string Format { get; set; } = string.Empty;
+    // 각 파트 (YY, YYYY, MM, DD, HH, SS 등)
+    public string Part1 { get; set; } = string.Empty;
+    public string Part2 { get; set; } = string.Empty;
+    public string Part3 { get; set; } = string.Empty;
+
+    // 구분자
+    public string Sep1 { get; set; } = string.Empty;
+    public string Sep2 { get; set; } = string.Empty;
 }
 
 public class TagItem
