@@ -10,11 +10,18 @@ namespace TagNamer.ViewModels;
 
 public partial class TagManagerViewModel : ObservableObject
 {
+    public IRelayCommand CreateTagCommand { get; }
+    public IRelayCommand<TagItem> DeleteTagCommand { get; }
+
     public ObservableCollection<TagItem> CreatedTags { get; } = new();
     // 태그 타입
     public ObservableCollection<string> TagTypes { get; } = new() { "[Number]", "[AtoZ]", "[Origin.split]", "[Today]", "[Time.now]" };
     // 태그 생성 카운트 관리
     private readonly Dictionary<string, int> _tagCounts = new();
+
+    // 날짜/시간 드롭다운 항목
+    public ObservableCollection<string> DatePartTypes { get; } = new() { "-", "YY", "YYYY", "MM", "DD" };
+    public ObservableCollection<string> TimePartTypes { get; } = new() { "-", "HH", "MM", "SS" };
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TagTypeDescription))]
@@ -33,102 +40,21 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty]
     private string optionStartValue = "";
 
-    // 시작 값 옵션 예외 처리
-    partial void OnOptionStartValueChanged(string value)
-    {
-        if (SelectedTagType == "[Number]")
-        {
-            // 입력값이 비어있거나 무효일때 0으로 변경
-            if (string.IsNullOrWhiteSpace(value))
-            {
-                OptionStartValue = "0";
-                return;
-            }
-
-            if (long.TryParse(value, out long result))
-            {
-                if (OptionStartValue != result.ToString())
-                    OptionStartValue = result.ToString();
-            }
-            else
-            {
-                OptionStartValue = "1";
-            }
-        }
-        else if (SelectedTagType == "[AtoZ]")
-        {
-            // AtoZ일 경우 비어있거나 알파벳이 아니면 A로 변경
-            if (string.IsNullOrWhiteSpace(value) || !value.All(char.IsLetter))
-            {
-                OptionStartValue = "A";
-                return;
-            }
-            if (OptionStartValue != value)
-                OptionStartValue = value;
-        }
-    }
-
     [ObservableProperty]
     private string optionDigits = "1";
-
-    // 자리 수 옵션 예외 처리
-    partial void OnOptionDigitsChanged(string value)
-    {
-        // 입력값이 비어있으면 1로 변경
-        if (string.IsNullOrWhiteSpace(value)){
-            OptionDigits = "1";
-            return;
-        }
-
-        if (int.TryParse(value, out int result))
-        {
-            // 0이 입력되면 1로 변경
-            if (result < 1) result = 1;
-            // 윈도우 파일명 제한이 확장자 255자이기 때문에 100자 제한
-            if (result > 100) result = 100;
-            // 옵션값이 변경되었을 경우에만 변경
-            if (OptionDigits != result.ToString())
-                OptionDigits = result.ToString();
-        }
-        else
-        {
-            // TryParse는 실패하면 false를 반환
-            // overflow가 발생한 경우 1로 변경
-            OptionDigits = "1";
-        }
-    }
 
     [ObservableProperty]
     private string optionLowerCount = "";
 
-    // 소문자 수 옵션 예외 처리
-    partial void OnOptionLowerCountChanged(string value)
-    {
-        // 입력값이 비어있으면 0으로 변경
-        if (string.IsNullOrWhiteSpace(value)){
-            OptionLowerCount = "0";
-            return;
-        }
+    // Origin.split 옵션
+    [ObservableProperty] private string optionSplitStart = "1";
+    [ObservableProperty] private string optionSplitEnd = "1";
 
-        if (int.TryParse(value, out int result))
-        {
-            // 자리 수가 최대 100자이기 때문에 100자 제한
-            if (result > 100) result = 100;
-            // 옵션값이 변경되었을 경우에만 변경
-            if (OptionLowerCount != result.ToString())
-                OptionLowerCount = result.ToString();
-        }
-        else
-        {
-            // TryParse는 실패하면 false를 반환
-            // overflow가 발생한 경우 100으로 변경
-            OptionLowerCount = "100";
-        }
-    }
-
-    // 날짜/시간 드롭다운 항목
-    public ObservableCollection<string> DatePartTypes { get; } = new() { "-", "YY", "YYYY", "MM", "DD" };
-    public ObservableCollection<string> TimePartTypes { get; } = new() { "-", "HH", "MM", "SS" };
+    // Toggle Button용 속성 (True/False 대신 문자열로 바인딩하거나, 뷰에서 변환기를 사용할 수 있음.
+    // 여기서는 뷰모델에서 bool로 관리하고 커맨드로 토글하는 방식을 사용하거나,
+    // 단순하게 문자열 상태로 관리하여 뷰에 바인딩합니다.)
+    [ObservableProperty] private bool optionSplitFromBack = false; // false: 앞에서부터, true: 뒤에서부터
+    [ObservableProperty] private bool optionSplitKeep = false;     // false: 선택 삭제, true: 선택 남기기
 
     // 날짜 옵션
     [ObservableProperty] private string optionDatePart1 = "YY";
@@ -144,58 +70,63 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty] private string optionTimeSep1 = "";
     [ObservableProperty] private string optionTimeSep2 = "";
 
-    // Origin.split 옵션
-    [ObservableProperty] private string optionSplitStart = "1";
-    [ObservableProperty] private string optionSplitEnd = "1";
-
-    // Toggle Button용 속성 (True/False 대신 문자열로 바인딩하거나, 뷰에서 변환기를 사용할 수 있음.
-    // 여기서는 뷰모델에서 bool로 관리하고 커맨드로 토글하는 방식을 사용하거나,
-    // 단순하게 문자열 상태로 관리하여 뷰에 바인딩합니다.)
-    [ObservableProperty] private bool optionSplitFromBack = false; // false: 앞에서부터, true: 뒤에서부터
-    [ObservableProperty] private bool optionSplitKeep = false;     // false: 선택 삭제, true: 선택 남기기
-
-    partial void OnOptionSplitStartChanged(string value)
+    /// <summary>
+    /// 정수형 옵션 값을 검증하고 범위 내로 조정합니다.
+    /// </summary>
+    private string ValidateIntOption(string value, int min, int max, string defaultValue)
     {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            OptionSplitStart = "1";
-            return;
-        }
+        if (string.IsNullOrWhiteSpace(value)) return defaultValue;
         if (int.TryParse(value, out int result))
         {
-            if (result < 1) result = 1;
-            if (result > 255) result = 255;
-            if (OptionSplitStart != result.ToString())
-                OptionSplitStart = result.ToString();
+            if (result < min) result = min;
+            if (result > max) result = max;
+            return result.ToString();
         }
-        else
+        return defaultValue;
+    }
+
+    /// <summary>
+    /// Long형 옵션 값을 검증합니다.
+    /// </summary>
+    private string ValidateLongOption(string value, long min, long max, string defaultValue)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return defaultValue;
+        if (long.TryParse(value, out long result))
         {
-            OptionSplitStart = "1";
+            if (result < min) result = min;
+            if (result > max) result = max;
+            return result.ToString();
+        }
+        return defaultValue;
+    }
+
+    // 시작 값 옵션 예외 처리
+    partial void OnOptionStartValueChanged(string value)
+    {
+        if (SelectedTagType == "[Number]")
+        {
+            OptionStartValue = ValidateLongOption(value, 0, long.MaxValue, "0");
+        }
+        else if (SelectedTagType == "[AtoZ]")
+        {
+            if (string.IsNullOrWhiteSpace(value) || !value.All(char.IsLetter))
+            {
+                OptionStartValue = "A";
+                return;
+            }
+            OptionStartValue = value.ToUpper();
         }
     }
 
-    partial void OnOptionSplitEndChanged(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-        {
-            OptionSplitEnd = "1";
-            return;
-        }
-        if (int.TryParse(value, out int result))
-        {
-            if (result < 1) result = 1;
-            if (result > 255) result = 255;
-            if (OptionSplitEnd != result.ToString())
-                OptionSplitEnd = result.ToString();
-        }
-        else
-        {
-            OptionSplitEnd = "1";
-        }
-    }
+    // 자리 수 옵션 예외 처리
+    partial void OnOptionDigitsChanged(string value) => OptionDigits = ValidateIntOption(value, 1, 100, "1");
 
-    public IRelayCommand CreateTagCommand { get; }
-    public IRelayCommand<TagItem> DeleteTagCommand { get; }
+    // 소문자 수 옵션 예외 처리
+    partial void OnOptionLowerCountChanged(string value) => OptionLowerCount = ValidateIntOption(value, 0, 100, "0");
+
+    // 분할 옵션 예외 처리
+    partial void OnOptionSplitStartChanged(string value) => OptionSplitStart = ValidateIntOption(value, 1, 255, "1");
+    partial void OnOptionSplitEndChanged(string value) => OptionSplitEnd = ValidateIntOption(value, 1, 255, "1");
 
     public TagManagerViewModel()
     {
