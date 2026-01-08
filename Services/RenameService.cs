@@ -121,61 +121,91 @@ public class RenameService : IRenameService
     /// <summary>
     /// 이름 변경 작업을 수행합니다.
     /// </summary>
-    public void ApplyRename(IEnumerable<FileItem> items)
+    public async Task ApplyRenameAsync(IEnumerable<FileItem> items, IProgress<int>? progress = null)
     {
-        int successCount = 0;
-        var errors = new List<Exception>();
         var targetItems = items.Where(i => i.IsChanged).ToList();
-
         if (targetItems.Count == 0) return;
 
-        foreach (var item in targetItems)
+        int totalCount = targetItems.Count;
+        int successCount = 0;
+        var errors = new List<Exception>();
+
+        await Task.Run(() =>
         {
-            try
+            for (int i = 0; i < totalCount; i++)
             {
-                string newFullName = item.NewName + item.BaseExtension;
-                string newPath = Path.Combine(item.Directory, newFullName);
-                _fileService.RenameFile(item.Path, newPath);
+                var item = targetItems[i];
+                try
+                {
+                    string newFullName = item.NewName + item.BaseExtension;
+                    string newPath = Path.Combine(item.Directory, newFullName);
+                    _fileService.RenameFile(item.Path, newPath);
 
-                item.PreviousPath = item.Path;
-                item.Path = newPath;
-                successCount++;
-            }
-            catch (Exception ex)
-            {
-                errors.Add(ex);
-            }
-        }
+                    item.PreviousPath = item.Path;
+                    item.Path = newPath;
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
 
-        ShowRenameSnackbar(BatchActionType.ApplyRename, successCount, errors);
+                // 10개 단위로 진행률 보고 (UI 부하 감소)
+                if (progress != null && (i % 10 == 0 || i == totalCount - 1))
+                {
+                    progress.Report(i + 1);
+                }
+            }
+        });
+
+        // 결과 스낵바는 UI 스레드에서 안전하게 호출
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+        {
+            ShowRenameSnackbar(BatchActionType.ApplyRename, successCount, errors);
+        });
     }
 
     /// <summary>
     /// 이름 되돌리기 작업을 수행합니다.
     /// </summary>
-    public void UndoRename(IEnumerable<FileItem> items)
+    public async Task UndoRenameAsync(IEnumerable<FileItem> items, IProgress<int>? progress = null)
     {
+        var targetItems = items.Where(i => !string.IsNullOrEmpty(i.PreviousPath)).ToList();
+        if (targetItems.Count == 0) return;
+
+        int totalCount = targetItems.Count;
         int successCount = 0;
         var errors = new List<Exception>();
 
-        foreach (var item in items)
+        await Task.Run(() =>
         {
-            if (string.IsNullOrEmpty(item.PreviousPath)) continue;
-
-            try
+            for (int i = 0; i < totalCount; i++)
             {
-                _fileService.RenameFile(item.Path, item.PreviousPath);
+                var item = targetItems[i];
+                try
+                {
+                    _fileService.RenameFile(item.Path, item.PreviousPath);
 
-                item.Path = item.PreviousPath;
-                item.PreviousPath = string.Empty;
-                successCount++;
+                    item.Path = item.PreviousPath;
+                    item.PreviousPath = string.Empty;
+                    successCount++;
+                }
+                catch (Exception ex)
+                {
+                    errors.Add(ex);
+                }
+
+                if (progress != null && (i % 10 == 0 || i == totalCount - 1))
+                {
+                    progress.Report(i + 1);
+                }
             }
-            catch (Exception ex)
-            {
-                errors.Add(ex);
-            }
-        }
-        ShowRenameSnackbar(BatchActionType.UndoRename, successCount, errors);
+        });
+
+        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
+        {
+            ShowRenameSnackbar(BatchActionType.UndoRename, successCount, errors);
+        });
     }
 
     /// <summary>

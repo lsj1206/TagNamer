@@ -68,6 +68,31 @@ public class SnackbarService : ISnackbarService
         }
     }
 
+    public void ShowProgress(string message)
+    {
+        // 큐 처리는 생략하고 즉시 반영합니다.
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            _timer?.Stop(); // 기존 타이머 중지 (자동 닫힘 방지)
+
+            _viewModel.Message = message;
+            _viewModel.Type = SnackbarType.Info;
+            _viewModel.IsVisible = true;
+            _viewModel.IsAnimating = true;
+        });
+    }
+
+    public void UpdateProgress(string message)
+    {
+        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        {
+            if (_viewModel.IsVisible)
+            {
+                _viewModel.Message = message;
+            }
+        });
+    }
+
     private void CloseInternal()
     {
         System.Windows.Application.Current.Dispatcher.Invoke(async () =>

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TagNamer.Models;
 using TagNamer.ViewModels;
 
@@ -17,10 +18,10 @@ public interface IRenameService
     /// <summary>
     /// 미리보기 상태의 이름을 실제 파일 시스템에 적용합니다.
     /// </summary>
-    void ApplyRename(IEnumerable<FileItem> items);
+    Task ApplyRenameAsync(IEnumerable<FileItem> items, System.IProgress<int>? progress = null);
 
     /// <summary>
     /// 변경된 이름을 이전 상태로 되돌립니다.
     /// </summary>
-    void UndoRename(IEnumerable<FileItem> items);
+    Task UndoRenameAsync(IEnumerable<FileItem> items, System.IProgress<int>? progress = null);
 }

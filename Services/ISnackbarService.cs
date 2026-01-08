@@ -14,4 +14,15 @@ public enum SnackbarType
 public interface ISnackbarService
 {
     void Show(string message, SnackbarType type = SnackbarType.Info, int durationMs = 2000);
+
+    /// <summary>
+    /// 진행률을 표시하는 스낵바를 띄웁니다. (자동으로 닫히지 않음)
+    /// 완료 시 Show()를 호출하여 결과를 표시하거나 수동으로 닫아야 합니다.
+    /// </summary>
+    void ShowProgress(string message);
+
+    /// <summary>
+    /// 진행률 표시 중인 스낵바의 메시지를 업데이트합니다.
+    /// </summary>
+    void UpdateProgress(string message);
 }

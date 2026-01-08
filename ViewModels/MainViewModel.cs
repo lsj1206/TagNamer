@@ -51,8 +51,17 @@ public partial class MainViewModel : ObservableObject
     // 현재 규칙 표시 (RenameViewModel과 동기화)
     public string CurrentRuleDisplay => _renameViewModel.RuleFormat;
 
+    // 최대 파일 허용 개수
+    private const int MaxItemCount = 50000;
+
     [ObservableProperty]
     private string appVersion = "v1.0.0";
+
+    [ObservableProperty]
+    private bool isBusy = false;
+
+    [ObservableProperty]
+    private string busyMessage = "";
 
     [ObservableProperty]
     private SortOption selectedSortOption;
@@ -65,7 +74,6 @@ public partial class MainViewModel : ObservableObject
 
     [ObservableProperty]
     private bool showExtension = false;
-
 
     [ObservableProperty]
     private bool manualEditMode = false;
@@ -125,8 +133,8 @@ public partial class MainViewModel : ObservableObject
         DeleteFilesCommand = new RelayCommand<System.Collections.IList>(DeleteFiles);
         ListClearCommand = new AsyncRelayCommand(ListClearAsync);
         OpenRuleSettingsCommand = new RelayCommand(OpenRenameWindow);
-        ApplyChangesCommand = new RelayCommand(ApplyChanges);
-        UndoChangesCommand = new RelayCommand(UndoChanges);
+        ApplyChangesCommand = new AsyncRelayCommand(ApplyChangesAsync);
+        UndoChangesCommand = new AsyncRelayCommand(UndoChanges);
         ReorderNumberCommand = new RelayCommand(ReorderNumber);
         ManualEditCommand = new AsyncRelayCommand<FileItem>(ManualEditAsync);
     }
@@ -172,70 +180,102 @@ public partial class MainViewModel : ObservableObject
     /// </summary>
     private async Task ProcessFiles(IEnumerable<string> paths)
     {
-        var finalPaths = await FileScanner(paths);
-        AddFilesToList(finalPaths);
-    }
+        IsBusy = true;
 
-    /// <summary>
-    /// 입력받은 경로들을 스캔하여 폴더 옵션에 따라 최종 파일/폴더 리스트를 반환합니다.
-    /// </summary>
-    private async Task<List<string>> FileScanner(IEnumerable<string> paths)
-    {
-        if (paths == null) return new List<string>();
-        var rawPaths = paths.ToList();
-        if (rawPaths.Count == 0) return new List<string>();
-
-        var files = rawPaths.Where(File.Exists).ToList();
-        var folders = rawPaths.Where(Directory.Exists).ToList();
-        var finalPaths = new List<string>(files);
-
-        if (folders.Count > 0)
+        try
         {
-            var option = await _dialogService.ShowFolderAddOptionAsync(Path.GetFileName(folders[0]), folders.Count);
-            if (option != FolderAddOption.Cancel)
+            var rawPaths = paths.ToList();
+            var files = rawPaths.Where(File.Exists).ToList();
+            var folders = rawPaths.Where(Directory.Exists).ToList();
+            var finalPaths = new List<string>(files);
+
+            // 폴더가 포함된 경우 옵션 확인
+            if (folders.Count > 0)
             {
-                foreach (var folderPath in folders)
+                var option = await _dialogService.ShowFolderAddOptionAsync(Path.GetFileName(folders[0]), folders.Count);
+                if (option == FolderAddOption.Cancel)
                 {
-                    if (option == FolderAddOption.Files)
-                        finalPaths.AddRange(_fileService.GetFilesInFolder(folderPath));
-                    else if (option == FolderAddOption.Folder)
-                        finalPaths.Add(folderPath);
+                    if (files.Count == 0) return;
+                }
+                else
+                {
+                    await Task.Run(() =>
+                    {
+                        foreach (var folderPath in folders)
+                        {
+                            if (option == FolderAddOption.Files)
+                                finalPaths.AddRange(_fileService.GetFilesInFolder(folderPath));
+                            else if (option == FolderAddOption.Folder)
+                                finalPaths.Add(folderPath);
+                        }
+                    });
                 }
             }
-            else if (files.Count == 0)
-            {
-                return new List<string>();
-            }
-        }
 
-        return finalPaths;
+            // 개수 제한 정책
+            int currentCount = FileList.Items.Count;
+            int addCount = finalPaths.Count;
+
+            if (currentCount + addCount > MaxItemCount)
+            {
+                _snackbarService.Show($"총 파일 개수가 {MaxItemCount:N0}개를 초과하여 작업을 취소합니다.\n(현재: {currentCount:N0} + 추가: {addCount:N0})", Services.SnackbarType.Error);
+                return;
+            }
+
+            if (addCount == 0) return;
+
+            // 진행률 표시 시작
+            _snackbarService.ShowProgress("파일 불러오는 중...");
+
+            // 아이템 생성 및 추가
+            var newItems = await Task.Run(() =>
+            {
+                var items = new List<FileItem>(addCount);
+                for (int i = 0; i < addCount; i++)
+                {
+                    var item = _fileService.CreateFileItem(finalPaths[i]);
+                    if (item != null)
+                    {
+                        item.UpdateDisplay(ShowExtension);
+                        items.Add(item);
+                    }
+
+                    // 100개 단위 또는 마지막에 진행률 업데이트 (UI 부하 감소)
+                    if (i % 100 == 0 || i == addCount - 1)
+                    {
+                        double percent = (double)(i + 1) / addCount * 100;
+                        _snackbarService.UpdateProgress($"파일 불러오는 중... ({percent:0}%)");
+                    }
+                }
+                return items;
+            });
+
+            AddFilesToList(newItems);
+        }
+        catch (Exception ex)
+        {
+            _snackbarService.Show($"파일 추가 중 오류가 발생했습니다: {ex.Message}", Services.SnackbarType.Error);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     /// <summary>
-    /// 준비된 경로들을 기반으로 아이템을 생성하고 목록에 추가합니다.
+    /// 이미 생성된 아이템들을 목록에 추가합니다.
     /// </summary>
-    private void AddFilesToList(IEnumerable<string> paths)
+    private void AddFilesToList(List<FileItem> items)
     {
-        var pathList = paths.ToList();
-        int totalCount = pathList.Count;
+        int totalCount = items.Count;
         if (totalCount == 0) return;
 
-        int successCount = 0;
-        foreach (var path in pathList)
-        {
-            var item = _fileService.CreateFileItem(path);
-            if (item != null)
-            {
-                item.UpdateDisplay(ShowExtension);
-                if (FileList.AddItem(item))
-                {
-                    successCount++;
-                }
-            }
-        }
+        // 배치 처리 및 지연 제거 -> 한 번에 추가
+        int successCount = FileList.AddRange(items);
 
         SortFiles();
         UpdatePreview();
+
         // 스낵바 알림
         if (successCount == 0 && totalCount > 0)
         {
@@ -330,20 +370,37 @@ public partial class MainViewModel : ObservableObject
     }
 
     // 이름 변경 규칙을 실제 파일/폴더에 적용하는 로직입니다.
-    private async void ApplyChanges()
+    private async Task ApplyChangesAsync()
     {
         if (FileList.Items.Count == 0) return;
 
         // 변경된 내용이 있는지 확인 (OriginalName/Extension과 NewName/Extension 비교)
-        bool hasChanges = FileList.Items.Any(i => i.IsChanged);
-        if (!hasChanges)
+        // 전체 리스트를 확인하지만 변경된 것만 실제 작업
+        if (!FileList.Items.Any(i => i.IsChanged))
         {
             _snackbarService.Show("변경된 규칙이 없습니다.", Services.SnackbarType.Info);
             return;
         }
 
         // 실제 이름 변경 작업을 수행합니다. (서비스 내부에서 결과 보고)
-        _renameService.ApplyRename(FileList.Items);
+        IsBusy = true;
+        _snackbarService.ShowProgress("이름 변경 적용 중...");
+
+        try
+        {
+            var targetCount = FileList.Items.Count(i => i.IsChanged);
+            var progress = new Progress<int>(current =>
+            {
+                double percent = (double)current / targetCount * 100;
+                _snackbarService.UpdateProgress($"이름 변경 적용 중... ({percent:0}%)");
+            });
+
+            await _renameService.ApplyRenameAsync(FileList.Items, progress);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
     // 개별 파일 수동 편집
@@ -359,18 +416,36 @@ public partial class MainViewModel : ObservableObject
     }
 
     // 변경된 이름을 이전 상태로 되돌리는 로직입니다.
-    private void UndoChanges()
+    private async Task UndoChanges()
     {
         if (FileList.Items.Count == 0) return;
 
         // 되돌릴 수 있는 항목(PreviousPath가 있는 항목)이 있는지 확인
-        bool canUndo = FileList.Items.Any(i => !string.IsNullOrEmpty(i.PreviousPath));
-        if (!canUndo)
+        var undoTargets = FileList.Items.Where(i => !string.IsNullOrEmpty(i.PreviousPath)).ToList();
+        if (undoTargets.Count == 0)
         {
             _snackbarService.Show("변경된 기록이 없습니다.", Services.SnackbarType.Info);
             return;
         }
-        _renameService.UndoRename(FileList.Items);
+
+        IsBusy = true;
+        _snackbarService.ShowProgress("변경 취소 중...");
+
+        try
+        {
+            var targetCount = undoTargets.Count;
+            var progress = new Progress<int>(current =>
+            {
+                double percent = (double)current / targetCount * 100;
+                _snackbarService.UpdateProgress($"변경 취소 중... ({percent:0}%)");
+            });
+
+            await _renameService.UndoRenameAsync(FileList.Items, progress);
+        }
+        finally
+        {
+            IsBusy = false;
+        }
     }
 
 }

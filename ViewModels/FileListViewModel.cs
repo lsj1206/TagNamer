@@ -10,25 +10,49 @@ namespace TagNamer.ViewModels;
 public class FileListViewModel
 {
     public ObservableCollection<FileItem> Items { get; } = new();
+    private readonly HashSet<string> _pathSet = new(StringComparer.OrdinalIgnoreCase);
     private int _nextAddIndex = 1;
 
     public void Clear()
     {
         Items.Clear();
+        _pathSet.Clear();
         _nextAddIndex = 1;
     }
 
     public bool AddItem(FileItem item)
     {
-        // 중복 체크 (이미 목록에 있는 경로는 추가하지 않음)
-        if (Items.Any(i => i.Path.Equals(item.Path, StringComparison.OrdinalIgnoreCase)))
+        // 중복 체크 (HashSet 사용으로 O(1) 처리)
+        if (_pathSet.Contains(item.Path))
         {
             return false;
         }
 
         item.AddIndex = _nextAddIndex++;
         Items.Add(item);
+        _pathSet.Add(item.Path);
         return true;
+    }
+
+    /// <summary>
+    /// 대량의 아이템을 한꺼번에 추가합니다.
+    /// WPF ObservableCollection은 AddRange가 없으므로 순회하며 추가하되,
+    /// 대량 추가 시의 중복 체크 성능을 보장합니다.
+    /// </summary>
+    public int AddRange(IEnumerable<FileItem> newItems)
+    {
+        int addedCount = 0;
+        foreach (var item in newItems)
+        {
+            if (!_pathSet.Contains(item.Path))
+            {
+                item.AddIndex = _nextAddIndex++;
+                Items.Add(item);
+                _pathSet.Add(item.Path);
+                addedCount++;
+            }
+        }
+        return addedCount;
     }
 
     public void UpdateNextAddIndex(int nextIndex)
@@ -43,12 +67,17 @@ public class FileListViewModel
     {
         if (Items.Count == 0) return;
 
-        var sortedItems = sortingService.Sort(Items, option, ascending);
+        var sortedItems = sortingService.Sort(Items, option, ascending).ToList();
 
+        // UI 업데이트 최소화를 위해 컬렉션을 직접 수정하지 않고
+        // 가능한 경우에만 최적화하거나, 대규모일 시 Reset 통지가 필요할 수 있음.
+        // 여기서는 기존 방식을 유지하되 Items.Clear() 후 재삽입 시 HashSet도 관리.
         Items.Clear();
+        _pathSet.Clear();
         foreach (var item in sortedItems)
         {
             Items.Add(item);
+            _pathSet.Add(item.Path);
         }
     }
 
@@ -63,7 +92,10 @@ public class FileListViewModel
         var itemList = itemsToRemove.ToList();
         foreach (var item in itemList)
         {
-            Items.Remove(item);
+            if (Items.Remove(item))
+            {
+                _pathSet.Remove(item.Path);
+            }
         }
 
         return itemList.Count;
