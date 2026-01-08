@@ -32,18 +32,12 @@ public partial class RenameWindow : System.Windows.Window
             var insertFirstItem = new MenuItem { Header = "가장 앞에 삽입" };
             insertFirstItem.Click += (s, args) =>
             {
-                 string textToInsert = tagItem.TagName;
-                 string currentText = RuleTextBox.Text;
-
-                 if (textToInsert.Equals("[ToUpper]", StringComparison.OrdinalIgnoreCase) ||
-                     textToInsert.Equals("[ToLower]", StringComparison.OrdinalIgnoreCase))
-                 {
-                     currentText = RemoveCaseTags(currentText);
-                 }
-
-                 RuleTextBox.Text = textToInsert + currentText;
-                 RuleTextBox.Focus();
-                 RuleTextBox.CaretIndex = textToInsert.Length;
+                if (DataContext is RenameViewModel vm)
+                {
+                    vm.AddTagToRule(tagItem.TagName, true);
+                    RuleTextBox.Focus();
+                    RuleTextBox.CaretIndex = tagItem.TagName.Length;
+                }
             };
             menu.Items.Add(insertFirstItem);
 
@@ -51,18 +45,12 @@ public partial class RenameWindow : System.Windows.Window
             var insertLastItem = new MenuItem { Header = "가장 뒤에 삽입" };
             insertLastItem.Click += (s, args) =>
             {
-                string textToInsert = tagItem.TagName;
-                string currentText = RuleTextBox.Text;
-
-                if (textToInsert.Equals("[ToUpper]", StringComparison.OrdinalIgnoreCase) ||
-                    textToInsert.Equals("[ToLower]", StringComparison.OrdinalIgnoreCase))
+                if (DataContext is RenameViewModel vm)
                 {
-                    currentText = RemoveCaseTags(currentText);
+                    vm.AddTagToRule(tagItem.TagName, false);
+                    RuleTextBox.Focus();
+                    RuleTextBox.CaretIndex = RuleTextBox.Text.Length;
                 }
-
-                RuleTextBox.Text = currentText + textToInsert;
-                RuleTextBox.Focus();
-                RuleTextBox.CaretIndex = RuleTextBox.Text.Length;
             };
             menu.Items.Add(insertLastItem);
 
@@ -93,13 +81,6 @@ public partial class RenameWindow : System.Windows.Window
         e.Effects = DragDropEffects.Copy;
     }
 
-    private string RemoveCaseTags(string input)
-    {
-        string result = input;
-        result = System.Text.RegularExpressions.Regex.Replace(result, @"\[ToUpper\]", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        result = System.Text.RegularExpressions.Regex.Replace(result, @"\[ToLower\]", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-        return result;
-    }
 
     private void RuleTextBox_Drop(object sender, DragEventArgs e)
     {
@@ -108,29 +89,27 @@ public partial class RenameWindow : System.Windows.Window
             var text = (string)e.Data.GetData(typeof(string));
             var textBox = sender as TextBox;
 
-            if (textBox != null)
+            if (textBox != null && DataContext is RenameViewModel vm)
             {
                 e.Handled = true; // 기본 Drop 동작 차단 (중복 삽입 방지)
                 int caretIndex = textBox.CaretIndex;
                 string currentText = textBox.Text;
 
-                // 대소문자 변환 태그가 삽입될 경우 기존 태그 제거
-                if (text.Equals("[ToUpper]", StringComparison.OrdinalIgnoreCase) ||
-                    text.Equals("[ToLower]", StringComparison.OrdinalIgnoreCase))
+                // 대소문자 변환 태그가 삽입될 경우 기존 태그 제거 및 인덱스 보정
+                if (text.Equals("[ToUpper]", System.StringComparison.OrdinalIgnoreCase) ||
+                    text.Equals("[ToLower]", System.StringComparison.OrdinalIgnoreCase))
                 {
-                    // 기존 태그 위치 확인 (인덱스 보정용)
-                    int upperIdx = currentText.IndexOf("[ToUpper]", StringComparison.OrdinalIgnoreCase);
-                    int lowerIdx = currentText.IndexOf("[ToLower]", StringComparison.OrdinalIgnoreCase);
+                    int upperIdx = currentText.IndexOf("[ToUpper]", System.StringComparison.OrdinalIgnoreCase);
+                    int lowerIdx = currentText.IndexOf("[ToLower]", System.StringComparison.OrdinalIgnoreCase);
                     int existingIdx = upperIdx != -1 ? upperIdx : lowerIdx;
 
                     if (existingIdx != -1)
                     {
-                        // 기존 태그가 현재 삽입 지점보다 앞에 있으면 인덱스 보정
                         if (existingIdx < caretIndex)
                         {
                             caretIndex -= "[ToUpper]".Length;
                         }
-                        currentText = RemoveCaseTags(currentText);
+                        currentText = vm.RemoveCaseTags(currentText);
                     }
                 }
 
