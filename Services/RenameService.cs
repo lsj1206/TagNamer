@@ -104,6 +104,68 @@ public class RenameService : IRenameService
                             replacement = cachedDate;
                         }
                         break;
+                    case TagType.OriginSplit:
+                        // 원본 분할 태그
+                        if (tag.Params is OriginSplitTagParams splitP)
+                        {
+                            string origin = item.BaseName;
+                            int length = origin.Length;
+                            int start = splitP.StartCount; // 1-based
+                            int end = splitP.EndCount;     // 1-based
+
+                            // 범위 보정 (1보다 작으면 1로)
+                            if (start < 1) start = 1;
+                            if (end < 1) end = 1;
+                            // 시작이 끝보다 크면 스왑 (안전장치)
+                            if (start > end) (start, end) = (end, start);
+
+                            // 실제 인덱스 계산 (0-based)
+                            int startIndex, endIndex;
+
+                            if (splitP.IsFromBack)
+                            {
+                                // 뒤에서부터 계산
+                                // 예: Length=5, 뒤에서 1번째 = 인덱스 4
+                                // 뒤에서 start(1) ~ end(2) => 인덱스 [3, 4] (end가 더 앞쪽 인덱스)
+                                endIndex = length - start;
+                                startIndex = length - end;
+                            }
+                            else
+                            {
+                                // 앞에서부터 계산
+                                startIndex = start - 1;
+                                endIndex = end - 1;
+                            }
+
+                            // 인덱스 범위 클램핑
+                            if (startIndex < 0) startIndex = 0;
+                            if (endIndex >= length) endIndex = length - 1;
+
+                            // 유효하지 않은 범위(문자열 범위를 벗어남) 처리
+                            if (startIndex > endIndex || startIndex >= length || endIndex < 0)
+                            {
+                                // 선택된 범위가 유효하지 않으면:
+                                // 삭제 모드 -> 아무것도 삭제 안 함 (원본 그대로)
+                                // 남기기 모드 -> 아무것도 안 남김 (빈 문자열)
+                                replacement = splitP.IsKeep ? "" : origin;
+                            }
+                            else
+                            {
+                                // 동작 수행
+                                if (splitP.IsKeep)
+                                {
+                                    // [남기기]: 해당 범위만 추출
+                                    int len = endIndex - startIndex + 1;
+                                    replacement = origin.Substring(startIndex, len);
+                                }
+                                else
+                                {
+                                    // [삭제]: 해당 범위 제거
+                                    replacement = origin.Remove(startIndex, endIndex - startIndex + 1);
+                                }
+                            }
+                        }
+                        break;
                 }
 
                 // 계산된 값으로 태그 치환 (대소문자 무시)

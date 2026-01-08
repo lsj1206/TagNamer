@@ -12,7 +12,7 @@ public partial class TagManagerViewModel : ObservableObject
 {
     public ObservableCollection<TagItem> CreatedTags { get; } = new();
     // 태그 타입
-    public ObservableCollection<string> TagTypes { get; } = new() { "[Number]", "[AtoZ]", "[Today]", "[Time.now]" };
+    public ObservableCollection<string> TagTypes { get; } = new() { "[Number]", "[AtoZ]", "[Origin.split]", "[Today]", "[Time.now]" };
     // 태그 생성 카운트 관리
     private readonly Dictionary<string, int> _tagCounts = new();
 
@@ -26,6 +26,7 @@ public partial class TagManagerViewModel : ObservableObject
         "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그",
         "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\nYYYY/YY(년) MM(월) DD(일)",
         "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\nHH(시) MM(분) SS(초)",
+        "[Origin.split]" => "원본 파일명을 범위 지정하여 자르거나 남기는 태그",
         _ => ""
     };
 
@@ -142,6 +143,56 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty] private string optionTimePart3 = "SS";
     [ObservableProperty] private string optionTimeSep1 = "";
     [ObservableProperty] private string optionTimeSep2 = "";
+
+    // Origin.split 옵션
+    [ObservableProperty] private string optionSplitStart = "1";
+    [ObservableProperty] private string optionSplitEnd = "1";
+
+    // Toggle Button용 속성 (True/False 대신 문자열로 바인딩하거나, 뷰에서 변환기를 사용할 수 있음.
+    // 여기서는 뷰모델에서 bool로 관리하고 커맨드로 토글하는 방식을 사용하거나,
+    // 단순하게 문자열 상태로 관리하여 뷰에 바인딩합니다.)
+    [ObservableProperty] private bool optionSplitFromBack = false; // false: 앞에서부터, true: 뒤에서부터
+    [ObservableProperty] private bool optionSplitKeep = false;     // false: 선택 삭제, true: 선택 남기기
+
+    partial void OnOptionSplitStartChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            OptionSplitStart = "1";
+            return;
+        }
+        if (int.TryParse(value, out int result))
+        {
+            if (result < 1) result = 1;
+            if (result > 255) result = 255;
+            if (OptionSplitStart != result.ToString())
+                OptionSplitStart = result.ToString();
+        }
+        else
+        {
+            OptionSplitStart = "1";
+        }
+    }
+
+    partial void OnOptionSplitEndChanged(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            OptionSplitEnd = "1";
+            return;
+        }
+        if (int.TryParse(value, out int result))
+        {
+            if (result < 1) result = 1;
+            if (result > 255) result = 255;
+            if (OptionSplitEnd != result.ToString())
+                OptionSplitEnd = result.ToString();
+        }
+        else
+        {
+            OptionSplitEnd = "1";
+        }
+    }
 
     public IRelayCommand CreateTagCommand { get; }
     public IRelayCommand<TagItem> DeleteTagCommand { get; }
@@ -270,6 +321,41 @@ public partial class TagManagerViewModel : ObservableObject
                     ToolTip = GetDateTimeToolTip(OptionTimePart1, OptionTimeSep1, OptionTimePart2, OptionTimeSep2, OptionTimePart3)
                 };
                 newItem.Options.Add($"형식 : {newItem.ToolTip}");
+                break;
+            case "[Origin.split]":
+                {
+                    // 생성 전 검증
+                    OnOptionSplitStartChanged(OptionSplitStart);
+                    OnOptionSplitEndChanged(OptionSplitEnd);
+
+                    int start = int.Parse(OptionSplitStart);
+                    int end = int.Parse(OptionSplitEnd);
+
+                    // 시작이 끝보다 크면 스왑
+                    if (start > end)
+                    {
+                        (start, end) = (end, start);
+                        OptionSplitStart = start.ToString();
+                        OptionSplitEnd = end.ToString();
+                    }
+
+                    newItem = new TagItem
+                    {
+                        TagName = $"[Origin.split{currentCount}]",
+                        Type = TagType.OriginSplit,
+                        Params = new OriginSplitTagParams
+                        {
+                            IsFromBack = OptionSplitFromBack,
+                            IsKeep = OptionSplitKeep,
+                            StartCount = start,
+                            EndCount = end
+                        },
+                        ToolTip = $"방향 : {(OptionSplitFromBack ? "뒤에서부터" : "앞에서부터")}\n범위 : {start} ~ {end}\n동작 : {(OptionSplitKeep ? "남기기" : "삭제")}"
+                    };
+                    newItem.Options.Add($"방향 : {(OptionSplitFromBack ? "뒤에서부터" : "앞에서부터")}");
+                    newItem.Options.Add($"범위 : {start} ~ {end}");
+                    newItem.Options.Add($"동작 : {(OptionSplitKeep ? "남기기" : "삭제")}");
+                }
                 break;
         }
 

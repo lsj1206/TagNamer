@@ -8,7 +8,8 @@ public enum TagType
     Number,     // 숫자 증가
     AtoZ,       // 알파벳 증가
     Today,      // 오늘 날짜
-    TimeNow     // 현재 시간
+    TimeNow,    // 현재 시간
+    OriginSplit // 원본 이름 분할 (앞/뒤, 남기기/삭제)
 }
 
 // Number 태그 파라미터
@@ -37,6 +38,18 @@ public class DateTimeTagParams
     // 구분자
     public string Sep1 { get; set; } = string.Empty;
     public string Sep2 { get; set; } = string.Empty;
+}
+
+// OriginSplit 태그 파라미터
+public class OriginSplitTagParams
+{
+    // 앞에서부터(false) / 뒤에서부터(true)
+    public bool IsFromBack { get; set; }
+    // 삭제(false) / 남기기(true)
+    public bool IsKeep { get; set; }
+
+    public int StartCount { get; set; }
+    public int EndCount { get; set; }
 }
 
 public class TagItem

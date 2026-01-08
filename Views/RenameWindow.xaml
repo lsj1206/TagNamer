@@ -95,7 +95,7 @@
                     <RowDefinition Height="Auto"/>    <!-- 하단: 옵션 -->
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="120" />    <!-- 태그 선택 -->
+                    <ColumnDefinition Width="140" />    <!-- 태그 선택 -->
                     <ColumnDefinition Width="*" />      <!-- 설명 -->
                     <ColumnDefinition Width="88" />     <!-- 생성 버튼 -->
                 </Grid.ColumnDefinitions>
@@ -236,6 +236,54 @@
                                           SelectedItem="{Binding DataContext.TagManager.OptionTimePart3, RelativeSource={RelativeSource AncestorType=Window}}"/>
                             </StackPanel>
                         </DataTemplate>
+                        <!-- Origin.split 태그 -->
+                        <DataTemplate x:Key="OriginSplitTemplate">
+                            <StackPanel Orientation="Horizontal">
+                                <!-- 방향 토글 -->
+                                <ToggleButton Width="100"
+                                              Margin="0,0,8,0"
+                                              IsChecked="{Binding DataContext.TagManager.OptionSplitFromBack, RelativeSource={RelativeSource AncestorType=Window}}">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                                            <Setter Property="Content" Value="앞에서부터"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="Content" Value="뒤에서부터"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                </ToggleButton>
+                                <!-- Start-End -->
+                                <controls:FilterTextBox Width="70"
+                                                        Margin="0,0,4,0"
+                                                        VerticalContentAlignment="Center"
+                                                        FilterMode="Allow"
+                                                        Filter="Digits"
+                                                        Text="{Binding DataContext.TagManager.OptionSplitStart, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="-" />
+                                <controls:FilterTextBox Width="70"
+                                                        Margin="0,0,8,0"
+                                                        VerticalContentAlignment="Center"
+                                                        FilterMode="Allow"
+                                                        Filter="Digits"
+                                                        Text="{Binding DataContext.TagManager.OptionSplitEnd, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                <!-- 액션 토글 -->
+                                <ToggleButton Width="100"
+                                              IsChecked="{Binding DataContext.TagManager.OptionSplitKeep, RelativeSource={RelativeSource AncestorType=Window}}">
+                                    <ToggleButton.Style>
+                                        <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                                            <Setter Property="Content" Value="선택 삭제"/>
+                                            <Style.Triggers>
+                                                <Trigger Property="IsChecked" Value="True">
+                                                    <Setter Property="Content" Value="선택 남기기"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </ToggleButton.Style>
+                                </ToggleButton>
+                            </StackPanel>
+                        </DataTemplate>
                     </ContentControl.Resources>
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
@@ -252,6 +300,9 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Time.now]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource TimeTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Origin.split]">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource OriginSplitTemplate}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
