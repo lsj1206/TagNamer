@@ -216,6 +216,22 @@ public partial class TagManagerViewModel : ObservableObject
             ToolTip = "파일이 추가될 당시의 파일명을 입력합니다.",
             IsStandard = true
         });
+
+        CreatedTags.Add(new TagItem
+        {
+            TagName = "[ToUpper]",
+            Type = TagType.ToUpper,
+            ToolTip = "파일명의 모든 알파벳을 대문자로 변경합니다.",
+            IsStandard = true
+        });
+
+        CreatedTags.Add(new TagItem
+        {
+            TagName = "[ToLower]",
+            Type = TagType.ToLower,
+            ToolTip = "파일명의 모든 알파벳을 소문자로 변경합니다.",
+            IsStandard = true
+        });
     }
 
     private void CreateTag()

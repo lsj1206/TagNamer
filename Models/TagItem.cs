@@ -9,7 +9,9 @@ public enum TagType
     AtoZ,       // 알파벳 증가
     Today,      // 오늘 날짜
     TimeNow,    // 현재 시간
-    OriginSplit // 원본 이름 분할 (앞/뒤, 남기기/삭제)
+    OriginSplit, // 원본 이름 분할 (앞/뒤, 남기기/삭제)
+    ToUpper,    // 전체 대문자 변환
+    ToLower     // 전체 소문자 변환
 }
 
 // Number 태그 파라미터

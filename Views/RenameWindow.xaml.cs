@@ -32,10 +32,18 @@ public partial class RenameWindow : System.Windows.Window
             var insertFirstItem = new MenuItem { Header = "가장 앞에 삽입" };
             insertFirstItem.Click += (s, args) =>
             {
+                 string textToInsert = tagItem.TagName;
+                 string currentText = RuleTextBox.Text;
+
+                 if (textToInsert.Equals("[ToUpper]", StringComparison.OrdinalIgnoreCase) ||
+                     textToInsert.Equals("[ToLower]", StringComparison.OrdinalIgnoreCase))
+                 {
+                     currentText = RemoveCaseTags(currentText);
+                 }
+
+                 RuleTextBox.Text = textToInsert + currentText;
                  RuleTextBox.Focus();
-                 RuleTextBox.CaretIndex = 0;
-                 RuleTextBox.SelectedText = tagItem.TagName;
-                 RuleTextBox.CaretIndex = tagItem.TagName.Length;
+                 RuleTextBox.CaretIndex = textToInsert.Length;
             };
             menu.Items.Add(insertFirstItem);
 
@@ -43,10 +51,18 @@ public partial class RenameWindow : System.Windows.Window
             var insertLastItem = new MenuItem { Header = "가장 뒤에 삽입" };
             insertLastItem.Click += (s, args) =>
             {
+                string textToInsert = tagItem.TagName;
+                string currentText = RuleTextBox.Text;
+
+                if (textToInsert.Equals("[ToUpper]", StringComparison.OrdinalIgnoreCase) ||
+                    textToInsert.Equals("[ToLower]", StringComparison.OrdinalIgnoreCase))
+                {
+                    currentText = RemoveCaseTags(currentText);
+                }
+
+                RuleTextBox.Text = currentText + textToInsert;
                 RuleTextBox.Focus();
                 RuleTextBox.CaretIndex = RuleTextBox.Text.Length;
-                RuleTextBox.SelectedText = tagItem.TagName;
-                RuleTextBox.CaretIndex = RuleTextBox.Text.Length; // 커서 맨 뒤로
             };
             menu.Items.Add(insertLastItem);
 
@@ -77,6 +93,14 @@ public partial class RenameWindow : System.Windows.Window
         e.Effects = DragDropEffects.Copy;
     }
 
+    private string RemoveCaseTags(string input)
+    {
+        string result = input;
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\[ToUpper\]", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        result = System.Text.RegularExpressions.Regex.Replace(result, @"\[ToLower\]", "", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        return result;
+    }
+
     private void RuleTextBox_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetDataPresent(typeof(string)))
@@ -86,8 +110,34 @@ public partial class RenameWindow : System.Windows.Window
 
             if (textBox != null)
             {
+                e.Handled = true; // 기본 Drop 동작 차단 (중복 삽입 방지)
                 int caretIndex = textBox.CaretIndex;
-                textBox.Text = textBox.Text.Insert(caretIndex, text);
+                string currentText = textBox.Text;
+
+                // 대소문자 변환 태그가 삽입될 경우 기존 태그 제거
+                if (text.Equals("[ToUpper]", StringComparison.OrdinalIgnoreCase) ||
+                    text.Equals("[ToLower]", StringComparison.OrdinalIgnoreCase))
+                {
+                    // 기존 태그 위치 확인 (인덱스 보정용)
+                    int upperIdx = currentText.IndexOf("[ToUpper]", StringComparison.OrdinalIgnoreCase);
+                    int lowerIdx = currentText.IndexOf("[ToLower]", StringComparison.OrdinalIgnoreCase);
+                    int existingIdx = upperIdx != -1 ? upperIdx : lowerIdx;
+
+                    if (existingIdx != -1)
+                    {
+                        // 기존 태그가 현재 삽입 지점보다 앞에 있으면 인덱스 보정
+                        if (existingIdx < caretIndex)
+                        {
+                            caretIndex -= "[ToUpper]".Length;
+                        }
+                        currentText = RemoveCaseTags(currentText);
+                    }
+                }
+
+                if (caretIndex < 0) caretIndex = 0;
+                if (caretIndex > currentText.Length) caretIndex = currentText.Length;
+
+                textBox.Text = currentText.Insert(caretIndex, text);
                 textBox.CaretIndex = caretIndex + text.Length;
                 textBox.Focus();
             }

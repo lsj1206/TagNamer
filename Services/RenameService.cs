@@ -44,9 +44,23 @@ public class RenameService : IRenameService
         var itemList = items.ToList();
         if (itemList.Count == 0) return;
 
-        // 입력된 규칙(ruleFormat)에 해당 태그의 TagName이 포함되어 있는지 확인합니다.
+        // 1. 대소문자 변환 플래그 확인 및 순수 포맷 추출
+        bool isUpper = ruleFormat.IndexOf("[ToUpper]", StringComparison.OrdinalIgnoreCase) >= 0;
+        bool isLower = ruleFormat.IndexOf("[ToLower]", StringComparison.OrdinalIgnoreCase) >= 0;
+
+        string pureFormat = ruleFormat;
+        pureFormat = ReplaceCaseInsensitive(pureFormat, "[ToUpper]", "");
+        pureFormat = ReplaceCaseInsensitive(pureFormat, "[ToLower]", "");
+
+        // 2. 다른 태그 없이 [ToUpper]/[ToLower]만 있는 경우 [Name.origin]을 기본으로 사용
+        if (string.IsNullOrWhiteSpace(pureFormat) && (isUpper || isLower))
+        {
+            pureFormat = "[Name.origin]";
+        }
+
+        // 3. 치환에 사용될 활성 태그 필터링 (순수 포맷 기준)
         var activeTags = tagManager.CreatedTags
-            .Where(t => ruleFormat.IndexOf(t.TagName, StringComparison.OrdinalIgnoreCase) >= 0)
+            .Where(t => pureFormat.IndexOf(t.TagName, StringComparison.OrdinalIgnoreCase) >= 0)
             .ToList();
 
         // 날짜/시간 태그 계산 결과를 캐싱하여 반복적인 DateTime 포맷팅을 방지합니다.
@@ -56,7 +70,7 @@ public class RenameService : IRenameService
         for (int i = 0; i < itemList.Count; i++)
         {
             var item = itemList[i];
-            string newName = ruleFormat;
+            string newName = pureFormat;
 
             foreach (var tag in activeTags)
             {
@@ -67,33 +81,25 @@ public class RenameService : IRenameService
                         replacement = item.BaseName;
                         break;
                     case TagType.Number:
-                        // 숫자 태그: 시작값 + 인덱스
                         if (tag.Params is NumberTagParams numP)
                             replacement = (numP.StartValue + i).ToString().PadLeft(numP.Digits, '0');
                         break;
                     case TagType.AtoZ:
-                        // 알파벳 태그: 알파벳 연산 수행
                         if (tag.Params is AtoZTagParams azP)
                         {
                             long startNum = AlphaToNum(azP.StartValue);
                             string alphaStr = NumToAlpha(startNum + i);
-
-                            // 소문자 변환 옵션 처리
                             if (azP.LowerCount > 0)
                             {
                                 if (azP.LowerCount >= alphaStr.Length) replacement = alphaStr.ToLower();
                                 else replacement = alphaStr.Substring(0, alphaStr.Length - azP.LowerCount) +
                                                  alphaStr.Substring(alphaStr.Length - azP.LowerCount).ToLower();
                             }
-                            else
-                            {
-                                replacement = alphaStr;
-                            }
+                            else replacement = alphaStr;
                         }
                         break;
                     case TagType.Today:
                     case TagType.TimeNow:
-                        // 날짜/시간 태그: 캐시된 값 사용 또는 포맷팅 후 캐싱
                         if (tag.Params is DateTimeTagParams dtP)
                         {
                             if (!dateCache.TryGetValue(tag.TagName, out string? cachedDate))
@@ -105,43 +111,29 @@ public class RenameService : IRenameService
                         }
                         break;
                     case TagType.OriginSplit:
-                        // 원본 분할 태그
                         if (tag.Params is OriginSplitTagParams splitP)
                         {
                             string origin = item.BaseName;
                             int length = origin.Length;
-                            int start = splitP.StartCount; // 1-based
-                            int end = splitP.EndCount;     // 1-based
-
-                            // 범위 보정 (1보다 작으면 1로)
-                            if (start < 1) start = 1;
-                            if (end < 1) end = 1;
-                            // 시작이 끝보다 크면 스왑 (안전장치)
+                            int start = Math.Max(1, splitP.StartCount);
+                            int end = Math.Max(1, splitP.EndCount);
                             if (start > end) (start, end) = (end, start);
 
-                            // 실제 인덱스 계산 (0-based)
                             int startIndex, endIndex;
-
                             if (splitP.IsFromBack)
                             {
-                                // 뒤에서부터 계산
-                                // 예: Length=5, 뒤에서 1번째 = 인덱스 4
-                                // 뒤에서 start(1) ~ end(2) => 인덱스 [3, 4] (end가 더 앞쪽 인덱스)
                                 endIndex = length - start;
                                 startIndex = length - end;
                             }
                             else
                             {
-                                // 앞에서부터 계산
                                 startIndex = start - 1;
                                 endIndex = end - 1;
                             }
 
-                            // 인덱스 범위 클램핑
                             if (startIndex < 0) startIndex = 0;
                             if (endIndex >= length) endIndex = length - 1;
 
-                            // 유효하지 않은 범위(문자열 범위를 벗어남) 처리
                             if (startIndex > endIndex || startIndex >= length || endIndex < 0)
                             {
                                 // 선택된 범위가 유효하지 않으면:
@@ -151,16 +143,13 @@ public class RenameService : IRenameService
                             }
                             else
                             {
-                                // 동작 수행
                                 if (splitP.IsKeep)
                                 {
-                                    // [남기기]: 해당 범위만 추출
                                     int len = endIndex - startIndex + 1;
                                     replacement = origin.Substring(startIndex, len);
                                 }
                                 else
                                 {
-                                    // [삭제]: 해당 범위 제거
                                     replacement = origin.Remove(startIndex, endIndex - startIndex + 1);
                                 }
                             }
@@ -168,13 +157,15 @@ public class RenameService : IRenameService
                         break;
                 }
 
-                // 계산된 값으로 태그 치환 (대소문자 무시)
                 if (!string.IsNullOrEmpty(replacement))
                 {
                      newName = ReplaceCaseInsensitive(newName, tag.TagName, replacement);
                 }
             }
 
+            // 4. 최종 대소문자 변환 적용
+            if (isUpper) newName = newName.ToUpper();
+            else if (isLower) newName = newName.ToLower();
 
             item.NewName = newName;
         }
@@ -201,7 +192,24 @@ public class RenameService : IRenameService
                 {
                     string newFullName = item.NewName + item.BaseExtension;
                     string newPath = Path.Combine(item.Directory, newFullName);
-                    _fileService.RenameFile(item.Path, newPath);
+
+                    // 대소문자만 변경되는 경우 (Case-only rename) 처리
+                    // 윈도우는 대소문자를 구분하지 않으므로, abc.txt -> ABC.txt 변경 시
+                    // 이미 파일이 존재한다고 판단하거나 작업을 무시할 수 있음.
+                    if (string.Equals(item.Path, newPath, StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(item.Path, newPath, StringComparison.Ordinal))
+                    {
+                        // 1단계: 임시 이름으로 변경
+                        string tempPath = item.Path + ".tmp_" + Guid.NewGuid().ToString("N");
+                        _fileService.RenameFile(item.Path, tempPath);
+                        // 2단계: 최종 이름으로 변경
+                        _fileService.RenameFile(tempPath, newPath);
+                    }
+                    else
+                    {
+                        // 일반적인 변경
+                        _fileService.RenameFile(item.Path, newPath);
+                    }
 
                     item.PreviousPath = item.Path;
                     item.Path = newPath;
@@ -246,7 +254,18 @@ public class RenameService : IRenameService
                 var item = targetItems[i];
                 try
                 {
-                    _fileService.RenameFile(item.Path, item.PreviousPath);
+                    // 대소문자만 다른 경우 처리
+                    if (string.Equals(item.Path, item.PreviousPath, StringComparison.OrdinalIgnoreCase) &&
+                        !string.Equals(item.Path, item.PreviousPath, StringComparison.Ordinal))
+                    {
+                        string tempPath = item.Path + ".tmp_" + Guid.NewGuid().ToString("N");
+                        _fileService.RenameFile(item.Path, tempPath);
+                        _fileService.RenameFile(tempPath, item.PreviousPath);
+                    }
+                    else
+                    {
+                        _fileService.RenameFile(item.Path, item.PreviousPath);
+                    }
 
                     item.Path = item.PreviousPath;
                     item.PreviousPath = string.Empty;
