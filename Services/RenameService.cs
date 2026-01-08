@@ -14,9 +14,12 @@ namespace TagNamer.Services;
 /// </summary>
 public class RenameService : IRenameService
 {
-
     private readonly ISnackbarService _snackbarService;
     private readonly IFileService _fileService;
+
+    // Regex 객체를 정적 필드로 정의하여 반복 생성 방지 (성능 최적화)
+    private static readonly Regex ToUpperRegex = new Regex(@"\[ToUpper\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex ToLowerRegex = new Regex(@"\[ToLower\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     public enum BatchActionType
     {
@@ -49,8 +52,8 @@ public class RenameService : IRenameService
         bool isLower = ruleFormat.IndexOf("[ToLower]", StringComparison.OrdinalIgnoreCase) >= 0;
 
         string pureFormat = ruleFormat;
-        pureFormat = ReplaceCaseInsensitive(pureFormat, "[ToUpper]", "");
-        pureFormat = ReplaceCaseInsensitive(pureFormat, "[ToLower]", "");
+        pureFormat = ToUpperRegex.Replace(pureFormat, "");
+        pureFormat = ToLowerRegex.Replace(pureFormat, "");
 
         // 2. 다른 태그 없이 [ToUpper]/[ToLower]만 있는 경우 [Name.origin]을 기본으로 사용
         if (string.IsNullOrWhiteSpace(pureFormat) && (isUpper || isLower))
@@ -193,24 +196,7 @@ public class RenameService : IRenameService
                     string newFullName = item.NewName + item.BaseExtension;
                     string newPath = Path.Combine(item.Directory, newFullName);
 
-                    // 대소문자만 변경되는 경우 (Case-only rename) 처리
-                    // 윈도우는 대소문자를 구분하지 않으므로, abc.txt -> ABC.txt 변경 시
-                    // 이미 파일이 존재한다고 판단하거나 작업을 무시할 수 있음.
-                    if (string.Equals(item.Path, newPath, StringComparison.OrdinalIgnoreCase) &&
-                        !string.Equals(item.Path, newPath, StringComparison.Ordinal))
-                    {
-                        // 1단계: 임시 이름으로 변경
-                        string tempPath = item.Path + ".tmp_" + Guid.NewGuid().ToString("N");
-                        _fileService.RenameFile(item.Path, tempPath);
-                        // 2단계: 최종 이름으로 변경
-                        _fileService.RenameFile(tempPath, newPath);
-                    }
-                    else
-                    {
-                        // 일반적인 변경
-                        _fileService.RenameFile(item.Path, newPath);
-                    }
-
+                    SafeRename(item.Path, newPath);
                     item.PreviousPath = item.Path;
                     item.Path = newPath;
                     successCount++;
@@ -254,19 +240,7 @@ public class RenameService : IRenameService
                 var item = targetItems[i];
                 try
                 {
-                    // 대소문자만 다른 경우 처리
-                    if (string.Equals(item.Path, item.PreviousPath, StringComparison.OrdinalIgnoreCase) &&
-                        !string.Equals(item.Path, item.PreviousPath, StringComparison.Ordinal))
-                    {
-                        string tempPath = item.Path + ".tmp_" + Guid.NewGuid().ToString("N");
-                        _fileService.RenameFile(item.Path, tempPath);
-                        _fileService.RenameFile(tempPath, item.PreviousPath);
-                    }
-                    else
-                    {
-                        _fileService.RenameFile(item.Path, item.PreviousPath);
-                    }
-
+                    SafeRename(item.Path, item.PreviousPath);
                     item.Path = item.PreviousPath;
                     item.PreviousPath = string.Empty;
                     successCount++;
@@ -386,5 +360,29 @@ public class RenameService : IRenameService
             number = (number - 1) / 26;
         }
         return column;
+    }
+
+    /// <summary>
+    /// 파일명을 변경합니다. 윈도우의 대소문자 무시 특성을 고려하여 2단계 변경을 지원합니다.
+    /// </summary>
+    private void SafeRename(string sourcePath, string destPath)
+    {
+        if (string.IsNullOrEmpty(sourcePath) || string.IsNullOrEmpty(destPath)) return;
+        if (sourcePath == destPath) return;
+
+        // 대소문자만 다른 경우 (Case-only rename)
+        bool isCaseOnlyChange = string.Equals(sourcePath, destPath, StringComparison.OrdinalIgnoreCase) &&
+                                !string.Equals(sourcePath, destPath, StringComparison.Ordinal);
+
+        if (isCaseOnlyChange)
+        {
+            string tempPath = sourcePath + ".tmp_" + Guid.NewGuid().ToString("N");
+            _fileService.RenameFile(sourcePath, tempPath);
+            _fileService.RenameFile(tempPath, destPath);
+        }
+        else
+        {
+            _fileService.RenameFile(sourcePath, destPath);
+        }
     }
 }
