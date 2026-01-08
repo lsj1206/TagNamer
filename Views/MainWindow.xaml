@@ -15,6 +15,10 @@
         MinHeight="540"
         Title="TagNamer">
 
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+    </Window.Resources>
+
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="36" />  <!-- 헤더 영역 높이 -->
@@ -44,6 +48,13 @@
                 <controls:FileListControl DataContext="{Binding FileList}" />
             </Border>
         </Grid>
+
+        <!-- 입력 차단 레이어 (Busy 상태일 때 활성화) -->
+        <Grid Grid.Row="0" Grid.RowSpan="3"
+              Background="#40FFFFFF"
+              Visibility="{Binding IsBusy, Converter={StaticResource BooleanToVisibilityConverter}}"
+              IsHitTestVisible="True"
+              Focusable="True" />
 
         <!-- 스낵바 알림 레이어 (가장 위에 표시) -->
         <controls:SnackbarControl Grid.Row="0" Grid.RowSpan="3"
