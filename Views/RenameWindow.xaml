@@ -141,43 +141,43 @@
                         <DataTemplate x:Key="NumTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="시작 값 :" />
-                                <controls:FilterTextBox Width="100"
+                                 <controls:FilterTextBox Width="100"
                                                         Margin="0,0,8,0"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
-                                                        Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="자리 수 :" />
                                 <controls:FilterTextBox Width="80"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
-                                                        Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </DataTemplate>
                         <!-- AtoZ 태그 -->
                         <DataTemplate x:Key="AtoZTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="시작 값 : " />
-                                <controls:FilterTextBox Width="100"
+                                 <controls:FilterTextBox Width="100"
                                                         Margin="0,0,8,0"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Alpha"
-                                                        Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="자리 수 : " />
                                 <controls:FilterTextBox Width="80"
                                                         Margin="0,0,8,0"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
-                                                        Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="소문자 수 : " />
                                 <controls:FilterTextBox Width="80"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
-                                                        Text="{Binding DataContext.TagManager.OptionLowerCount, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionLowerCount, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                             </StackPanel>
                         </DataTemplate>
                         <!-- Today 태그 -->
@@ -192,7 +192,7 @@
                                                         FilterMode="Allow"
                                                         FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
-                                                        Text="{Binding DataContext.TagManager.OptionDateSep1, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                        Text="{Binding DataContext.TagManager.OptionDateSep1, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"/>
                                 <ComboBox Width="70"
                                           ItemsSource="{Binding DataContext.TagManager.DatePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                           SelectedItem="{Binding DataContext.TagManager.OptionDatePart2, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -202,7 +202,7 @@
                                                         FilterMode="Allow"
                                                         FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
-                                                        Text="{Binding DataContext.TagManager.OptionDateSep2, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                        Text="{Binding DataContext.TagManager.OptionDateSep2, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"/>
                                 <ComboBox Width="70"
                                           ItemsSource="{Binding DataContext.TagManager.DatePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                           SelectedItem="{Binding DataContext.TagManager.OptionDatePart3, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -220,7 +220,7 @@
                                                         FilterMode="Allow"
                                                         FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
-                                                        Text="{Binding DataContext.TagManager.OptionTimeSep1, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                        Text="{Binding DataContext.TagManager.OptionTimeSep1, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"/>
                                 <ComboBox Width="70"
                                           ItemsSource="{Binding DataContext.TagManager.TimePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                           SelectedItem="{Binding DataContext.TagManager.OptionTimePart2, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -230,7 +230,7 @@
                                                         FilterMode="Allow"
                                                         FilterMaxLength="3"
                                                         VerticalContentAlignment="Center"
-                                                        Text="{Binding DataContext.TagManager.OptionTimeSep2, RelativeSource={RelativeSource AncestorType=Window}}"/>
+                                                        Text="{Binding DataContext.TagManager.OptionTimeSep2, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}"/>
                                 <ComboBox Width="70"
                                           ItemsSource="{Binding DataContext.TagManager.TimePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                           SelectedItem="{Binding DataContext.TagManager.OptionTimePart3, RelativeSource={RelativeSource AncestorType=Window}}"/>
@@ -255,19 +255,19 @@
                                     </ToggleButton.Style>
                                 </ToggleButton>
                                 <!-- Start-End -->
-                                <controls:FilterTextBox Width="70"
+                                 <controls:FilterTextBox Width="70"
                                                         Margin="0,0,4,0"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
-                                                        Text="{Binding DataContext.TagManager.OptionSplitStart, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionSplitStart, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                                 <TextBlock Margin="0,0,4,0" VerticalAlignment="Center" Text="-" />
                                 <controls:FilterTextBox Width="70"
                                                         Margin="0,0,8,0"
                                                         VerticalContentAlignment="Center"
                                                         FilterMode="Allow"
                                                         Filter="Digits"
-                                                        Text="{Binding DataContext.TagManager.OptionSplitEnd, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                                        Text="{Binding DataContext.TagManager.OptionSplitEnd, RelativeSource={RelativeSource AncestorType=Window}, UpdateSourceTrigger=PropertyChanged}" />
                                 <!-- 액션 토글 -->
                                 <ToggleButton Width="100"
                                               IsChecked="{Binding DataContext.TagManager.OptionSplitKeep, RelativeSource={RelativeSource AncestorType=Window}}">
