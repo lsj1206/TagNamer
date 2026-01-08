@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -20,20 +21,18 @@ public partial class RenameViewModel : ObservableObject
     {
         if (string.IsNullOrEmpty(value)) return;
 
-        // [ToUpper]와 [ToLower] 태그 정규식 검색
-        var matches = System.Text.RegularExpressions.Regex.Matches(value, @"\[(ToUpper|ToLower)\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+        // [ToUpper]와 [ToLower] 태그가 동시에 있거나 여러 개이면 마지막 것만 남김
+        var matches = Regex.Matches(value, @"\[(ToUpper|ToLower)\]", RegexOptions.IgnoreCase);
 
         if (matches.Count > 1)
         {
-            // 마지막에 추가된 태그만 남기고 나머지는 모두 제거 (가장 최신 의도를 반영)
             string cleaned = value;
-            // 뒤에서부터 지워야 인덱스가 변하지 않음
+            // 뒤에서부터 지워야 인덱스가 꼬이지 않음 (마지막 매치 제외)
             for (int i = matches.Count - 2; i >= 0; i--)
             {
                 cleaned = cleaned.Remove(matches[i].Index, matches[i].Length);
             }
 
-            // 값이 바뀌었을 때만 다시 설정하여 무한 루프 방지
             if (cleaned != value)
             {
                 RuleFormat = cleaned;
@@ -41,20 +40,33 @@ public partial class RenameViewModel : ObservableObject
         }
     }
 
+    /// <summary>
+    /// 규칙 문자열에서 대소문자 변환 태그를 모두 제거합니다.
+    /// </summary>
+    public string RemoveCaseTags(string input)
+    {
+        if (string.IsNullOrEmpty(input)) return input;
+        string result = Regex.Replace(input, @"\[ToUpper\]", "", RegexOptions.IgnoreCase);
+        return Regex.Replace(result, @"\[ToLower\]", "", RegexOptions.IgnoreCase);
+    }
+
+    /// <summary>
     /// 규칙에 태그 추가
-    /// 'isForward' 앞에 추가할지 여부 (true: 맨 앞, false: 맨 뒤)
+    /// </summary>
     public void AddTagToRule(string tagCode, bool isForward)
     {
         if (string.IsNullOrEmpty(tagCode)) return;
 
-        if (isForward)
+        string current = RuleFormat;
+
+        // 대소문자 태그인 경우 기존 태그 제거
+        if (tagCode.Equals("[ToUpper]", System.StringComparison.OrdinalIgnoreCase) ||
+            tagCode.Equals("[ToLower]", System.StringComparison.OrdinalIgnoreCase))
         {
-            RuleFormat = tagCode + RuleFormat;
+            current = RemoveCaseTags(current);
         }
-        else
-        {
-            RuleFormat = RuleFormat + tagCode;
-        }
+
+        RuleFormat = isForward ? tagCode + current : current + tagCode;
     }
 
     [ObservableProperty]
