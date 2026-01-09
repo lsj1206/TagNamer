@@ -31,9 +31,9 @@ public partial class TagManagerViewModel : ObservableObject
     {
         "[Number]" => "규칙대로 순차적으로 증가하는 수를 입력하는 태그",
         "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그",
-        "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그",
-        "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그",
         "[Origin.split]" => "원본 파일명을 범위 지정하여 자르거나 남기는 태그",
+        "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\nYYYY/YY(년) MM(월) DD(일)",
+        "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\nHH(시) MM(분) SS(초)",
         _ => ""
     };
 
