@@ -6,7 +6,7 @@
              xmlns:ui="http://schemas.modernwpf.com/2019"
              mc:Ignorable="d">
 
-    <!-- 사이드바 스타일 정의 -->
+    <!-- 사이드바 버튼 스타일 정의 -->
     <UserControl.Resources>
         <Style x:Key="SidebarButtonStyle" TargetType="Button">
             <Setter Property="Margin" Value="0,0,0,8" />
@@ -14,6 +14,8 @@
             <Setter Property="HorizontalAlignment" Value="Stretch" />
             <Setter Property="FontWeight" Value="SemiBold" />
             <Setter Property="Cursor" Value="Hand" />
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}"/>
         </Style>
     </UserControl.Resources>
 
