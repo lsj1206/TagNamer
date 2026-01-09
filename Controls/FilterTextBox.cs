@@ -304,6 +304,11 @@ public class FilterTextBox : TextBox
                 ? filtered.Length
                 : caretIndex;
         }
+
+        // 필터링이 완료된 최종 텍스트를 즉시 ViewModel에 반영 (UpdateSourceTrigger=PropertyChanged 효과)
+        // 이를 통해 포커스 이동 없이 생성 버튼을 눌러도 값이 정상 반영됨
+        var binding = GetBindingExpression(TextProperty);
+        binding?.UpdateSource();
     }
 
     #endregion
