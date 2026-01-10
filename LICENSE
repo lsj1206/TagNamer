@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (c) 2025 LSJ
+Copyright (c) 2026 LSJ
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -19,3 +19,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+---
+
+## Third-Party Software Notices
+
+This project uses the following open-source software:
+
+1. **CommunityToolkit.Mvvm** (MIT License)
+   - https://github.com/CommunityToolkit/dotnet
+
+2. **ModernWpfUI** (MIT License)
+   - https://github.com/Kinnara/ModernWpf
+
+3. **Newtonsoft.Json** (MIT License)
+   - https://github.com/JamesNK/Newtonsoft.Json
+
+4. **Microsoft.Extensions.DependencyInjection** (MIT License)
+   - https://github.com/dotnet/runtime
+
+5. **Serilog** (Apache-2.0 License)
+   - https://github.com/serilog/serilog
+
+6. **WindowsAPICodePack-Shell** (Custom Microsoft License)
+   - https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Shell
