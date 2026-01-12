@@ -29,11 +29,11 @@ public partial class TagManagerViewModel : ObservableObject
 
     public string TagTypeDescription => SelectedTagType switch
     {
-        "[Number]" => "규칙대로 순차적으로 증가하는 수를 입력하는 태그",
-        "[AtoZ]" => "규칙대로 A-Z 순서로 알파벳을 입력하는 태그",
-        "[Origin.split]" => "원본 파일명을 범위 지정하여 자르거나 남기는 태그",
-        "[Today]" => "형식에 맞춰 오늘 날짜를 입력하는 태그\nYYYY/YY(년) MM(월) DD(일)",
-        "[Time.now]" => "형식에 맞춰 현재 시간을 입력하는 태그\nHH(시) MM(분) SS(초)",
+        "[Number]" => "시작 값에서부터 순차적으로 증가하는 수를 입력합니다.",
+        "[AtoZ]" => "시작 알파벳에서 A-Z 순서로 알파벳을 입력합니다.",
+        "[Origin.split]" => "원본 파일명에서 설정한 범위를 자르거나 남깁니다.",
+        "[Today]" => "형식에 맞춰 오늘 날짜를 입력합니다.\n년: YYYY/YY, 월: MM, 일: DD",
+        "[Time.now]" => "형식에 맞춰 현재 시간을 입력합니다.\n시: HH, 분: MM, 초: SS",
         _ => ""
     };
 
@@ -41,7 +41,7 @@ public partial class TagManagerViewModel : ObservableObject
     private string optionStartValue = "";
 
     [ObservableProperty]
-    private string optionDigits = "1";
+    private string optionDigits = "";
 
     [ObservableProperty]
     private string optionLowerCount = "";
@@ -312,6 +312,7 @@ public partial class TagManagerViewModel : ObservableObject
         }
     }
 
+    // 날짜/시간 옵션 툴팁
     private string GetDateTimeToolTip(string p1, string s1, string p2, string s2, string p3)
     {
         var parts = new List<string>();
@@ -324,6 +325,7 @@ public partial class TagManagerViewModel : ObservableObject
         return string.Join("", parts);
     }
 
+    // 태그 삭제
     private void DeleteTag(TagItem? item)
     {
         if (item != null && CreatedTags.Contains(item))
