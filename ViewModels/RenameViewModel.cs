@@ -69,10 +69,6 @@ public partial class RenameViewModel : ObservableObject
         RuleFormat = isForward ? tagCode + current : current + tagCode;
     }
 
-    [ObservableProperty]
-    private string ruleGuildTooltip = "태그를 끌어당겨 원하는 위치에 추가할 수 있습니다." + "\n" +
-                                      "태그를 우클릭 하면 컨텍스트 메뉴가 나타납니다.";
-
     public RenameViewModel(TagManagerViewModel tagManager)
     {
         TagManager = tagManager;

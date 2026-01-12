@@ -31,7 +31,14 @@
                        VerticalAlignment="Center"
                        Cursor="Help">
                     <Image.ToolTip>
-                        <ToolTip Content="{Binding RuleGuildTooltip}"/>
+                        <ToolTip>
+                            <ToolTip.Content>
+                                <StackPanel>
+                                    <TextBlock>태그를 끌어당겨 원하는 위치에 추가할 수 있습니다.</TextBlock>
+                                    <TextBlock>태그를 우클릭 하면 컨텍스트 메뉴가 나타납니다.</TextBlock>
+                                </StackPanel>
+                            </ToolTip.Content>
+                        </ToolTip>
                     </Image.ToolTip>
                 </Image>
             </StackPanel>
