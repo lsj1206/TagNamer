@@ -301,12 +301,19 @@ public class RenameService : IRenameService
     {
         Exception firstError = errors[0];
 
+        // 파일명/경로가 너무 긴 경우 (HResult: 0x800700CE, 0x8007007B 등)
+        uint hr = (uint)firstError.HResult;
+        if (firstError is PathTooLongException || hr == 0x800700CE || hr == 0x8007007B)
+        {
+            return "실패 : 파일명 또는 경로가 너무 깁니다 (최대 255자).";
+        }
+
         return firstError switch
         {
-            FileNotFoundException => "이름 변경 실패 : 원본을 찾을 수 없습니다.",
-            UnauthorizedAccessException => "이름 변경 실패 : 권한이 없습니다.",
-            IOException => "이름 변경 실패 : 변경할 이름이 이미 존재합니다.",
-            _ => $"{errors.Count}개의 작업이 실패했습니다."
+            FileNotFoundException => "실패 : 원본을 찾을 수 없습니다.",
+            UnauthorizedAccessException => "실패 : 권한이 없습니다.",
+            IOException => "실패 : 이미 존재하거나 사용할 수 없는 이름입니다.",
+            _ => $"실패 : {errors.Count}개 작업 도중 오류가 발생했습니다."
         };
     }
 
