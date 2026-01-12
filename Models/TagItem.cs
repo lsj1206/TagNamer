@@ -69,4 +69,8 @@ public class TagItem
     public bool IsStandard { get; set; } = false;
     // 삭제 가능 구분
     public bool IsDeletable => !IsStandard;
+    // 규칙 내 유일성 보장 (true면 동일 태그 중복 불가)
+    public bool IsUnique { get; set; } = false;
+    // 배타적 그룹 (같은 그룹의 태그들은 동시에 존재 불가, null이면 제한 없음)
+    public string? ExclusiveGroup { get; set; } = null;
 }
