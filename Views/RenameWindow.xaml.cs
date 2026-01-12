@@ -81,7 +81,6 @@ public partial class RenameWindow : System.Windows.Window
         e.Effects = DragDropEffects.Copy;
     }
 
-
     private void RuleTextBox_Drop(object sender, DragEventArgs e)
     {
         if (e.Data.GetDataPresent(typeof(string)))
@@ -91,34 +90,18 @@ public partial class RenameWindow : System.Windows.Window
 
             if (textBox != null && DataContext is RenameViewModel vm)
             {
-                e.Handled = true; // 기본 Drop 동작 차단 (중복 삽입 방지)
+                e.Handled = true;
                 int caretIndex = textBox.CaretIndex;
-                string currentText = textBox.Text;
-
-                // 대소문자 변환 태그가 삽입될 경우 기존 태그 제거 및 인덱스 보정
-                if (text.Equals("[ToUpper]", System.StringComparison.OrdinalIgnoreCase) ||
-                    text.Equals("[ToLower]", System.StringComparison.OrdinalIgnoreCase))
-                {
-                    int upperIdx = currentText.IndexOf("[ToUpper]", System.StringComparison.OrdinalIgnoreCase);
-                    int lowerIdx = currentText.IndexOf("[ToLower]", System.StringComparison.OrdinalIgnoreCase);
-                    int existingIdx = upperIdx != -1 ? upperIdx : lowerIdx;
-
-                    if (existingIdx != -1)
-                    {
-                        if (existingIdx < caretIndex)
-                        {
-                            caretIndex -= "[ToUpper]".Length;
-                        }
-                        currentText = vm.RemoveCaseTags(currentText);
-                    }
-                }
 
                 if (caretIndex < 0) caretIndex = 0;
-                if (caretIndex > currentText.Length) caretIndex = currentText.Length;
+                if (caretIndex > vm.RuleFormat.Length) caretIndex = vm.RuleFormat.Length;
 
-                textBox.Text = currentText.Insert(caretIndex, text);
-                textBox.CaretIndex = caretIndex + text.Length;
+                // ViewModel의 RuleFormat을 직접 수정 - OnRuleFormatChanged가 IsUnique 처리
+                vm.RuleFormat = vm.RuleFormat.Insert(caretIndex, text);
+
+                // 커서 위치 조정 (OnRuleFormatChanged에서 태그가 제거될 수 있으므로 최종 길이 기준)
                 textBox.Focus();
+                textBox.CaretIndex = Math.Min(caretIndex + text.Length, vm.RuleFormat.Length);
             }
         }
     }
