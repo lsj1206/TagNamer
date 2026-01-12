@@ -144,7 +144,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[Name.origin]",
             Type = TagType.NameOrigin,
-            ToolTip = "파일이 추가될 당시의 파일명을 입력합니다.",
+            ToolTip = "파일이 추가될 당시의 이름을 입력합니다.",
             IsStandard = true
         });
 
@@ -152,7 +152,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[ToUpper]",
             Type = TagType.ToUpper,
-            ToolTip = "파일명의 모든 알파벳을 대문자로 변경합니다.",
+            ToolTip = "변경될 파일명의 모든 알파벳을 대문자로 변경합니다.",
             IsStandard = true
         });
 
@@ -160,7 +160,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[ToLower]",
             Type = TagType.ToLower,
-            ToolTip = "파일명의 모든 알파벳을 소문자로 변경합니다.",
+            ToolTip = "변경될 파일명의 모든 알파벳을 소문자로 변경합니다.",
             IsStandard = true
         });
     }
