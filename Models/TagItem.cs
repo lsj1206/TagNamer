@@ -10,6 +10,8 @@ public enum TagType
     Today,      // 오늘 날짜
     TimeNow,    // 현재 시간
     OriginSplit, // 원본 이름 분할 (앞/뒤, 남기기/삭제)
+    OnlyNumber, // 숫자만 추출
+    OnlyLetter, // 문자만 추출
     ToUpper,    // 전체 대문자 변환
     ToLower     // 전체 소문자 변환
 }
@@ -71,6 +73,6 @@ public class TagItem
     public bool IsDeletable => !IsStandard;
     // 규칙 내 유일성 보장 (true면 동일 태그 중복 불가)
     public bool IsUnique { get; set; } = false;
-    // 배타적 그룹 (같은 그룹의 태그들은 동시에 존재 불가, null이면 제한 없음)
+    // 배타적 그룹 (쉼표로 구분, 같은 그룹의 태그들은 동시에 존재 불가)
     public string? ExclusiveGroup { get; set; } = null;
 }

@@ -47,16 +47,20 @@ public class RenameService : IRenameService
         var itemList = items.ToList();
         if (itemList.Count == 0) return;
 
-        // 1. 대소문자 변환 플래그 확인 및 순수 포맷 추출
+        // 1. 변환 태그 플래그 확인 및 순수 포맷 추출
         bool isUpper = ruleFormat.IndexOf("[ToUpper]", StringComparison.OrdinalIgnoreCase) >= 0;
         bool isLower = ruleFormat.IndexOf("[ToLower]", StringComparison.OrdinalIgnoreCase) >= 0;
+        bool isOnlyNumber = ruleFormat.IndexOf("[OnlyNumber]", StringComparison.OrdinalIgnoreCase) >= 0;
+        bool isOnlyLetter = ruleFormat.IndexOf("[OnlyLetter]", StringComparison.OrdinalIgnoreCase) >= 0;
 
         string pureFormat = ruleFormat;
         pureFormat = ToUpperRegex.Replace(pureFormat, "");
         pureFormat = ToLowerRegex.Replace(pureFormat, "");
+        pureFormat = Regex.Replace(pureFormat, @"\[OnlyNumber\]", "", RegexOptions.IgnoreCase);
+        pureFormat = Regex.Replace(pureFormat, @"\[OnlyLetter\]", "", RegexOptions.IgnoreCase);
 
-        // 2. 다른 태그 없이 [ToUpper]/[ToLower]만 있는 경우 [Name.origin]을 기본으로 사용
-        if (string.IsNullOrWhiteSpace(pureFormat) && (isUpper || isLower))
+        // 2. 다른 태그 없이 변환 태그만 있는 경우 [Name.origin]을 기본으로 사용
+        if (string.IsNullOrWhiteSpace(pureFormat) && (isUpper || isLower || isOnlyNumber || isOnlyLetter))
         {
             pureFormat = "[Name.origin]";
         }
@@ -166,7 +170,10 @@ public class RenameService : IRenameService
                 }
             }
 
-            // 4. 최종 대소문자 변환 적용
+            // 4. 변환 파이프라인 (Filtering -> Case 순서)
+            if (isOnlyNumber) newName = new string(newName.Where(char.IsDigit).ToArray());
+            else if (isOnlyLetter) newName = new string(newName.Where(char.IsLetter).ToArray());
+
             if (isUpper) newName = newName.ToUpper();
             else if (isLower) newName = newName.ToLower();
 

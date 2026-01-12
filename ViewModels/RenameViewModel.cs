@@ -46,7 +46,7 @@ public partial class RenameViewModel : ObservableObject
     /// RuleFormat 변경 시 IsUnique 태그의 중복 및 ExclusiveGroup 태그의 상호 배타성을 처리합니다.
     /// 새로 추가된 태그를 우선 보존합니다.
     /// </summary>
-    partial void OnRuleFormatChanged(string? oldValue, string? newValue)
+    partial void OnRuleFormatChanged(string? oldValue, string newValue)
     {
         if (string.IsNullOrEmpty(newValue)) return;
 
@@ -104,7 +104,9 @@ public partial class RenameViewModel : ObservableObject
         // 2. ExclusiveGroup 태그 상호 배타성 처리
         var groupedTags = TagManager.CreatedTags
             .Where(t => !string.IsNullOrEmpty(t.ExclusiveGroup))
-            .GroupBy(t => t.ExclusiveGroup)
+            .SelectMany(t => (t.ExclusiveGroup?.Split(',') ?? Array.Empty<string>())
+                .Select(g => new { Tag = t, Group = g.Trim() }))
+            .GroupBy(x => x.Group, x => x.Tag)
             .ToList();
 
         foreach (var group in groupedTags)

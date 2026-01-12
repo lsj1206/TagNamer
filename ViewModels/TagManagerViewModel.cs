@@ -150,9 +150,29 @@ public partial class TagManagerViewModel : ObservableObject
 
         CreatedTags.Add(new TagItem
         {
+            TagName = "[OnlyNumber]",
+            Type = TagType.OnlyNumber,
+            ToolTip = "파일명에서 숫자만 남기고 제거합니다.\n[OnlyLetter], [ToUpper], [ToLower]와 함께 사용할 수 없습니다.",
+            IsStandard = true,
+            IsUnique = true,
+            ExclusiveGroup = "FilterGroup,CaseConversion"
+        });
+
+        CreatedTags.Add(new TagItem
+        {
+            TagName = "[OnlyLetter]",
+            Type = TagType.OnlyLetter,
+            ToolTip = "파일명에서 숫자와 특수문자를 제거합니다.\n[OnlyNumber]와 함께 사용할 수 없습니다.",
+            IsStandard = true,
+            IsUnique = true,
+            ExclusiveGroup = "FilterGroup"
+        });
+
+        CreatedTags.Add(new TagItem
+        {
             TagName = "[ToUpper]",
             Type = TagType.ToUpper,
-            ToolTip = "변경될 파일명의 모든 알파벳을 대문자로 변경합니다.",
+            ToolTip = "변경될 파일명의 모든 알파벳을 대문자로 변경합니다.\n[OnlyNumber], [ToLower]와 함께 사용할 수 없습니다.",
             IsStandard = true,
             IsUnique = true,
             ExclusiveGroup = "CaseConversion"
@@ -162,7 +182,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[ToLower]",
             Type = TagType.ToLower,
-            ToolTip = "변경될 파일명의 모든 알파벳을 소문자로 변경합니다.",
+            ToolTip = "변경될 파일명의 모든 알파벳을 소문자로 변경합니다.\n[OnlyNumber], [ToUpper]와 함께 사용할 수 없습니다.",
             IsStandard = true,
             IsUnique = true,
             ExclusiveGroup = "CaseConversion"
