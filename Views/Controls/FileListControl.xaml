@@ -10,7 +10,6 @@
         <!-- 파일 리스트 스타일 -->
         <SolidColorBrush x:Key="ItemHoverBackground" Color="#E5F3FF"/>
         <SolidColorBrush x:Key="ItemSelectedBackground" Color="#CCE8FF"/>
-        <SolidColorBrush x:Key="FolderHeaderBackground" Color="#F5F5F5"/>
         <SolidColorBrush x:Key="TextSecondary" Color="#666666"/>
         <SolidColorBrush x:Key="AccentColor" Color="#0078D4"/>
 

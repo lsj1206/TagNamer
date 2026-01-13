@@ -55,11 +55,6 @@ public class FileListViewModel
         return addedCount;
     }
 
-    public void UpdateNextAddIndex(int nextIndex)
-    {
-        _nextAddIndex = nextIndex;
-    }
-
     /// <summary>
     /// 목록을 정렬합니다.
     /// </summary>
