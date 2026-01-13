@@ -91,7 +91,7 @@
                     </GridViewColumn>
 
                     <!-- 파일명 -->
-                    <GridViewColumn Header="파일명" Width="250">
+                    <GridViewColumn Header="이름" Width="250">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
@@ -114,7 +114,7 @@
                     </GridViewColumn>
 
                     <!-- 변경될 파일명 -->
-                    <GridViewColumn Header="변경될 파일명" Width="250">
+                    <GridViewColumn Header="미리보기" Width="250">
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <TextBlock FontWeight="Medium"
