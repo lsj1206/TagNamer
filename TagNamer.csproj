@@ -7,6 +7,16 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
     <ApplicationIcon>Assets/App.ico</ApplicationIcon>
+
+    <!-- 빌드 최적화 설정 -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+
+    <!-- 압축 및 디버그 정보 제거 (용량 최적화) -->
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <DebugType>none</DebugType>
+    <DebugSymbols>false</DebugSymbols>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,9 +29,6 @@
 
     <!-- ModernWpf - UI 라이브러리 -->
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
-
-    <!-- JSON 직렬화 - 설정 저장/로드 -->
-    <PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 
     <!-- 로깅 라이브러리 -->
     <PackageReference Include="Serilog" Version="4.1.0" />
