@@ -32,14 +32,11 @@ This project uses the following open-source software:
 2. **ModernWpfUI** (MIT License)
    - https://github.com/Kinnara/ModernWpf
 
-3. **Newtonsoft.Json** (MIT License)
-   - https://github.com/JamesNK/Newtonsoft.Json
-
-4. **Microsoft.Extensions.DependencyInjection** (MIT License)
+3. **Microsoft.Extensions.DependencyInjection** (MIT License)
    - https://github.com/dotnet/runtime
 
-5. **Serilog** (Apache-2.0 License)
+4. **Serilog** (Apache-2.0 License)
    - https://github.com/serilog/serilog
 
-6. **WindowsAPICodePack-Shell** (Custom Microsoft License)
+5. **WindowsAPICodePack-Shell** (Custom Microsoft License)
    - https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Shell
