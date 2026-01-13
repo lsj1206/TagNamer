@@ -55,9 +55,6 @@ public partial class MainViewModel : ObservableObject
     private const int MaxItemCount = 50000;
 
     [ObservableProperty]
-    private string appVersion = "v0.9.0 beta";
-
-    [ObservableProperty]
     private bool isBusy = false;
 
     [ObservableProperty]

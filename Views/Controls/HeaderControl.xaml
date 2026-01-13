@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:local="clr-namespace:TagNamer"
              mc:Ignorable="d">
 
     <!-- 상단 정보 -->
@@ -32,14 +33,14 @@
                            Text="{Binding CurrentRuleDisplay}" />
             </StackPanel>
 
-            <!-- 버전 정보 -->
+             <!-- 버전 정보 -->
             <TextBlock Grid.Column="2"
                        Margin="15,0,0,0"
                        VerticalAlignment="Center"
                        FontSize="14"
                        FontWeight="Normal"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                       Text="{Binding AppVersion}" />
+                       Text="{x:Static local:App.Version}" />
         </Grid>
     </Border>
 </UserControl>
