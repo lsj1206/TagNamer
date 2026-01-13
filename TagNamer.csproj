@@ -22,7 +22,6 @@
   <ItemGroup>
     <!-- MVVM 프레임워크 - ViewModelBase, RelayCommand 등 제공 -->
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-    <PackageReference Include="Microsoft-WindowsAPICodePack-Shell" Version="1.1.5" />
 
     <!-- 의존성 주입 - 서비스 등록 및 관리 -->
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.0" />

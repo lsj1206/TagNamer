@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Microsoft.WindowsAPICodePack.Dialogs;
+using Microsoft.Win32;
 using Microsoft.Extensions.DependencyInjection;
 using TagNamer.Services;
 using TagNamer.Models;
@@ -153,16 +153,31 @@ public partial class MainViewModel : ObservableObject
     // 파일/폴더 추가 (다이얼로그 진입점)
     private async void AddFiles(bool isFolder)
     {
-        var dialog = new CommonOpenFileDialog
+        if (isFolder)
         {
-            IsFolderPicker = isFolder,
-            Multiselect = true,
-            Title = isFolder ? "폴더 추가" : "파일 추가"
-        };
+            var dialog = new OpenFolderDialog
+            {
+                Multiselect = true,
+                Title = "폴더 추가"
+            };
 
-        if (dialog.ShowDialog() == CommonFileDialogResult.Ok)
+            if (dialog.ShowDialog() == true)
+            {
+                await ProcessFiles(dialog.FolderNames);
+            }
+        }
+        else
         {
-            await ProcessFiles(dialog.FileNames);
+            var dialog = new OpenFileDialog
+            {
+                Multiselect = true,
+                Title = "파일 추가"
+            };
+
+            if (dialog.ShowDialog() == true)
+            {
+                await ProcessFiles(dialog.FileNames);
+            }
         }
     }
 

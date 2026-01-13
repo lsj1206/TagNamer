@@ -35,5 +35,3 @@ This project uses the following open-source software:
 3. **Microsoft.Extensions.DependencyInjection** (MIT License)
    - https://github.com/dotnet/runtime
 
-4. **WindowsAPICodePack-Shell** (Custom Microsoft License)
-   - https://www.nuget.org/packages/Microsoft-WindowsAPICodePack-Shell
