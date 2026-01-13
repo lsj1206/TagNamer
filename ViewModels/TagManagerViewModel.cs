@@ -142,7 +142,7 @@ public partial class TagManagerViewModel : ObservableObject
     {
         CreatedTags.Add(new TagItem
         {
-            TagName = "[Name.origin]",
+            TagName = "[Origin]",
             Type = TagType.NameOrigin,
             ToolTip = "파일이 추가될 당시의 이름을 입력합니다.",
             IsStandard = true

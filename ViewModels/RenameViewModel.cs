@@ -11,7 +11,7 @@ namespace TagNamer.ViewModels;
 public partial class RenameViewModel : ObservableObject
 {
     [ObservableProperty]
-    private string ruleFormat = "[Name.origin]";
+    private string ruleFormat = "[Origin]";
 
     public TagManagerViewModel TagManager { get; }
     public string ResolvedRuleFormat => RuleFormat;

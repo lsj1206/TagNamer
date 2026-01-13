@@ -62,7 +62,7 @@ public class RenameService : IRenameService
         // 2. 다른 태그 없이 변환 태그만 있는 경우 [Name.origin]을 기본으로 사용
         if (string.IsNullOrWhiteSpace(pureFormat) && (isUpper || isLower || isOnlyNumber || isOnlyLetter))
         {
-            pureFormat = "[Name.origin]";
+            pureFormat = "[Origin]";
         }
 
         // 3. 치환에 사용될 활성 태그 필터링 (순수 포맷 기준)
