@@ -17,10 +17,6 @@ public class RenameService : IRenameService
     private readonly ISnackbarService _snackbarService;
     private readonly IFileService _fileService;
 
-    // Regex 객체를 정적 필드로 정의하여 반복 생성 방지 (성능 최적화)
-    private static readonly Regex ToUpperRegex = new Regex(@"\[ToUpper\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-    private static readonly Regex ToLowerRegex = new Regex(@"\[ToLower\]", RegexOptions.IgnoreCase | RegexOptions.Compiled);
-
     public enum BatchActionType
     {
         ApplyRename,
@@ -54,10 +50,10 @@ public class RenameService : IRenameService
         bool isOnlyLetter = ruleFormat.IndexOf("[OnlyLetter]", StringComparison.OrdinalIgnoreCase) >= 0;
 
         string pureFormat = ruleFormat;
-        pureFormat = ToUpperRegex.Replace(pureFormat, "");
-        pureFormat = ToLowerRegex.Replace(pureFormat, "");
-        pureFormat = Regex.Replace(pureFormat, @"\[OnlyNumber\]", "", RegexOptions.IgnoreCase);
-        pureFormat = Regex.Replace(pureFormat, @"\[OnlyLetter\]", "", RegexOptions.IgnoreCase);
+        pureFormat = pureFormat.Replace("[ToUpper]", "", StringComparison.OrdinalIgnoreCase);
+        pureFormat = pureFormat.Replace("[ToLower]", "", StringComparison.OrdinalIgnoreCase);
+        pureFormat = pureFormat.Replace("[OnlyNumber]", "", StringComparison.OrdinalIgnoreCase);
+        pureFormat = pureFormat.Replace("[OnlyLetter]", "", StringComparison.OrdinalIgnoreCase);
 
         // 2. 다른 태그 없이 변환 태그만 있는 경우 [Name.origin]을 기본으로 사용
         if (string.IsNullOrWhiteSpace(pureFormat) && (isUpper || isLower || isOnlyNumber || isOnlyLetter))
@@ -166,7 +162,7 @@ public class RenameService : IRenameService
 
                 if (!string.IsNullOrEmpty(replacement))
                 {
-                     newName = ReplaceCaseInsensitive(newName, tag.TagName, replacement);
+                     newName = newName.Replace(tag.TagName, replacement, StringComparison.OrdinalIgnoreCase);
                 }
             }
 
@@ -326,17 +322,11 @@ public class RenameService : IRenameService
 
     private string FormatDateTime(DateTimeTagParams p, DateTime now, TagType type)
     {
-        var result = new System.Text.StringBuilder();
+        string v1 = GetPartValue(p.Part1, now, type);
+        string v2 = GetPartValue(p.Part2, now, type);
+        string v3 = GetPartValue(p.Part3, now, type);
 
-        result.Append(GetPartValue(p.Part1, now, type));
-        result.Append(p.Sep1);
-
-        result.Append(GetPartValue(p.Part2, now, type));
-        result.Append(p.Sep2);
-
-        result.Append(GetPartValue(p.Part3, now, type));
-
-        return result.ToString();
+        return $"{v1}{p.Sep1}{v2}{p.Sep2}{v3}";
     }
 
     private string GetPartValue(string part, DateTime now, TagType type)
@@ -353,9 +343,6 @@ public class RenameService : IRenameService
             _ => string.Empty
         };
     }
-
-    private string ReplaceCaseInsensitive(string input, string search, string replacement) =>
-        Regex.Replace(input, Regex.Escape(search), replacement.Replace("$", "$$"), RegexOptions.IgnoreCase);
 
     private long AlphaToNum(string column)
     {

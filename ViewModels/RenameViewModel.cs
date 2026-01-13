@@ -1,5 +1,4 @@
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.Input;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -58,29 +57,34 @@ public partial class RenameViewModel : ObservableObject
 
         foreach (var tag in uniqueTags)
         {
-            var matches = Regex.Matches(cleaned, Regex.Escape(tag.TagName), RegexOptions.IgnoreCase);
+            string tagName = tag.TagName;
+            int firstIdx = cleaned.IndexOf(tagName, StringComparison.OrdinalIgnoreCase);
+            if (firstIdx == -1) continue;
 
-            if (matches.Count > 1)
+            int secondIdx = cleaned.IndexOf(tagName, firstIdx + tagName.Length, StringComparison.OrdinalIgnoreCase);
+            if (secondIdx != -1)
             {
-                int preserveIndex = matches.Count - 1; // 기본값: 마지막 것
+                // 중복 발견 시 신규 태그만 남기기 위해 전체 매치 위치를 리스트로 확보
+                var matchIndices = new List<int>();
+                int currentPos = 0;
+                while ((currentPos = cleaned.IndexOf(tagName, currentPos, StringComparison.OrdinalIgnoreCase)) != -1)
+                {
+                    matchIndices.Add(currentPos);
+                    currentPos += tagName.Length;
+                }
 
-                // oldValue가 있으면 변화 지점 찾기
+                int preserveIndex = matchIndices.Count - 1;
+
                 if (!string.IsNullOrEmpty(oldValue))
                 {
-                    // 문자열 앞에서부터 비교하여 첫 변화 지점 찾기
                     int changePoint = 0;
                     int minLen = Math.Min(oldValue.Length, newValue.Length);
+                    while (changePoint < minLen && oldValue[changePoint] == newValue[changePoint]) changePoint++;
 
-                    while (changePoint < minLen && oldValue[changePoint] == newValue[changePoint])
-                    {
-                        changePoint++;
-                    }
-
-                    // 변화 지점과 가장 가까운 매치가 새로 추가된 것
                     int minDistance = int.MaxValue;
-                    for (int i = 0; i < matches.Count; i++)
+                    for (int i = 0; i < matchIndices.Count; i++)
                     {
-                        int distance = Math.Abs(matches[i].Index - changePoint);
+                        int distance = Math.Abs(matchIndices[i] - changePoint);
                         if (distance < minDistance)
                         {
                             minDistance = distance;
@@ -89,12 +93,12 @@ public partial class RenameViewModel : ObservableObject
                     }
                 }
 
-                // preserveIndex를 제외한 나머지 제거 (뒤에서부터)
-                for (int i = matches.Count - 1; i >= 0; i--)
+                // 뒤에서부터 삭제하여 인덱스 꼬임 방지
+                for (int i = matchIndices.Count - 1; i >= 0; i--)
                 {
                     if (i != preserveIndex)
                     {
-                        cleaned = cleaned.Remove(matches[i].Index, matches[i].Length);
+                        cleaned = cleaned.Remove(matchIndices[i], tagName.Length);
                     }
                 }
                 hasChanges = true;
@@ -112,27 +116,21 @@ public partial class RenameViewModel : ObservableObject
         foreach (var group in groupedTags)
         {
             var tagsInGroup = group.ToList();
-            if (tagsInGroup.Count <= 1) continue; // 그룹에 태그가 1개 이하면 스킵
+            if (tagsInGroup.Count <= 1) continue;
 
-            // 이 그룹의 태그 중 현재 문자열에 존재하는 것들 찾기
             var presentTags = tagsInGroup
                 .Where(t => cleaned.IndexOf(t.TagName, StringComparison.OrdinalIgnoreCase) >= 0)
                 .ToList();
 
             if (presentTags.Count > 1)
             {
-                // 여러 개 있으면 가장 최근에 추가된 것만 남기고 제거
-                // oldValue와 비교하여 새로 추가된 것 찾기
                 TagItem? preserveTag = null;
-
                 if (!string.IsNullOrEmpty(oldValue))
                 {
-                    // oldValue에 없던 태그 찾기 (새로 추가된 것)
                     preserveTag = presentTags.FirstOrDefault(t =>
                         oldValue.IndexOf(t.TagName, StringComparison.OrdinalIgnoreCase) < 0);
                 }
 
-                // 못 찾았으면 위치상 마지막 것 보존
                 if (preserveTag == null)
                 {
                     preserveTag = presentTags
@@ -140,13 +138,18 @@ public partial class RenameViewModel : ObservableObject
                         .First();
                 }
 
-                // preserveTag를 제외한 나머지 제거
                 foreach (var tag in presentTags)
                 {
                     if (tag != preserveTag)
                     {
-                        cleaned = Regex.Replace(cleaned, Regex.Escape(tag.TagName), "", RegexOptions.IgnoreCase);
-                        hasChanges = true;
+                        // Regex.Replace 대신 String.Replace (OrdinalIgnoreCase) 사용
+                        // 단, 한 번만 지워야 함 (다중 태그는 위 1단계에서 처리됨)
+                        int idx = cleaned.IndexOf(tag.TagName, StringComparison.OrdinalIgnoreCase);
+                        if (idx != -1)
+                        {
+                            cleaned = cleaned.Remove(idx, tag.TagName.Length);
+                            hasChanges = true;
+                        }
                     }
                 }
             }

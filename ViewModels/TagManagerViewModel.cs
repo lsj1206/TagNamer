@@ -15,13 +15,13 @@ public partial class TagManagerViewModel : ObservableObject
 
     public ObservableCollection<TagItem> CreatedTags { get; } = new();
     // 태그 타입
-    public ObservableCollection<string> TagTypes { get; } = new() { "[Number]", "[AtoZ]", "[Origin.split]", "[Today]", "[Time.now]" };
+    public string[] TagTypes { get; } = { "[Number]", "[AtoZ]", "[Origin.split]", "[Today]", "[Time.now]" };
     // 태그 생성 카운트 관리
     private readonly Dictionary<string, int> _tagCounts = new();
 
     // 날짜/시간 드롭다운 항목
-    public ObservableCollection<string> DatePartTypes { get; } = new() { "-", "YY", "YYYY", "MM", "DD" };
-    public ObservableCollection<string> TimePartTypes { get; } = new() { "-", "HH", "MM", "SS" };
+    public string[] DatePartTypes { get; } = { "-", "YY", "YYYY", "MM", "DD" };
+    public string[] TimePartTypes { get; } = { "-", "HH", "MM", "SS" };
 
     [ObservableProperty]
     [NotifyPropertyChangedFor(nameof(TagTypeDescription))]

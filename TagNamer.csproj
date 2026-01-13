@@ -13,7 +13,10 @@
     <SelfContained>true</SelfContained>
     <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
 
-    <!-- 압축 및 디버그 정보 제거 (용량 최적화) -->
+    <!-- 디버그 및 텔레메트리 제거 (용량 추가 최적화) -->
+    <EventSourceSupport>false</EventSourceSupport>
+    <HttpActivityPropagationSupport>false</HttpActivityPropagationSupport>
+    <MetadataUpdaterSupport>false</MetadataUpdaterSupport>
     <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
     <DebugType>none</DebugType>
     <DebugSymbols>false</DebugSymbols>
