@@ -30,10 +30,6 @@
     <!-- ModernWpf - UI 라이브러리 -->
     <PackageReference Include="ModernWpfUI" Version="0.9.6" />
 
-    <!-- 로깅 라이브러리 -->
-    <PackageReference Include="Serilog" Version="4.1.0" />
-    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="8.0.0" />
   </ItemGroup>
 
 </Project>
