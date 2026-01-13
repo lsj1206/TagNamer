@@ -377,7 +377,7 @@ public class RenameService : IRenameService
 
         if (isCaseOnlyChange)
         {
-            string tempPath = sourcePath + ".tmp_" + Guid.NewGuid().ToString("N");
+            string tempPath = sourcePath + ".tmp_" + Environment.TickCount64.ToString("X");
             _fileService.RenameFile(sourcePath, tempPath);
             _fileService.RenameFile(tempPath, destPath);
         }
