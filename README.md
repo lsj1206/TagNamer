@@ -1,4 +1,4 @@
-# TagNamer
+# <img src="./Assets/App.ico" width="32" height="32" /> TagNamer
 
 > **Tag를 사용해서 간편하게 파일 이름을 변경가능한** 규칙 기반 이름 변경 프로그램
 
