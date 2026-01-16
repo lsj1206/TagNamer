@@ -15,7 +15,7 @@ public partial class TagManagerViewModel : ObservableObject
 
     public ObservableCollection<TagItem> CreatedTags { get; } = new();
     // 태그 타입
-    public string[] TagTypes { get; } = { "[Number]", "[AtoZ]", "[Origin.split]", "[Today]", "[Time.now]" };
+    public string[] TagTypes { get; } = { "[Number]", "[AtoZ]", "[Name.trim]", "[Today]", "[Time.now]" };
     // 태그 생성 카운트 관리
     private readonly Dictionary<string, int> _tagCounts = new();
 
@@ -31,7 +31,7 @@ public partial class TagManagerViewModel : ObservableObject
     {
         "[Number]" => "시작 값에서부터 순차적으로 증가하는 수를 입력합니다.",
         "[AtoZ]" => "시작 알파벳에서 A-Z 순서로 알파벳을 입력합니다.",
-        "[Origin.split]" => "원본 파일명에서 설정한 범위를 자르거나 남깁니다.",
+        "[Name.trim]" => "파일명에서 설정한 범위를 자르거나 남깁니다.",
         "[Today]" => "형식에 맞춰 오늘 날짜를 입력합니다.\n년: YYYY/YY, 월: MM, 일: DD",
         "[Time.now]" => "형식에 맞춰 현재 시간을 입력합니다.\n시: HH, 분: MM, 초: SS",
         _ => ""
@@ -46,7 +46,7 @@ public partial class TagManagerViewModel : ObservableObject
     [ObservableProperty]
     private string optionLowerCount = "";
 
-    // Origin.split 옵션
+    // Name.trim 옵션
     [ObservableProperty] private string optionSplitStart = "1";
     [ObservableProperty] private string optionSplitEnd = "1";
 
@@ -293,7 +293,7 @@ public partial class TagManagerViewModel : ObservableObject
                 };
                 newItem.Options.Add($"형식 : {newItem.ToolTip}");
                 break;
-            case "[Origin.split]":
+            case "[Name.trim]":
                 {
                     // 생성 전 검증
                     OnOptionSplitStartChanged(OptionSplitStart);
@@ -312,7 +312,7 @@ public partial class TagManagerViewModel : ObservableObject
 
                     newItem = new TagItem
                     {
-                        TagName = $"[Origin.split{currentCount}]",
+                        TagName = $"[Name.trim{currentCount}]",
                         Type = TagType.OriginSplit,
                         Params = new OriginSplitTagParams
                         {

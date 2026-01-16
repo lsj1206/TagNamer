@@ -334,6 +334,63 @@
                                 </StackPanel>
                             </StackPanel>
                         </DataTemplate>
+                        <!-- Name.trim 태그 -->
+                        <DataTemplate x:Key="NameTrimTemplate">
+                            <StackPanel Orientation="Horizontal">
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Text="방향" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <ToggleButton Width="100"
+                                                  Height="32"
+                                                  IsChecked="{Binding DataContext.TagManager.OptionSplitFromBack, RelativeSource={RelativeSource AncestorType=Window}}">
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                                                <Setter Property="Content" Value="앞에서부터"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Content" Value="뒤에서부터"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                </StackPanel>
+                                <StackPanel Margin="0,0,8,0">
+                                    <TextBlock Text="범위" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <StackPanel Orientation="Horizontal">
+                                         <controls:FilterTextBox Width="60"
+                                                                Height="32"
+                                                                VerticalContentAlignment="Center"
+                                                                FilterMode="Allow"
+                                                                Filter="Digits"
+                                                                Text="{Binding DataContext.TagManager.OptionSplitStart, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                        <TextBlock Margin="4,0" VerticalAlignment="Center" Text="~" />
+                                        <controls:FilterTextBox Width="60"
+                                                                Height="32"
+                                                                VerticalContentAlignment="Center"
+                                                                FilterMode="Allow"
+                                                                Filter="Digits"
+                                                                Text="{Binding DataContext.TagManager.OptionSplitEnd, RelativeSource={RelativeSource AncestorType=Window}}" />
+                                    </StackPanel>
+                                </StackPanel>
+                                <StackPanel>
+                                    <TextBlock Text="동작" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <ToggleButton Width="100"
+                                                  Height="32"
+                                                  IsChecked="{Binding DataContext.TagManager.OptionSplitKeep, RelativeSource={RelativeSource AncestorType=Window}}">
+                                        <ToggleButton.Style>
+                                            <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                                                <Setter Property="Content" Value="선택 삭제"/>
+                                                <Style.Triggers>
+                                                    <Trigger Property="IsChecked" Value="True">
+                                                        <Setter Property="Content" Value="선택 남기기"/>
+                                                    </Trigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </ToggleButton.Style>
+                                    </ToggleButton>
+                                </StackPanel>
+                            </StackPanel>
+                        </DataTemplate>
                     </ContentControl.Resources>
                     <ContentControl.Style>
                         <Style TargetType="ContentControl">
@@ -353,6 +410,9 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Origin.split]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource OriginSplitTemplate}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Name.trim]">
+                                    <Setter Property="ContentTemplate" Value="{StaticResource NameTrimTemplate}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>

@@ -81,7 +81,7 @@ public class RenameService : IRenameService
                 switch (tag.Type)
                 {
                     case TagType.NameOrigin:
-                        replacement = item.BaseName;
+                        replacement = item.OriginName;  // BaseName 대신 OriginName 사용
                         break;
                     case TagType.Number:
                         if (tag.Params is NumberTagParams numP)
@@ -116,7 +116,7 @@ public class RenameService : IRenameService
                     case TagType.OriginSplit:
                         if (tag.Params is OriginSplitTagParams splitP)
                         {
-                            string origin = item.BaseName;
+                            string origin = item.OriginName;  // BaseName 대신 OriginName 사용
                             int length = origin.Length;
                             int start = Math.Max(1, splitP.StartCount);
                             int end = Math.Max(1, splitP.EndCount);

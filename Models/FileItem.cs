@@ -23,6 +23,7 @@ public partial class FileItem : ObservableObject
     // 기본 데이터
     public string Directory { get; private set; } = string.Empty;
     public string BaseName { get; private set; } = string.Empty;
+    public string OriginName { get; private set; } = string.Empty;  // [Origin] 태그가 참조할 원본 파일명
     public string BaseExtension { get; private set; } = string.Empty;
     public long Size { get; set; }
     public DateTime? CreatedDate { get; set; }
@@ -72,7 +73,17 @@ public partial class FileItem : ObservableObject
             BaseExtension = System.IO.Path.GetExtension(_path);
         }
 
-        NewName = BaseName;
+        // 처음 파일 추가할 때만 OriginName과 NewName 초기화
+        if (string.IsNullOrEmpty(OriginName))
+        {
+            OriginName = BaseName;  // [Origin] 태그가 항상 참조할 원본 파일명
+        }
+
+        if (string.IsNullOrEmpty(NewName))
+        {
+            NewName = BaseName;
+        }
+
         UpdateDisplay(_lastShowExtension);
     }
 
