@@ -9,7 +9,7 @@ namespace TagNamer;
 
 public partial class App : Application
 {
-    public const string Version = "v1.0.0";
+    public const string Version = "v1.0.1";
     public new static App Current => (App)Application.Current;
 
     public IServiceProvider Services { get; }
