@@ -119,8 +119,8 @@ public class RenameService : IRenameService
                     case TagType.NameTrim:
                         if (tag.Params is NameTrimTagParams splitP)
                         {
-                            string origin = item.OriginName;  // BaseName 대신 OriginName 사용
-                            int length = origin.Length;
+                            string name = item.BaseName;
+                            int length = name.Length;
                             int start = Math.Max(1, splitP.StartCount);
                             int end = Math.Max(1, splitP.EndCount);
                             if (start > end) (start, end) = (end, start);
@@ -145,18 +145,18 @@ public class RenameService : IRenameService
                                 // 선택된 범위가 유효하지 않으면:
                                 // 삭제 모드 -> 아무것도 삭제 안 함 (원본 그대로)
                                 // 남기기 모드 -> 아무것도 안 남김 (빈 문자열)
-                                replacement = splitP.IsKeep ? "" : origin;
+                                replacement = splitP.IsKeep ? "" : name;
                             }
                             else
                             {
                                 if (splitP.IsKeep)
                                 {
                                     int len = endIndex - startIndex + 1;
-                                    replacement = origin.Substring(startIndex, len);
+                                    replacement = name.Substring(startIndex, len);
                                 }
                                 else
                                 {
-                                    replacement = origin.Remove(startIndex, endIndex - startIndex + 1);
+                                    replacement = name.Remove(startIndex, endIndex - startIndex + 1);
                                 }
                             }
                         }
