@@ -81,7 +81,10 @@ public class RenameService : IRenameService
                 switch (tag.Type)
                 {
                     case TagType.NameOrigin:
-                        replacement = item.OriginName;  // BaseName 대신 OriginName 사용
+                        replacement = item.OriginName;  // 원본 파일명 (고정)
+                        break;
+                    case TagType.NameCurrent:
+                        replacement = item.BaseName;    // 현재 파일명 (갱신됨)
                         break;
                     case TagType.Number:
                         if (tag.Params is NumberTagParams numP)
@@ -113,8 +116,8 @@ public class RenameService : IRenameService
                             replacement = cachedDate;
                         }
                         break;
-                    case TagType.OriginSplit:
-                        if (tag.Params is OriginSplitTagParams splitP)
+                    case TagType.NameTrim:
+                        if (tag.Params is NameTrimTagParams splitP)
                         {
                             string origin = item.OriginName;  // BaseName 대신 OriginName 사용
                             int length = origin.Length;

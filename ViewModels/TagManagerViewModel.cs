@@ -150,6 +150,14 @@ public partial class TagManagerViewModel : ObservableObject
 
         CreatedTags.Add(new TagItem
         {
+            TagName = "[Name]",
+            Type = TagType.NameCurrent,  // 새로운 태그 타입
+            ToolTip = "파일의 현재 이름을 입력합니다. (변경 적용 후 갱신됨)",
+            IsStandard = true
+        });
+
+        CreatedTags.Add(new TagItem
+        {
             TagName = "[OnlyNumber]",
             Type = TagType.OnlyNumber,
             ToolTip = "파일명에서 숫자만 남기고 제거합니다.\n[OnlyLetter], [ToUpper], [ToLower]와 함께 사용할 수 없습니다.",
@@ -313,8 +321,8 @@ public partial class TagManagerViewModel : ObservableObject
                     newItem = new TagItem
                     {
                         TagName = $"[Name.trim{currentCount}]",
-                        Type = TagType.OriginSplit,
-                        Params = new OriginSplitTagParams
+                        Type = TagType.NameTrim,
+                        Params = new NameTrimTagParams
                         {
                             IsFromBack = OptionSplitFromBack,
                             IsKeep = OptionSplitKeep,

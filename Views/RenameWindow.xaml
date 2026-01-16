@@ -196,7 +196,7 @@
                             </StackPanel>
                         </DataTemplate>
                         <!-- Origin.split 태그 -->
-                        <DataTemplate x:Key="OriginSplitTemplate">
+                        <DataTemplate x:Key="NameTrimTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Margin="0,0,8,0">
                                     <TextBlock Text="방향" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
@@ -407,9 +407,6 @@
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Time.now]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource TimeTemplate}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Origin.split]">
-                                    <Setter Property="ContentTemplate" Value="{StaticResource OriginSplitTemplate}"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding TagManager.SelectedTagType}" Value="[Name.trim]">
                                     <Setter Property="ContentTemplate" Value="{StaticResource NameTrimTemplate}"/>

@@ -4,16 +4,17 @@ namespace TagNamer.Models;
 // 태그 타입 정의
 public enum TagType
 {
-    NameOrigin, // 원본 이름
-    Number,     // 숫자 증가
-    AtoZ,       // 알파벳 증가
-    Today,      // 오늘 날짜
-    TimeNow,    // 현재 시간
-    OriginSplit, // 원본 이름 분할 (앞/뒤, 남기기/삭제)
-    OnlyNumber, // 숫자만 추출
-    OnlyLetter, // 문자만 추출
-    ToUpper,    // 전체 대문자 변환
-    ToLower     // 전체 소문자 변환
+    NameOrigin,      // 원본 이름 (파일 추가 시)
+    NameCurrent,     // 현재 이름 (BaseName)
+    Number,          // 숫자 증가
+    AtoZ,            // 알파벳 증가
+    Today,           // 오늘 날짜
+    TimeNow,         // 현재 시간
+    NameTrim,        // 이름 자르기 (앞/뒤, 남기기/삭제)
+    OnlyNumber,      // 숫자만 추출
+    OnlyLetter,      // 문자만 추출
+    ToUpper,         // 전체 대문자 변환
+    ToLower          // 전체 소문자 변환
 }
 
 // Number 태그 파라미터
@@ -44,8 +45,8 @@ public class DateTimeTagParams
     public string Sep2 { get; set; } = string.Empty;
 }
 
-// OriginSplit 태그 파라미터
-public class OriginSplitTagParams
+// NameTrim 태그 파라미터
+public class NameTrimTagParams
 {
     // 앞에서부터(false) / 뒤에서부터(true)
     public bool IsFromBack { get; set; }
