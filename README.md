@@ -1,6 +1,6 @@
 # <img src="./src/Assets/App.ico" width="32" height="32" /> TagNamer
 
-> **Tag를 사용해서 간편하게 파일 이름을 변경가능한** 규칙 기반 이름 변경 프로그램
+> **태그로 간편하게 사용하는** 윈도우 파일명 일괄 변경 프로그램
 
 ![Project Version](https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey?style=for-the-badge)
@@ -21,7 +21,7 @@
 
 ## 📖 개요
 
-**TagNamer**는 **태그(Tag)**와 사용자 정의 규칙을 조합하여 쉽고 빠르게 이름을 변경할 수 있는 Windows용 유틸리티입니다.
+**TagNamer**는 **태그**와 텍스트을 조합하여 쉽고 빠르게 이름을 변경할 수 있는 Windows용 유틸리티입니다.
 
 별도의 설치 과정 없이 사용할 수 있습니다.
 
