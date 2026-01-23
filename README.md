@@ -1,6 +1,7 @@
 # <img src="./src/Assets/App.ico" width="32" height="32" /> TagNamer
 
 > **태그로 간편하게 사용하는** 윈도우 파일명 일괄 변경 프로그램
+> A simple Windows bulk file renaming tool **using tags**
 
 ![Project Version](https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey?style=for-the-badge)
@@ -19,13 +20,26 @@
 4. **'규칙 설정'** 버튼을 클릭하여 원하는 태그와 텍스트를 조합합니다. (예: `[Today] 여행 사진_[Number]`)
 5. 목록에서 미리보기를 확인한 후 **'변경 적용'** 버튼을 클릭합니다.
 
-## 📖 개요
+This application is portable **EXE** file.
+
+1. Download: [GitHub Releases](https://github.com/lsj1206/TagNamer/releases)
+2. Run EXE file.
+3. Add files or folders using the **"Add File / Add Folder"** or **Drag & Drop**
+4. Click **"Rename Rule"** and combine text and tags. (e.g. `[Today] Travel_Photo_[Number]`)
+5. Click **"Apply Changes"**
+
+## 📖 개요 (Overview)
 
 **TagNamer**는 **태그**와 텍스트를 조합하여 쉽고 빠르게 이름을 변경할 수 있는 Windows용 유틸리티입니다.
 
 별도의 설치 과정 없이 사용할 수 있습니다.
 
-## 🛠️ 기능 설명
+**TagNamer** is a Windows utility that allows you to quickly rename files and folders
+by combining **tags** and **custom text**.
+
+No installation is required — just download and run.
+
+## 🛠️ 기능 설명 (Features)
 
 - **파일/폴더 추가** : 여러 파일/폴더를 _파일 추가_, _폴더 추가_ 버튼과 드래그&드롭으로 한번에 추가할 수 있습니다.
 - **규칙 설정** : 규칙 텍스트 박스에 텍스트와 태그를 조합하여 규칙을 설정 가능하고 실시간으로 적용됩니다.
@@ -34,6 +48,7 @@
 - **개별 변경 모드** : 해당 옵션을 활성화하면 파일 이름을 개별적으로 수정할 수 있습니다.
 - **확장자 표시** : 해당 옵션으로 확장자를 표시를 ON/OFF 할 수 있습니다.
 - **삭제 확인 표시** : 해당 옵션으로 파일 삭제 확인창을 ON/OFF 할 수 있습니다.
+- **한/영 언어 전환** : 버튼 클릭으로 한/영 언어를 전환할 수 있습니다.
 
 ### 🏷️ 태그 시스템 (Tag System)
 
@@ -65,6 +80,12 @@
 - [Origin.split] -> [Name.trim] 이름 및 기능 변경
 - [Origin] 태그 버그 수정
 
+#### v.1.2.0 (2026.01.23)
+- 영어 지원 추가 (English support)
+- 한/영 언어 전환 기능 추가 (Added Korean/English language switching)
+- 태그 치환 일관성 개선 (Improved tag consistency)
+  - 태그 값이 비어 있어도 치환되도록 수정 (Replace even if tag value is empty)
+
 ---
 
 ## 🔎 개발 정보
@@ -84,5 +105,8 @@
 ## ⚖️ 라이선스 (License)
 
 이 프로젝트는 **MIT License**를 따릅니다. 사용된 외부 라이브러리의 상세 라이선스 정보는 [LICENSE](./LICENSE) 파일에서 확인하실 수 있습니다.
+
+This project is licensed under the **MIT License**.
+For detailed license information of third-party libraries, please refer to the [LICENSE](./LICENSE) file.
 
 © 2026 TagNamer. All rights reserved.
