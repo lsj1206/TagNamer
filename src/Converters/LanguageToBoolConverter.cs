@@ -13,16 +13,18 @@ public class LanguageToBoolConverter : IValueConverter
     {
         if (value is string lang)
         {
-            return lang == "ko-KR";
+            // ko-KR이면 false (한국어), en-US이면 true (English)
+            return lang == "en-US";
         }
-        return true;
+        return false;
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
     {
-        if (value is bool isKorean)
+        if (value is bool isEnglish)
         {
-            return isKorean ? "ko-KR" : "en-US";
+            // true면 en-US, false면 ko-KR
+            return isEnglish ? "en-US" : "ko-KR";
         }
         return "ko-KR";
     }

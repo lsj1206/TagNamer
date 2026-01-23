@@ -93,6 +93,11 @@ Year: YYYY/YY, Month: MM, Day: DD</sys:String>
     <sys:String x:Key="TagDesc_TimeNow" xml:space="preserve">Insert time(now) in the format.
 Hour: HH, Minute: MM, Second: SS</sys:String>
 
+    <!-- Tag : Context Menu -->
+    <sys:String x:Key="TagCtx_InsertStart">Insert at Start</sys:String>
+    <sys:String x:Key="TagCtx_InsertEnd">Insert at End</sys:String>
+    <sys:String x:Key="TagCtx_DeleteTag">Delete Tag</sys:String>
+
     <!-- Snackbar -->
     <sys:String x:Key="Msg_AddFile">Add {0} file.</sys:String>
     <sys:String x:Key="Msg_AddFilePartial">Add {1} of {0} file.</sys:String>

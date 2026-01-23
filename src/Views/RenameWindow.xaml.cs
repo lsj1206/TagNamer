@@ -1,8 +1,10 @@
 using System.Windows;
 using System.Windows.Input;
 using System.Windows.Controls;
+using Microsoft.Extensions.DependencyInjection;
 using TagNamer.Models;
 using TagNamer.ViewModels;
+using TagNamer.Services;
 
 namespace TagNamer.Views;
 
@@ -25,11 +27,18 @@ public partial class RenameWindow : System.Windows.Window
     {
         if (sender is FrameworkElement element && element.DataContext is TagItem tagItem)
         {
+            // LanguageService를 통해 리소스 가져오기
+            var app = Application.Current as App;
+            var languageService = app?.Services?.GetService(typeof(ILanguageService)) as ILanguageService;
+
             // 컨텍스트 메뉴 생성
             var menu = new ContextMenu();
 
-            //  가장 앞에 삽입
-            var insertFirstItem = new MenuItem { Header = "가장 앞에 삽입" };
+            // 가장 앞에 삽입
+            var insertFirstItem = new MenuItem
+            {
+                Header = languageService?.GetString("TagCtx_InsertStart", "가장 앞에 삽입") ?? "가장 앞에 삽입"
+            };
             insertFirstItem.Click += (s, args) =>
             {
                 if (DataContext is RenameViewModel vm)
@@ -42,7 +51,10 @@ public partial class RenameWindow : System.Windows.Window
             menu.Items.Add(insertFirstItem);
 
             // 가장 뒤에 삽입
-            var insertLastItem = new MenuItem { Header = "가장 뒤에 삽입" };
+            var insertLastItem = new MenuItem
+            {
+                Header = languageService?.GetString("TagCtx_InsertEnd", "가장 뒤에 삽입") ?? "가장 뒤에 삽입"
+            };
             insertLastItem.Click += (s, args) =>
             {
                 if (DataContext is RenameViewModel vm)
@@ -59,7 +71,10 @@ public partial class RenameWindow : System.Windows.Window
             {
                 menu.Items.Add(new Separator());
                 // 태그 삭제
-                var deleteItem = new MenuItem { Header = "태그 삭제" };
+                var deleteItem = new MenuItem
+                {
+                    Header = languageService?.GetString("TagCtx_DeleteTag", "태그 삭제") ?? "태그 삭제"
+                };
                 deleteItem.Click += (s, args) =>
                 {
                     if (DataContext is RenameViewModel vm)

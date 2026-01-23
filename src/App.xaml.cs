@@ -24,12 +24,12 @@ public partial class App : Application
         var services = new ServiceCollection();
 
         // Services
-        services.AddSingleton<IWindowService, WindowService>();
         services.AddSingleton<IDialogService, DialogService>();
         services.AddSingleton<ISnackbarService, SnackbarService>();
         services.AddSingleton<IFileService, FileService>();
         services.AddSingleton<IRenameService, RenameService>();
         services.AddSingleton<ISortingService, SortingService>();
+        services.AddSingleton<ILanguageService, LanguageService>();
 
         // ViewModels
         services.AddTransient<MainViewModel>();
@@ -40,6 +40,9 @@ public partial class App : Application
         // Views
         services.AddSingleton<MainWindow>();
         services.AddTransient<TagNamer.Views.RenameWindow>();
+
+        // WindowService는 IServiceProvider를 필요로 하므로 팩토리로 등록
+        services.AddSingleton<IWindowService>(sp => new WindowService(sp));
 
         return services.BuildServiceProvider();
     }
@@ -57,8 +60,14 @@ public partial class App : Application
             mainWindow.DataContext = Services.GetRequiredService<MainViewModel>();
             mainWindow.Show();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            System.Diagnostics.Debug.WriteLine($"{ex.Message}\n{ex.StackTrace}");
+            if (ex.InnerException != null)
+            {
+                System.Diagnostics.Debug.WriteLine($"{ex.InnerException.Message}\n{ex.InnerException.StackTrace}");
+            }
+            MessageBox.Show($"{ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
             Shutdown();
         }
     }

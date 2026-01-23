@@ -28,14 +28,14 @@
     <sys:String x:Key="Sort_Asc">오름차순</sys:String>
     <sys:String x:Key="Sort_Desc">내림차순</sys:String>
     <!-- 정렬 : 드롭다운 -->
-    <sys:String x:Key="Sort_Number">번호</sys:String>
-    <sys:String x:Key="Sort_NameNumber">이름-번호</sys:String>
+    <sys:String x:Key="Sort_Index">번호</sys:String>
+    <sys:String x:Key="Sort_NameIndex">이름-번호</sys:String>
     <sys:String x:Key="Sort_NamePath">이름-경로</sys:String>
-    <sys:String x:Key="Sort_PathNumber">경로-번호</sys:String>
+    <sys:String x:Key="Sort_PathIndex">경로-번호</sys:String>
     <sys:String x:Key="Sort_PathName">경로-이름</sys:String>
     <sys:String x:Key="Sort_Size">크기</sys:String>
-    <sys:String x:Key="Sort_Created">생성일</sys:String>
-    <sys:String x:Key="Sort_Modified">수정일</sys:String>
+    <sys:String x:Key="Sort_CreatedDate">생성일</sys:String>
+    <sys:String x:Key="Sort_ModifiedDate">수정일</sys:String>
 
     <!-- 사이드바 : 옵션 -->
     <sys:String x:Key="Option_ManualEdit">개별 변경 모드</sys:String>
@@ -54,8 +54,8 @@
     <sys:String x:Key="Lbl_CreateTag">태그 생성</sys:String>
     <sys:String x:Key="Btn_Create">생성</sys:String>
     <!-- 규칙 설정 : 툴팁 -->
-    <sys:String x:Key="Tip_EnterRule_1">태그를 드래그&amp;드롭하여 추가할 수 있습니다.</sys:String>
-    <sys:String x:Key="Tip_EnterRule_2">태그를 우클릭하면 컨텍스트 메뉴가 나타납니다.</sys:String>
+    <sys:String x:Key="Tip_EnterRule1">태그를 드래그&amp;드롭하여 추가할 수 있습니다.</sys:String>
+    <sys:String x:Key="Tip_EnterRule2">태그를 우클릭하면 컨텍스트 메뉴가 나타납니다.</sys:String>
 
     <!-- 태그 : 옵션 -->
     <sys:String x:Key="TagOpt_StartValue">시작 값</sys:String>
@@ -68,8 +68,8 @@
     <sys:String x:Key="TagOpt_Separator">구분자</sys:String>
     <sys:String x:Key="TagOpt_FromFront">앞에서부터</sys:String>
     <sys:String x:Key="TagOpt_FromBack">뒤에서부터</sys:String>
-    <sys:String x:Key="TagOpt_Delete">선택 삭제</sys:String>
-    <sys:String x:Key="TagOpt_Keep">선택 남기기</sys:String>
+    <sys:String x:Key="TagOpt_SelectDel">선택 삭제</sys:String>
+    <sys:String x:Key="TagOpt_SelectKeep">선택 남기기</sys:String>
 
     <!-- 기본 태그 : 툴팁 -->
     <sys:String x:Key="TagTip_Origin">파일 추가 시점의 이름을 입력합니다.</sys:String>
@@ -91,6 +91,11 @@
     <sys:String x:Key="TagDesc_TimeNow" xml:space="preserve">형식에 맞춘 현재 시간을 입력합니다.
 시: HH, 분: MM, 초: SS</sys:String>
 
+    <!-- 태그: 컨텍스트 메뉴 -->
+    <sys:String x:Key="TagCtx_InsertStart">가장 앞에 삽입</sys:String>
+    <sys:String x:Key="TagCtx_InsertEnd">가장 뒤에 삽입</sys:String>
+    <sys:String x:Key="TagCtx_DeleteTag">태그 삭제</sys:String>
+
     <!-- 스낵바 -->
     <sys:String x:Key="Msg_AddFile">{0}개를 추가합니다.</sys:String>
     <sys:String x:Key="Msg_AddFilePartial">{0}개중 {1}개를 추가합니다.</sys:String>
@@ -104,9 +109,9 @@
     <sys:String x:Key="Msg_NoChangeHistory">이름이 변경된 기록이 없습니다.</sys:String>
     <sys:String x:Key="Msg_ApplyingChanges">이름 변경 적용 중...</sys:String>
     <sys:String x:Key="Msg_ApplyingProgress">이름 변경 적용 중... ({0:0}%)</sys:String>
-    <sys:String x:Key="Msg_LoadingFiles">파일 불러오는 중...</sys:String>
-    <sys:String x:Key="Msg_LoadingFilesProgress">파일 불러오는 중... ({0:0}%)</sys:String>
-    <sys:String x:Key="Msg_UndoingProgress">변경 취소 중... ({0:0}%)</sys:String>
+    <sys:String x:Key="Msg_LoadingFile">파일 불러오는 중...</sys:String>
+    <sys:String x:Key="Msg_LoadingFileProgress">파일 불러오는 중... ({0:0}%)</sys:String>
+    <sys:String x:Key="Msg_UndoProgress">변경 취소 중... ({0:0}%)</sys:String>
 
     <sys:String x:Key="Msg_RenameSuccess">{0}개의 이름을 변경합니다.</sys:String>
     <sys:String x:Key="Msg_UndoSuccess">{0}개의 이름 변경을 취소합니다.</sys:String>

@@ -1,3 +1,5 @@
+using System.Threading.Tasks;
+
 namespace TagNamer.Services;
 
 public enum FolderAddOption

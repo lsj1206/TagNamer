@@ -10,10 +10,17 @@ namespace TagNamer.Services;
 /// </summary>
 public class DialogService : IDialogService
 {
+    private readonly ILanguageService _languageService;
+
+    public DialogService(ILanguageService languageService)
+    {
+        _languageService = languageService;
+    }
+
     /// <summary>
     /// 예/아니오 선택이 필요한 확인 창을 표시합니다.
     /// </summary>
-    public async Task<bool> ShowConfirmationAsync(string message, string title = "확인")
+    public async Task<bool> ShowConfirmationAsync(string message, string title = "")
     {
         // 현재 활성화된 메인 윈도우를 찾아 다이얼로그의 부모로 설정합니다.
         var window = Application.Current.MainWindow;
@@ -21,10 +28,10 @@ public class DialogService : IDialogService
 
         var dialog = new ContentDialog
         {
-            Title = title,
+            Title = string.IsNullOrEmpty(title) ? _languageService.GetString("Dlg_Confirm", "확인") : title,
             Content = message,
-            PrimaryButtonText = "네",
-            CloseButtonText = "아니오",
+            PrimaryButtonText = _languageService.GetString("Dlg_Yes", "네"),
+            CloseButtonText = _languageService.GetString("Dlg_No", "아니오"),
             DefaultButton = ContentDialogButton.Primary,
             Owner = window
         };
@@ -43,17 +50,25 @@ public class DialogService : IDialogService
         if (window == null) return FolderAddOption.Cancel;
 
         // 폴더 개수에 따라 메시지를 다르게 표시합니다.
-        string content = count > 1
-            ? $"'{firstFolderName}' 외 {count - 1}개의 폴더를 어떻게 추가하시겠습니까?"
-            : $"'{firstFolderName}' 폴더를 어떻게 추가하시겠습니까?";
+        string content;
+        if (count > 1)
+        {
+            var multiTemplate = _languageService.GetString("Dlg_Ask_FolderOptionMulti", "'{0}'폴더 외 {1}개의 폴더를 어떻게 추가하시겠습니까?");
+            content = string.Format(multiTemplate, firstFolderName, count - 1);
+        }
+        else
+        {
+            var singleTemplate = _languageService.GetString("Dlg_Ask_FolderOptionSingle", "'{0}' 폴더를 어떻게 추가하시겠습니까?");
+            content = string.Format(singleTemplate, firstFolderName);
+        }
 
         var dialog = new ContentDialog
         {
-            Title = "폴더 추가 옵션",
+            Title = _languageService.GetString("Dlg_Title_FolderOption", "폴더 추가 옵션"),
             Content = content,
-            PrimaryButtonText = "폴더 내 파일 추가",
-            SecondaryButtonText = "폴더 추가",
-            CloseButtonText = "취소",
+            PrimaryButtonText = _languageService.GetString("Dlg_Btn_AddFileInFolder", "폴더 내 파일 추가"),
+            SecondaryButtonText = _languageService.GetString("Dlg_Btn_AddFolder", "폴더 추가"),
+            CloseButtonText = _languageService.GetString("Dlg_Cancel", "취소"),
             DefaultButton = ContentDialogButton.Primary,
             Owner = window
         };
@@ -84,17 +99,17 @@ public class DialogService : IDialogService
 
         var dialog = new ContentDialog
         {
-            Title = "수동 이름 변경",
+            Title = _languageService.GetString("Dlg_Title_ManualRename", "개별 이름 변경"),
             Content = new System.Windows.Controls.StackPanel
             {
                 Children =
                 {
-                    new System.Windows.Controls.TextBlock { Text = "변경할 파일명을 입력하세요:" },
+                    new System.Windows.Controls.TextBlock { Text = _languageService.GetString("Dlg_Ask_ManualRename", "변경할 파일명을 입력하세요:") },
                     textBox
                 }
             },
-            PrimaryButtonText = "확인",
-            CloseButtonText = "취소",
+            PrimaryButtonText = _languageService.GetString("Dlg_Confirm", "확인"),
+            CloseButtonText = _languageService.GetString("Dlg_Cancel", "취소"),
             DefaultButton = ContentDialogButton.Primary,
             Owner = window
         };

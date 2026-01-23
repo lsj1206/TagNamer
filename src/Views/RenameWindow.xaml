@@ -11,7 +11,7 @@
         Width="640"
         ResizeMode="NoResize"
         WindowStartupLocation="CenterOwner"
-        Title="규칙 설정">
+        Title="{DynamicResource Lbl_RenameRule}">
 
     <Grid Margin="12">
         <Grid.RowDefinitions>
@@ -24,7 +24,7 @@
         <StackPanel Grid.Row="0">
             <StackPanel Margin="0,0,0,8" Orientation="Horizontal">
                 <TextBlock Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
-                           Text="규칙을 입력하세요. " />
+                           Text="{DynamicResource Lbl_EnterRule}" />
                 <Image Source="{StaticResource HelpIcon}"
                        Width="14" Height="14"
                        Margin="0,0,0,0"
@@ -34,8 +34,8 @@
                         <ToolTip>
                             <ToolTip.Content>
                                 <StackPanel>
-                                    <TextBlock>태그를 끌어당겨 원하는 위치에 추가할 수 있습니다.</TextBlock>
-                                    <TextBlock>태그를 우클릭 하면 컨텍스트 메뉴가 나타납니다.</TextBlock>
+                                    <TextBlock Text="{DynamicResource Tip_EnterRule1}" />
+                                    <TextBlock Text="{DynamicResource Tip_EnterRule2}" />
                                 </StackPanel>
                             </ToolTip.Content>
                         </ToolTip>
@@ -62,7 +62,7 @@
 
         <!-- 생성된 태그 목록 -->
         <StackPanel Grid.Row="1" Margin="0,8,0,0">
-            <TextBlock FontSize="16" FontWeight="SemiBold" Text="생성된 태그 목록" Margin="0,0,0,8"/>
+            <TextBlock FontSize="16" FontWeight="SemiBold" Text="{DynamicResource Lbl_CreatedTags}" Margin="0,0,0,8"/>
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="80">
                 <ItemsControl Margin="0,-4,0,0" ItemsSource="{Binding TagManager.CreatedTags}">
                     <ItemsControl.ItemsPanel>
@@ -93,7 +93,7 @@
         <!-- 태그 생성 -->
         <StackPanel Grid.Row="2" Margin="0,12,0,8">
             <Separator Margin="0,0,0,12" Background="{DynamicResource SystemControlForegroundBaseLowBrush}"/>
-            <TextBlock FontSize="16" FontWeight="SemiBold" Text="태그 생성" Margin="0,0,0,8"/>
+            <TextBlock FontSize="16" FontWeight="SemiBold" Text="{DynamicResource Lbl_CreateTag}" Margin="0,0,0,8"/>
 
             <Grid>
                 <Grid.RowDefinitions>
@@ -133,7 +133,7 @@
                         Height="32"
                         HorizontalAlignment="Right"
                         VerticalAlignment="Top"
-                        Content="생성"
+                        Content="{DynamicResource Btn_Create}"
                         Style="{StaticResource AccentButtonStyle}"
                         Command="{Binding TagManager.CreateTagCommand}" />
 
@@ -149,7 +149,7 @@
                         <DataTemplate x:Key="NumTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Margin="0,0,8,0">
-                                    <TextBlock Text="시작 값" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_StartValue}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="100"
                                                            VerticalContentAlignment="Center"
                                                            FilterMode="Allow"
@@ -157,7 +157,7 @@
                                                            Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="자리 수" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Digits}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="100"
                                                            VerticalContentAlignment="Center"
                                                            FilterMode="Allow"
@@ -170,7 +170,7 @@
                         <DataTemplate x:Key="AtoZTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Margin="0,0,8,0">
-                                    <TextBlock Text="시작 값" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_StartValue}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="100"
                                                            VerticalContentAlignment="Center"
                                                            FilterMode="Allow"
@@ -178,7 +178,7 @@
                                                            Text="{Binding DataContext.TagManager.OptionStartValue, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </StackPanel>
                                 <StackPanel Margin="0,0,8,0">
-                                    <TextBlock Text="자리 수" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Digits}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="100"
                                                            VerticalContentAlignment="Center"
                                                            FilterMode="Allow"
@@ -186,7 +186,7 @@
                                                            Text="{Binding DataContext.TagManager.OptionDigits, RelativeSource={RelativeSource AncestorType=Window}}" />
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="소문자 수" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_LowerCount}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="100"
                                                            VerticalContentAlignment="Center"
                                                            FilterMode="Allow"
@@ -199,16 +199,16 @@
                         <DataTemplate x:Key="NameTrimTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Margin="0,0,8,0">
-                                    <TextBlock Text="방향" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Direction}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <ToggleButton Width="100"
                                                   Height="32"
                                                   IsChecked="{Binding DataContext.TagManager.OptionSplitFromBack, RelativeSource={RelativeSource AncestorType=Window}}">
                                         <ToggleButton.Style>
                                             <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
-                                                <Setter Property="Content" Value="앞에서부터"/>
+                                                <Setter Property="Content" Value="{DynamicResource TagOpt_FromFront}"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsChecked" Value="True">
-                                                        <Setter Property="Content" Value="뒤에서부터"/>
+                                                        <Setter Property="Content" Value="{DynamicResource TagOpt_FromBack}"/>
                                                     </Trigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -216,7 +216,7 @@
                                     </ToggleButton>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,8,0">
-                                    <TextBlock Text="범위" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                   <TextBlock Text="{DynamicResource TagOpt_Range}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <StackPanel Orientation="Horizontal">
                                          <controls:FilterTextBox Width="60"
                                                                 Height="32"
@@ -234,16 +234,16 @@
                                     </StackPanel>
                                 </StackPanel>
                                 <StackPanel>
-                                    <TextBlock Text="동작" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                   <TextBlock Text="{DynamicResource TagOpt_Action}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <ToggleButton Width="100"
                                                   Height="32"
                                                   IsChecked="{Binding DataContext.TagManager.OptionSplitKeep, RelativeSource={RelativeSource AncestorType=Window}}">
                                         <ToggleButton.Style>
                                             <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
-                                                <Setter Property="Content" Value="선택 삭제"/>
+                                                <Setter Property="Content" Value="{DynamicResource TagOpt_SelectDel}"/>
                                                 <Style.Triggers>
                                                     <Trigger Property="IsChecked" Value="True">
-                                                        <Setter Property="Content" Value="선택 남기기"/>
+                                                        <Setter Property="Content" Value="{DynamicResource TagOpt_SelectKeep}"/>
                                                     </Trigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -256,13 +256,13 @@
                         <DataTemplate x:Key="DateTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Margin="0,0,4,0">
-                                    <TextBlock Text="형식" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Format}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <ComboBox Width="70"
                                               ItemsSource="{Binding DataContext.TagManager.DatePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                               SelectedItem="{Binding DataContext.TagManager.OptionDatePart1, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,4,0">
-                                    <TextBlock Text="구분자" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Separator}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="40"
                                                             Filter="ValidSpecial"
                                                             FilterMode="Allow"
@@ -297,13 +297,13 @@
                         <DataTemplate x:Key="TimeTemplate">
                             <StackPanel Orientation="Horizontal">
                                 <StackPanel Margin="0,0,4,0">
-                                    <TextBlock Text="형식" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Format}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <ComboBox Width="70"
                                               ItemsSource="{Binding DataContext.TagManager.TimePartTypes, RelativeSource={RelativeSource AncestorType=Window}}"
                                               SelectedItem="{Binding DataContext.TagManager.OptionTimePart1, RelativeSource={RelativeSource AncestorType=Window}}"/>
                                 </StackPanel>
                                 <StackPanel Margin="0,0,4,0">
-                                    <TextBlock Text="구분자" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
+                                    <TextBlock Text="{DynamicResource TagOpt_Separator}" FontSize="11" Foreground="Gray" Margin="0,0,0,2"/>
                                     <controls:FilterTextBox Width="40"
                                                             Filter="ValidSpecial"
                                                             FilterMode="Allow"
