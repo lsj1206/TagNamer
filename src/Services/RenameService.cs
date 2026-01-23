@@ -16,6 +16,7 @@ public class RenameService : IRenameService
 {
     private readonly ISnackbarService _snackbarService;
     private readonly IFileService _fileService;
+    private readonly ILanguageService _languageService;
 
     public enum BatchActionType
     {
@@ -23,10 +24,11 @@ public class RenameService : IRenameService
         UndoRename,
     }
 
-    public RenameService(IFileService fileService, ISnackbarService snackbarService)
+    public RenameService(IFileService fileService, ISnackbarService snackbarService, ILanguageService languageService)
     {
         _snackbarService = snackbarService;
         _fileService = fileService;
+        _languageService = languageService;
     }
 
     public void UpdatePreview(IEnumerable<FileItem> items, string ruleFormat, TagManagerViewModel tagManager)
@@ -188,6 +190,59 @@ public class RenameService : IRenameService
         var targetItems = items.Where(i => i.IsChanged).ToList();
         if (targetItems.Count == 0) return;
 
+        var (successCount, errors) = await ExecuteRenameAsync(targetItems, progress, (item) =>
+        {
+            string newFullName = item.NewName + item.BaseExtension;
+            string newPath = Path.Combine(item.Directory, newFullName);
+            SafeRename(item.Path, newPath);
+            item.PreviousPath = item.Path;
+            item.Path = newPath;
+        });
+
+        // 결과 스낵바는 UI 스레드에서 안전하게 호출
+        var app = System.Windows.Application.Current;
+        if (app != null)
+        {
+            await app.Dispatcher.InvokeAsync(() =>
+            {
+                ShowRenameSnackbar(BatchActionType.ApplyRename, successCount, errors);
+            });
+        }
+    }
+
+    /// <summary>
+    /// 이름 되돌리기 작업을 수행합니다.
+    /// </summary>
+    public async Task UndoRenameAsync(IEnumerable<FileItem> items, IProgress<int>? progress = null)
+    {
+        var targetItems = items.Where(i => !string.IsNullOrEmpty(i.PreviousPath)).ToList();
+        if (targetItems.Count == 0) return;
+
+        var (successCount, errors) = await ExecuteRenameAsync(targetItems, progress, (item) =>
+        {
+            SafeRename(item.Path, item.PreviousPath);
+            item.Path = item.PreviousPath;
+            item.PreviousPath = string.Empty;
+        });
+
+        var app = System.Windows.Application.Current;
+        if (app != null)
+        {
+            await app.Dispatcher.InvokeAsync(() =>
+            {
+                ShowRenameSnackbar(BatchActionType.UndoRename, successCount, errors);
+            });
+        }
+    }
+
+    /// <summary>
+    /// 이름 변경 작업의 공통 로직을 수행합니다.
+    /// </summary>
+    private async Task<(int successCount, List<Exception> errors)> ExecuteRenameAsync(
+        List<FileItem> targetItems,
+        IProgress<int>? progress,
+        Action<FileItem> renameAction)
+    {
         int totalCount = targetItems.Count;
         int successCount = 0;
         var errors = new List<Exception>();
@@ -199,12 +254,7 @@ public class RenameService : IRenameService
                 var item = targetItems[i];
                 try
                 {
-                    string newFullName = item.NewName + item.BaseExtension;
-                    string newPath = Path.Combine(item.Directory, newFullName);
-
-                    SafeRename(item.Path, newPath);
-                    item.PreviousPath = item.Path;
-                    item.Path = newPath;
+                    renameAction(item);
                     successCount++;
                 }
                 catch (Exception ex)
@@ -220,53 +270,7 @@ public class RenameService : IRenameService
             }
         });
 
-        // 결과 스낵바는 UI 스레드에서 안전하게 호출
-        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            ShowRenameSnackbar(BatchActionType.ApplyRename, successCount, errors);
-        });
-    }
-
-    /// <summary>
-    /// 이름 되돌리기 작업을 수행합니다.
-    /// </summary>
-    public async Task UndoRenameAsync(IEnumerable<FileItem> items, IProgress<int>? progress = null)
-    {
-        var targetItems = items.Where(i => !string.IsNullOrEmpty(i.PreviousPath)).ToList();
-        if (targetItems.Count == 0) return;
-
-        int totalCount = targetItems.Count;
-        int successCount = 0;
-        var errors = new List<Exception>();
-
-        await Task.Run(() =>
-        {
-            for (int i = 0; i < totalCount; i++)
-            {
-                var item = targetItems[i];
-                try
-                {
-                    SafeRename(item.Path, item.PreviousPath);
-                    item.Path = item.PreviousPath;
-                    item.PreviousPath = string.Empty;
-                    successCount++;
-                }
-                catch (Exception ex)
-                {
-                    errors.Add(ex);
-                }
-
-                if (progress != null && (i % 10 == 0 || i == totalCount - 1))
-                {
-                    progress.Report(i + 1);
-                }
-            }
-        });
-
-        await System.Windows.Application.Current.Dispatcher.InvokeAsync(() =>
-        {
-            ShowRenameSnackbar(BatchActionType.UndoRename, successCount, errors);
-        });
+        return (successCount, errors);
     }
 
     /// <summary>
@@ -286,24 +290,25 @@ public class RenameService : IRenameService
         // 일부 성공
         if (successCount > 0)
         {
-            _snackbarService.Show($"{successCount}개 성공, {errors.Count}개 실패했습니다.", SnackbarType.Warning);
+            var partialMsg = _languageService.GetString("Msg_PartialSuccess");
+            _snackbarService.Show(string.Format(partialMsg, successCount, errors.Count), SnackbarType.Warning);
             return;
         }
         // 전부 실패
-        _snackbarService.Show(GetFailureMessage(actionType, errors), SnackbarType.Error);
+        _snackbarService.Show(GetFailureMessage(errors), SnackbarType.Error);
     }
 
-    private static string GetSuccessMessage(BatchActionType actionType, int successCount)
+    private string GetSuccessMessage(BatchActionType actionType, int successCount)
     {
         return actionType switch
         {
-            BatchActionType.ApplyRename => $"{successCount}개의 이름을 변경합니다.",
-            BatchActionType.UndoRename => $"{successCount}개의 이름 변경을 취소합니다.",
-            _ => $"{successCount}개의 작업이 완료되었습니다."
+            BatchActionType.ApplyRename => string.Format(_languageService.GetString("Msg_RenameSuccess"), successCount),
+            BatchActionType.UndoRename => string.Format(_languageService.GetString("Msg_UndoSuccess"), successCount),
+            _ => string.Format(_languageService.GetString("Msg_OperationComplete"), successCount)
         };
     }
 
-    private static string GetFailureMessage(BatchActionType actionType, IReadOnlyList<Exception> errors)
+    private string GetFailureMessage(IReadOnlyList<Exception> errors)
     {
         Exception firstError = errors[0];
 
@@ -311,15 +316,15 @@ public class RenameService : IRenameService
         uint hr = (uint)firstError.HResult;
         if (firstError is PathTooLongException || hr == 0x800700CE || hr == 0x8007007B)
         {
-            return "실패 : 파일명 또는 경로가 너무 깁니다 (최대 255자).";
+            return _languageService.GetString("Err_PathTooLong");
         }
 
         return firstError switch
         {
-            FileNotFoundException => "실패 : 원본을 찾을 수 없습니다.",
-            UnauthorizedAccessException => "실패 : 권한이 없습니다.",
-            IOException => "실패 : 이미 존재하거나 사용할 수 없는 이름입니다.",
-            _ => $"실패 : {errors.Count}개 작업 도중 오류가 발생했습니다."
+            FileNotFoundException => _languageService.GetString("Err_FileNotFound"),
+            UnauthorizedAccessException => _languageService.GetString("Err_Unauthorized"),
+            IOException => _languageService.GetString("Err_IO"),
+            _ => string.Format(_languageService.GetString("Msg_RenameFailure"), errors.Count)
         };
     }
 
