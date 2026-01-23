@@ -28,7 +28,10 @@ public class SnackbarService : ISnackbarService
 
         try
         {
-            await System.Windows.Application.Current.Dispatcher.InvokeAsync(async () =>
+            var app = System.Windows.Application.Current;
+            if (app == null) return;
+
+            await app.Dispatcher.InvokeAsync(async () =>
             {
                 // 이미 표시 중이라면 먼저 내림
                 if (_viewModel.IsVisible && _viewModel.IsAnimating)
@@ -71,7 +74,10 @@ public class SnackbarService : ISnackbarService
     public void ShowProgress(string message)
     {
         // 큐 처리는 생략하고 즉시 반영합니다.
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        var app = System.Windows.Application.Current;
+        if (app == null) return;
+
+        app.Dispatcher.Invoke(() =>
         {
             _timer?.Stop(); // 기존 타이머 중지 (자동 닫힘 방지)
 
@@ -84,7 +90,10 @@ public class SnackbarService : ISnackbarService
 
     public void UpdateProgress(string message)
     {
-        System.Windows.Application.Current.Dispatcher.Invoke(() =>
+        var app = System.Windows.Application.Current;
+        if (app == null) return;
+
+        app.Dispatcher.Invoke(() =>
         {
             if (_viewModel.IsVisible)
             {
@@ -95,7 +104,10 @@ public class SnackbarService : ISnackbarService
 
     private void CloseInternal()
     {
-        System.Windows.Application.Current.Dispatcher.Invoke(async () =>
+        var app = System.Windows.Application.Current;
+        if (app == null) return;
+
+        app.Dispatcher.Invoke(async () =>
         {
             _viewModel.IsAnimating = false;
             await Task.Delay(350); // 퇴장 애니메이션 대기
