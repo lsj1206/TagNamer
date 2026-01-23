@@ -30,11 +30,11 @@ public partial class TagManagerViewModel : ObservableObject
 
     public string TagTypeDescription => SelectedTagType switch
     {
-        "[Number]" => _languageService.GetString("TagDesc_Number", "시작 값부터 순차적으로 증가하는 숫자를 입력합니다."),
-        "[AtoZ]" => _languageService.GetString("TagDesc_AtoZ", "시작 알파벳부터 A-Z 순서로 알파벳을 입력합니다."),
-        "[Name.trim]" => _languageService.GetString("TagDesc_NameTrim", "파일명에서 설정한 범위를 잘라내거나 유지합니다."),
-        "[Today]" => _languageService.GetString("TagDesc_Today", "형식에 맞춘 오늘 날짜를 입력합니다.\n년: YYYY/YY, 월: MM, 일: DD"),
-        "[Time.now]" => _languageService.GetString("TagDesc_TimeNow", "형식에 맞춘 현재 시간을 입력합니다.\n시: HH, 분: MM, 초: SS"),
+        "[Number]" => _languageService.GetString("TagDesc_Number"),
+        "[AtoZ]" => _languageService.GetString("TagDesc_AtoZ"),
+        "[Name.trim]" => _languageService.GetString("TagDesc_NameTrim"),
+        "[Today]" => _languageService.GetString("TagDesc_Today"),
+        "[Time.now]" => _languageService.GetString("TagDesc_TimeNow"),
         _ => ""
     };
 
@@ -142,7 +142,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[Origin]",
             Type = TagType.NameOrigin,
-            ToolTip = _languageService.GetString("TagTip_Origin", "파일 추가 시점의 이름을 입력합니다."),
+            ToolTip = _languageService.GetString("TagTip_Origin"),
             IsStandard = true
         });
 
@@ -150,7 +150,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[Name]",
             Type = TagType.NameCurrent,
-            ToolTip = _languageService.GetString("TagTip_Name", "파일의 현재 이름을 입력합니다.\n변경 적용 후 값이 변경됩니다."),
+            ToolTip = _languageService.GetString("TagTip_Name"),
             IsStandard = true
         });
 
@@ -158,7 +158,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[OnlyNumber]",
             Type = TagType.OnlyNumber,
-            ToolTip = _languageService.GetString("TagTip_OnlyNumber", "파일명에서 숫자만 남기고 제거합니다."),
+            ToolTip = _languageService.GetString("TagTip_OnlyNumber"),
             IsStandard = true,
             IsUnique = true,
             ExclusiveGroup = "FilterGroup,CaseConversion"
@@ -168,7 +168,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[OnlyLetter]",
             Type = TagType.OnlyLetter,
-            ToolTip = _languageService.GetString("TagTip_OnlyLetter", "파일명에서 숫자와 특수문자를 제거합니다."),
+            ToolTip = _languageService.GetString("TagTip_OnlyLetter"),
             IsStandard = true,
             IsUnique = true,
             ExclusiveGroup = "FilterGroup"
@@ -178,7 +178,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[ToUpper]",
             Type = TagType.ToUpper,
-            ToolTip = _languageService.GetString("TagTip_ToUpper", "영문을 대문자로 변경합니다.\n태그가 생성하는 문자에도 적용됩니다."),
+            ToolTip = _languageService.GetString("TagTip_ToUpper"),
             IsStandard = true,
             IsUnique = true,
             ExclusiveGroup = "CaseConversion"
@@ -188,7 +188,7 @@ public partial class TagManagerViewModel : ObservableObject
         {
             TagName = "[ToLower]",
             Type = TagType.ToLower,
-            ToolTip = _languageService.GetString("TagTip_ToLower", "영문을 소문자로 변경합니다.\n태그가 생성하는 문자에도 적용됩니다."),
+            ToolTip = _languageService.GetString("TagTip_ToLower"),
             IsStandard = true,
             IsUnique = true,
             ExclusiveGroup = "CaseConversion"
@@ -225,10 +225,10 @@ public partial class TagManagerViewModel : ObservableObject
                             StartValue = long.Parse(OptionStartValue),
                             Digits = int.Parse(OptionDigits)
                         },
-                        ToolTip = $"{_languageService.GetString("TagOpt_StartValue", "시작 값")} : {OptionStartValue}\n{_languageService.GetString("TagOpt_Digits", "자리 수")} : {OptionDigits}"
+                        ToolTip = $"{_languageService.GetString("TagOpt_StartValue")} : {OptionStartValue}\n{_languageService.GetString("TagOpt_Digits")} : {OptionDigits}"
                     };
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_StartValue", "시작 값")} : {OptionStartValue}");
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Digits", "자리 수")} : {OptionDigits}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_StartValue")} : {OptionStartValue}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Digits")} : {OptionDigits}");
                 }
                 break;
             case "[AtoZ]":
@@ -258,11 +258,11 @@ public partial class TagManagerViewModel : ObservableObject
                             Digits = digits,
                             LowerCount = int.Parse(OptionLowerCount)
                         },
-                        ToolTip = $"{_languageService.GetString("TagOpt_StartValue", "시작 값")} : {OptionStartValue}\n{_languageService.GetString("TagOpt_Digits", "자리 수")} : {OptionDigits}\n{_languageService.GetString("TagOpt_LowerCount", "소문자 수")} : {OptionLowerCount}"
+                        ToolTip = $"{_languageService.GetString("TagOpt_StartValue")} : {OptionStartValue}\n{_languageService.GetString("TagOpt_Digits")} : {OptionDigits}\n{_languageService.GetString("TagOpt_LowerCount")} : {OptionLowerCount}"
                     };
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_StartValue", "시작 값")} : {OptionStartValue}");
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Digits", "자리 수")} : {OptionDigits}");
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_LowerCount", "소문자 수")} : {OptionLowerCount}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_StartValue")} : {OptionStartValue}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Digits")} : {OptionDigits}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_LowerCount")} : {OptionLowerCount}");
                 }
                 break;
             case "[Today]":
@@ -280,7 +280,7 @@ public partial class TagManagerViewModel : ObservableObject
                     },
                     ToolTip = GetDateTimeToolTip(OptionDatePart1, OptionDateSep1, OptionDatePart2, OptionDateSep2, OptionDatePart3)
                 };
-                newItem.Options.Add($"{_languageService.GetString("TagOpt_Format", "형식")} : {newItem.ToolTip}");
+                newItem.Options.Add($"{_languageService.GetString("TagOpt_Format")} : {newItem.ToolTip}");
                 break;
             case "[Time.now]":
                 newItem = new TagItem
@@ -297,7 +297,7 @@ public partial class TagManagerViewModel : ObservableObject
                     },
                     ToolTip = GetDateTimeToolTip(OptionTimePart1, OptionTimeSep1, OptionTimePart2, OptionTimeSep2, OptionTimePart3)
                 };
-                newItem.Options.Add($"{_languageService.GetString("TagOpt_Format", "형식")} : {newItem.ToolTip}");
+                newItem.Options.Add($"{_languageService.GetString("TagOpt_Format")} : {newItem.ToolTip}");
                 break;
             case "[Name.trim]":
                 {
@@ -327,11 +327,11 @@ public partial class TagManagerViewModel : ObservableObject
                             StartCount = start,
                             EndCount = end
                         },
-                        ToolTip = $"{_languageService.GetString("TagOpt_Direction", "방향")} : {(OptionSplitFromBack ? _languageService.GetString("TagOpt_FromBack", "뒤에서부터") : _languageService.GetString("TagOpt_FromFront", "앞에서부터"))}\n{_languageService.GetString("TagOpt_Range", "범위")} : {start} ~ {end}\n{_languageService.GetString("TagOpt_Action", "동작")} : {(OptionSplitKeep ? _languageService.GetString("TagOpt_SelectKeep", "남기기") : _languageService.GetString("TagOpt_SelectDel", "삭제"))}"
+                        ToolTip = $"{_languageService.GetString("TagOpt_Direction")} : {(OptionSplitFromBack ? _languageService.GetString("TagOpt_FromBack") : _languageService.GetString("TagOpt_FromFront"))}\n{_languageService.GetString("TagOpt_Range")} : {start} ~ {end}\n{_languageService.GetString("TagOpt_Action")} : {(OptionSplitKeep ? _languageService.GetString("TagOpt_SelectKeep") : _languageService.GetString("TagOpt_SelectDel"))}"
                     };
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Direction", "방향")} : {(OptionSplitFromBack ? _languageService.GetString("TagOpt_FromBack", "뒤에서부터") : _languageService.GetString("TagOpt_FromFront", "앞에서부터"))}");
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Range", "범위")} : {start} ~ {end}");
-                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Action", "동작")} : {(OptionSplitKeep ? _languageService.GetString("TagOpt_SelectKeep", "남기기") : _languageService.GetString("TagOpt_SelectDel", "삭제"))}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Direction")} : {(OptionSplitFromBack ? _languageService.GetString("TagOpt_FromBack") : _languageService.GetString("TagOpt_FromFront"))}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Range")} : {start} ~ {end}");
+                    newItem.Options.Add($"{_languageService.GetString("TagOpt_Action")} : {(OptionSplitKeep ? _languageService.GetString("TagOpt_SelectKeep") : _languageService.GetString("TagOpt_SelectDel"))}");
                 }
                 break;
         }
@@ -379,12 +379,12 @@ public partial class TagManagerViewModel : ObservableObject
             {
                 tag.ToolTip = tag.TagName switch
                 {
-                    "[Origin]" => _languageService.GetString("TagTip_Origin", "파일 추가 시점의 이름을 입력합니다."),
-                    "[Name]" => _languageService.GetString("TagTip_Name", "파일의 현재 이름을 입력합니다.\n변경 적용 후 값이 변경됩니다."),
-                    "[OnlyNumber]" => _languageService.GetString("TagTip_OnlyNumber", "파일명에서 숫자만 남기고 제거합니다."),
-                    "[OnlyLetter]" => _languageService.GetString("TagTip_OnlyLetter", "파일명에서 숫자와 특수문자를 제거합니다."),
-                    "[ToUpper]" => _languageService.GetString("TagTip_ToUpper", "영문을 대문자로 변경합니다.\n태그가 생성하는 문자에도 적용됩니다."),
-                    "[ToLower]" => _languageService.GetString("TagTip_ToLower", "영문을 소문자로 변경합니다.\n태그가 생성하는 문자에도 적용됩니다."),
+                "[Origin]" => _languageService.GetString("TagTip_Origin"),
+                "[Name]" => _languageService.GetString("TagTip_Name"),
+                "[OnlyNumber]" => _languageService.GetString("TagTip_OnlyNumber"),
+                "[OnlyLetter]" => _languageService.GetString("TagTip_OnlyLetter"),
+                "[ToUpper]" => _languageService.GetString("TagTip_ToUpper"),
+                "[ToLower]" => _languageService.GetString("TagTip_ToLower"),
                     _ => tag.ToolTip
                 };
             }

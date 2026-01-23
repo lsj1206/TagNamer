@@ -161,7 +161,7 @@ public partial class MainViewModel : ObservableObject
             var dialog = new OpenFolderDialog
             {
                 Multiselect = true,
-                Title = _languageService.GetString("Dlg_Title_AddFolder", "폴더 추가")
+                Title = _languageService.GetString("Dlg_Title_AddFolder")
             };
 
             if (dialog.ShowDialog() == true)
@@ -174,7 +174,7 @@ public partial class MainViewModel : ObservableObject
             var dialog = new OpenFileDialog
             {
                 Multiselect = true,
-                Title = _languageService.GetString("Dlg_Title_AddFile", "파일 추가")
+                Title = _languageService.GetString("Dlg_Title_AddFile")
             };
 
             if (dialog.ShowDialog() == true)
@@ -233,7 +233,7 @@ public partial class MainViewModel : ObservableObject
 
             if (currentCount + addCount > MaxItemCount)
             {
-                var msg = _languageService.GetString("Msg_MaxItemExceeded", "총 파일 개수가 {0:N0}개를 초과하여 작업을 취소합니다.\n(현재: {1:N0} + 추가: {2:N0})");
+                var msg = _languageService.GetString("Msg_MaxItemExceeded");
                 _snackbarService.Show(string.Format(msg, MaxItemCount, currentCount, addCount), Services.SnackbarType.Error);
                 return;
             }
@@ -241,7 +241,7 @@ public partial class MainViewModel : ObservableObject
             if (addCount == 0) return;
 
             // 진행률 표시 시작
-            _snackbarService.ShowProgress(_languageService.GetString("Msg_LoadingFile", "파일 불러오는 중..."));
+            _snackbarService.ShowProgress(_languageService.GetString("Msg_LoadingFile"));
 
             // 아이템 생성 및 추가
             var newItems = await Task.Run(() =>
@@ -260,7 +260,7 @@ public partial class MainViewModel : ObservableObject
                     if (i % 100 == 0 || i == addCount - 1)
                     {
                         double percent = (double)(i + 1) / addCount * 100;
-                        var progressMsg = _languageService.GetString("Msg_LoadingFileProgress", "파일 불러오는 중... ({0:0}%)");
+                        var progressMsg = _languageService.GetString("Msg_LoadingFileProgress");
                         _snackbarService.UpdateProgress(string.Format(progressMsg, percent));
                     }
                 }
@@ -271,7 +271,7 @@ public partial class MainViewModel : ObservableObject
         }
         catch (Exception ex)
         {
-            var errorMsg = _languageService.GetString("Msg_FileAddError", "파일 추가 중 오류가 발생했습니다: {0}");
+            var errorMsg = _languageService.GetString("Msg_FileAddError");
             _snackbarService.Show(string.Format(errorMsg, ex.Message), Services.SnackbarType.Error);
         }
         finally
@@ -297,16 +297,16 @@ public partial class MainViewModel : ObservableObject
         // 스낵바 알림
         if (successCount == 0 && totalCount > 0)
         {
-            _snackbarService.Show(_languageService.GetString("Msg_AlreadyExists", "목록에 이미 존재합니다."), Services.SnackbarType.Error);
+            _snackbarService.Show(_languageService.GetString("Msg_AlreadyExists"), Services.SnackbarType.Error);
         }
         else if (successCount < totalCount)
         {
-            var partialMsg = _languageService.GetString("Msg_AddFilePartial", "{0}개중 {1}개를 추가합니다.");
+            var partialMsg = _languageService.GetString("Msg_AddFilePartial");
             _snackbarService.Show(string.Format(partialMsg, totalCount, successCount), Services.SnackbarType.Warning);
         }
         else if (successCount > 0)
         {
-            var successMsg = _languageService.GetString("Msg_AddFile", "{0}개를 추가합니다.");
+            var successMsg = _languageService.GetString("Msg_AddFile");
             _snackbarService.Show(string.Format(successMsg, successCount), Services.SnackbarType.Success);
         }
     }
@@ -317,13 +317,13 @@ public partial class MainViewModel : ObservableObject
         if (FileList.Items.Count == 0) return;
 
         var result = await _dialogService.ShowConfirmationAsync(
-                _languageService.GetString("Dlg_Ask_ReorderIndex", "번호를 현재 순서대로 정렬하시겠습니까?\n기존 번호는 초기화됩니다."),
-                _languageService.GetString("Dlg_Title_ReorderIndex", "번호 재정렬"));
+                _languageService.GetString("Dlg_Ask_ReorderIndex"),
+                _languageService.GetString("Dlg_Title_ReorderIndex"));
 
         if (result)
         {
             FileList.ReorderIndex();
-            _snackbarService.Show(_languageService.GetString("Msg_ReorderIndex", "번호를 재정렬합니다."), Services.SnackbarType.Success);
+            _snackbarService.Show(_languageService.GetString("Msg_ReorderIndex"), Services.SnackbarType.Success);
         }
     }
 
@@ -350,20 +350,20 @@ public partial class MainViewModel : ObservableObject
             string message;
             if (count == 1)
             {
-                message = _languageService.GetString("Dlg_Ask_DeleteSingle", "선택된 파일을 목록에서 삭제하시겠습니까?");
+                message = _languageService.GetString("Dlg_Ask_DeleteSingle");
             }
             else
             {
-                var multiMsg = _languageService.GetString("Dlg_Ask_DeleteMulti", "{0}개의 선택된 파일을 목록에서 삭제하시겠습니까?");
+                var multiMsg = _languageService.GetString("Dlg_Ask_DeleteMulti");
                 message = string.Format(multiMsg, count);
             }
 
-            var result = await _dialogService.ShowConfirmationAsync(message, _languageService.GetString("Dlg_Title_DeleteConfirm", "삭제 확인"));
+            var result = await _dialogService.ShowConfirmationAsync(message, _languageService.GetString("Dlg_Title_DeleteConfirm"));
             if (!result) return;
         }
 
         FileList.RemoveItems(itemsToDelete);
-        var removedMsg = _languageService.GetString("Msg_RemoveFile", "{0}개를 목록에서 제거합니다.");
+        var removedMsg = _languageService.GetString("Msg_RemoveFile");
         _snackbarService.Show(string.Format(removedMsg, count), Services.SnackbarType.Warning);
     }
 
@@ -372,12 +372,12 @@ public partial class MainViewModel : ObservableObject
     {
         if (FileList.Items.Count == 0) return;
         var result = await _dialogService.ShowConfirmationAsync(
-            _languageService.GetString("Dlg_Ask_ClearList", "파일 목록을 전부 삭제하시겠습니까?"),
-            _languageService.GetString("Dlg_Title_ClearList", "목록 삭제"));
+            _languageService.GetString("Dlg_Ask_ClearList"),
+            _languageService.GetString("Dlg_Title_ClearList"));
         if (result)
         {
             FileList.Clear();
-            _snackbarService.Show(_languageService.GetString("Msg_ClearList", "목록을 전부 제거합니다."), Services.SnackbarType.Success);
+            _snackbarService.Show(_languageService.GetString("Msg_ClearList"), Services.SnackbarType.Success);
         }
     }
 
@@ -408,13 +408,13 @@ public partial class MainViewModel : ObservableObject
         // 전체 리스트를 확인하지만 변경된 것만 실제 작업
         if (!FileList.Items.Any(i => i.IsChanged))
         {
-            _snackbarService.Show(_languageService.GetString("Msg_NoRuleChanges", "변경된 규칙이 없습니다."), Services.SnackbarType.Info);
+            _snackbarService.Show(_languageService.GetString("Msg_NoRuleChanges"), Services.SnackbarType.Info);
             return;
         }
 
         // 실제 이름 변경 작업을 수행합니다. (서비스 내부에서 결과 보고)
         IsBusy = true;
-        _snackbarService.ShowProgress(_languageService.GetString("Msg_ApplyingChanges", "이름 변경 적용 중..."));
+        _snackbarService.ShowProgress(_languageService.GetString("Msg_ApplyingChanges"));
 
         try
         {
@@ -422,7 +422,7 @@ public partial class MainViewModel : ObservableObject
             var progress = new Progress<int>(current =>
             {
                 double percent = (double)current / targetCount * 100;
-                var applyingProgressMsg = _languageService.GetString("Msg_ApplyingProgress", "이름 변경 적용 중... ({0:0}%)");
+                var applyingProgressMsg = _languageService.GetString("Msg_ApplyingProgress");
                 _snackbarService.UpdateProgress(string.Format(applyingProgressMsg, percent));
             });
 
@@ -455,12 +455,12 @@ public partial class MainViewModel : ObservableObject
         var undoTargets = FileList.Items.Where(i => !string.IsNullOrEmpty(i.PreviousPath)).ToList();
         if (undoTargets.Count == 0)
         {
-            _snackbarService.Show(_languageService.GetString("Msg_NoChangeHistory", "변경된 기록이 없습니다."), Services.SnackbarType.Info);
+            _snackbarService.Show(_languageService.GetString("Msg_NoChangeHistory"), Services.SnackbarType.Info);
             return;
         }
 
         IsBusy = true;
-        _snackbarService.ShowProgress(_languageService.GetString("Msg_UndoingChanges", "변경 취소 중..."));
+        _snackbarService.ShowProgress(_languageService.GetString("Msg_UndoingChanges"));
 
         try
         {
@@ -468,7 +468,7 @@ public partial class MainViewModel : ObservableObject
             var progress = new Progress<int>(current =>
             {
                 double percent = (double)current / targetCount * 100;
-                var undoProgressMsg = _languageService.GetString("Msg_UndoProgress", "변경 취소 중... ({0:0}%)");
+                var undoProgressMsg = _languageService.GetString("Msg_UndoProgress");
                 _snackbarService.UpdateProgress(string.Format(undoProgressMsg, percent));
             });
 
@@ -485,14 +485,14 @@ public partial class MainViewModel : ObservableObject
     {
         SortOptions.Clear();
 
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_Index", "번호"), Type = SortType.AddIndex });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_NameIndex", "이름-번호"), Type = SortType.NameNumber });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_NamePath", "이름-경로"), Type = SortType.NamePath });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_PathIndex", "경로-번호"), Type = SortType.PathNumber });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_PathName", "경로-이름"), Type = SortType.PathName });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_Size", "크기"), Type = SortType.Size });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_CreatedDate", "생성일"), Type = SortType.CreatedDate });
-        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_ModifiedDate", "수정일"), Type = SortType.ModifiedDate });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_Index"), Type = SortType.AddIndex });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_NameIndex"), Type = SortType.NameNumber });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_NamePath"), Type = SortType.NamePath });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_PathIndex"), Type = SortType.PathNumber });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_PathName"), Type = SortType.PathName });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_Size"), Type = SortType.Size });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_CreatedDate"), Type = SortType.CreatedDate });
+        SortOptions.Add(new SortOption { Display = _languageService.GetString("Sort_ModifiedDate"), Type = SortType.ModifiedDate });
     }
 
     // 언어 변경 시 호출

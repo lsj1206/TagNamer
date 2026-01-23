@@ -37,7 +37,7 @@ public partial class RenameWindow : System.Windows.Window
             // 가장 앞에 삽입
             var insertFirstItem = new MenuItem
             {
-                Header = languageService?.GetString("TagCtx_InsertStart", "가장 앞에 삽입") ?? "가장 앞에 삽입"
+                Header = languageService?.GetString("TagCtx_InsertStart")
             };
             insertFirstItem.Click += (s, args) =>
             {
@@ -53,7 +53,7 @@ public partial class RenameWindow : System.Windows.Window
             // 가장 뒤에 삽입
             var insertLastItem = new MenuItem
             {
-                Header = languageService?.GetString("TagCtx_InsertEnd", "가장 뒤에 삽입") ?? "가장 뒤에 삽입"
+                Header = languageService?.GetString("TagCtx_InsertEnd")
             };
             insertLastItem.Click += (s, args) =>
             {
@@ -73,7 +73,7 @@ public partial class RenameWindow : System.Windows.Window
                 // 태그 삭제
                 var deleteItem = new MenuItem
                 {
-                    Header = languageService?.GetString("TagCtx_DeleteTag", "태그 삭제") ?? "태그 삭제"
+                    Header = languageService?.GetString("TagCtx_DeleteTag")
                 };
                 deleteItem.Click += (s, args) =>
                 {

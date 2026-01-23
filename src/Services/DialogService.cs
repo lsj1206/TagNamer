@@ -28,10 +28,10 @@ public class DialogService : IDialogService
 
         var dialog = new ContentDialog
         {
-            Title = string.IsNullOrEmpty(title) ? _languageService.GetString("Dlg_Confirm", "확인") : title,
+            Title = string.IsNullOrEmpty(title) ? _languageService.GetString("Dlg_Confirm") : title,
             Content = message,
-            PrimaryButtonText = _languageService.GetString("Dlg_Yes", "네"),
-            CloseButtonText = _languageService.GetString("Dlg_No", "아니오"),
+            PrimaryButtonText = _languageService.GetString("Dlg_Yes"),
+            CloseButtonText = _languageService.GetString("Dlg_No"),
             DefaultButton = ContentDialogButton.Primary,
             Owner = window
         };
@@ -53,22 +53,22 @@ public class DialogService : IDialogService
         string content;
         if (count > 1)
         {
-            var multiTemplate = _languageService.GetString("Dlg_Ask_FolderOptionMulti", "'{0}'폴더 외 {1}개의 폴더를 어떻게 추가하시겠습니까?");
+            var multiTemplate = _languageService.GetString("Dlg_Ask_FolderOptionMulti");
             content = string.Format(multiTemplate, firstFolderName, count - 1);
         }
         else
         {
-            var singleTemplate = _languageService.GetString("Dlg_Ask_FolderOptionSingle", "'{0}' 폴더를 어떻게 추가하시겠습니까?");
+            var singleTemplate = _languageService.GetString("Dlg_Ask_FolderOptionSingle");
             content = string.Format(singleTemplate, firstFolderName);
         }
 
         var dialog = new ContentDialog
         {
-            Title = _languageService.GetString("Dlg_Title_FolderOption", "폴더 추가 옵션"),
+            Title = _languageService.GetString("Dlg_Title_FolderOption"),
             Content = content,
-            PrimaryButtonText = _languageService.GetString("Dlg_Btn_AddFileInFolder", "폴더 내 파일 추가"),
-            SecondaryButtonText = _languageService.GetString("Dlg_Btn_AddFolder", "폴더 추가"),
-            CloseButtonText = _languageService.GetString("Dlg_Cancel", "취소"),
+            PrimaryButtonText = _languageService.GetString("Dlg_Btn_AddFileInFolder"),
+            SecondaryButtonText = _languageService.GetString("Dlg_Btn_AddFolder"),
+            CloseButtonText = _languageService.GetString("Dlg_Cancel"),
             DefaultButton = ContentDialogButton.Primary,
             Owner = window
         };
@@ -99,17 +99,17 @@ public class DialogService : IDialogService
 
         var dialog = new ContentDialog
         {
-            Title = _languageService.GetString("Dlg_Title_ManualRename", "개별 이름 변경"),
+            Title = _languageService.GetString("Dlg_Title_ManualRename"),
             Content = new System.Windows.Controls.StackPanel
             {
                 Children =
                 {
-                    new System.Windows.Controls.TextBlock { Text = _languageService.GetString("Dlg_Ask_ManualRename", "변경할 파일명을 입력하세요:") },
+                    new System.Windows.Controls.TextBlock { Text = _languageService.GetString("Dlg_Ask_ManualRename") },
                     textBox
                 }
             },
-            PrimaryButtonText = _languageService.GetString("Dlg_Confirm", "확인"),
-            CloseButtonText = _languageService.GetString("Dlg_Cancel", "취소"),
+            PrimaryButtonText = _languageService.GetString("Dlg_Confirm"),
+            CloseButtonText = _languageService.GetString("Dlg_Cancel"),
             DefaultButton = ContentDialogButton.Primary,
             Owner = window
         };
