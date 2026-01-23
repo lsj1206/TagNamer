@@ -1,12 +1,14 @@
 # <img src="./src/Assets/App.ico" width="32" height="32" /> TagNamer
 
 > **태그로 간편하게 사용하는** 윈도우 파일명 일괄 변경 프로그램
+
 > A simple Windows bulk file renaming tool **using tags**
 
-![Project Version](https://img.shields.io/badge/version-v1.0.0-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/platform-Windows-lightgrey?style=for-the-badge)
 ![Framework](https://img.shields.io/badge/.NET-10.0-green?style=for-the-badge)
 ![Language](https://img.shields.io/badge/language-Korean-blue?style=for-the-badge)
+![Language](https://img.shields.io/badge/language-English-blue?style=for-the-badge)
+![Project Version](https://img.shields.io/badge/version-v1.2.0-blue?style=for-the-badge)
 
 ---
 
