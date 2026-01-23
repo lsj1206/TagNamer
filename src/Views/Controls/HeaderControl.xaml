@@ -4,6 +4,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:local="clr-namespace:TagNamer"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
              mc:Ignorable="d">
 
     <!-- 상단 정보 -->
@@ -36,7 +37,7 @@
 
              <!-- 버전 정보 -->
             <TextBlock Grid.Column="2"
-                       Margin="15,0,15,0"
+                       Margin="15,0,10,0"
                        VerticalAlignment="Center"
                        FontSize="14"
                        FontWeight="Normal"
@@ -45,22 +46,20 @@
 
             <!-- 언어 선택 토글 버튼 -->
             <ToggleButton Grid.Column="3"
-                          Width="34"
-                          Height="24"
-                          Padding="8,4"
-                          VerticalAlignment="Center"
-                          IsChecked="{Binding SelectedLanguage, Converter={StaticResource LanguageToBoolConverter}, Mode=TwoWay}">
+                            Width="32"
+                            Height="20"
+                            Padding="0"
+                            FontSize="11"
+                            FontWeight="SemiBold"
+                            VerticalAlignment="Center"
+                            IsChecked="{Binding SelectedLanguage, Converter={StaticResource LanguageToBoolConverter}, Mode=TwoWay}"
+                            ToolTip="{DynamicResource Header_Language}">
                 <ToggleButton.Style>
-                    <Style TargetType="ToggleButton">
-                        <Setter Property="Content" Value="KO" />
-                        <Setter Property="FontSize" Value="12" />
-                        <Setter Property="BorderThickness" Value="1" />
-                        <Setter Property="BorderBrush" Value="{DynamicResource SystemControlBackgroundBaseMediumBrush}" />
-                        <Setter Property="Background" Value="{DynamicResource SystemControlBackgroundAltHighBrush}" />
-                        <Setter Property="Foreground" Value="{DynamicResource SystemControlForegroundBaseHighBrush}" />
+                    <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
+                        <Setter Property="Content" Value="EN"/>
                         <Style.Triggers>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="EN" />
+                                <Setter Property="Content" Value="KO"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>

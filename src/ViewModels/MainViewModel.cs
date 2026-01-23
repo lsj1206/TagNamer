@@ -45,7 +45,7 @@ public partial class MainViewModel : ObservableObject
     private const int MaxItemCount = 50000;
 
     [ObservableProperty]
-    private string selectedLanguage = "ko-KR";
+    private string selectedLanguage = "en-US";
 
     [ObservableProperty]
     private bool isBusy = false;

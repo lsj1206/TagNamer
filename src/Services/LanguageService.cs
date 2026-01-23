@@ -64,8 +64,8 @@ public class LanguageService : ILanguageService
         }
         catch
         {
-            // 감지 실패 시 기본값은 한국어
-            return "ko-KR";
+            // 감지 실패 시 기본값은 영어
+            return "en-US";
         }
     }
 
