@@ -72,11 +72,15 @@ public class LanguageService : ILanguageService
     /// <summary>
     /// 현재 로드된 리소스 딕셔너리에서 텍스트를 가져옵니다.
     /// </summary>
-    public string GetString(string key, string defaultValue = "")
+    public string GetString(string key)
     {
         var app = Application.Current;
-        if (app == null) return defaultValue;
+        if (app == null) return string.Empty;
 
-        return app.FindResource(key) as string ?? defaultValue;
+    #if DEBUG
+        return app.TryFindResource(key) as string ?? $"[{key}]";
+    #else
+        return app.TryFindResource(key) as string ?? string.Empty;
+    #endif
     }
 }

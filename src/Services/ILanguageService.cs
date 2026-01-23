@@ -20,5 +20,5 @@ public interface ILanguageService
     /// <summary>
     /// 리소스 키를 사용하여 번역된 텍스트를 가져옵니다.
     /// </summary>
-    string GetString(string key, string defaultValue = "");
+    string GetString(string key);
 }
