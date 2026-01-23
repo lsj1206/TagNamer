@@ -165,9 +165,9 @@ public class RenameService : IRenameService
                         break;
                 }
 
-                if (!string.IsNullOrEmpty(replacement))
+                if (replacement != null)
                 {
-                     newName = newName.Replace(tag.TagName, replacement, StringComparison.OrdinalIgnoreCase);
+                    newName = newName.Replace(tag.TagName, replacement, StringComparison.OrdinalIgnoreCase);
                 }
             }
 
