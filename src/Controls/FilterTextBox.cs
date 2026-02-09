@@ -228,7 +228,7 @@ public class FilterTextBox : TextBox
 
         _isFiltering = true;
 
-        // 딜레이를 사용해서 입력불가를 UX로 표현
+        // 필터링 우선순위를 변경해서 입력을 먼저 반영하고 필터링을 적용.
         Dispatcher.BeginInvoke(() =>
         {
             try

@@ -2,6 +2,7 @@
 using System.Globalization;
 using System.Linq;
 using System.Windows;
+using ModernWpf;
 
 namespace TagNamer.Services;
 
