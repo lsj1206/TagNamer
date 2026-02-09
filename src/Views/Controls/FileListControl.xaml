@@ -94,20 +94,15 @@
                         <GridViewColumn.CellTemplate>
                             <DataTemplate>
                                 <StackPanel Orientation="Horizontal">
-                                    <!-- 아이콘 (폴더/파일 구분) -->
+                                    <!-- 아이콘 (시스템 아이콘 표시) -->
                                     <Image x:Name="ItemIcon"
                                            Width="16"
                                            Height="16"
                                            Margin="0,2,8,0"
-                                           Source="{StaticResource FileIcon}" />
+                                           Source="{Binding Icon}" />
                                     <TextBlock TextTrimming="CharacterEllipsis"
                                                Text="{Binding DisplayBaseName}" />
                                 </StackPanel>
-                                <DataTemplate.Triggers>
-                                    <DataTrigger Binding="{Binding IsFolder}" Value="True">
-                                        <Setter TargetName="ItemIcon" Property="Source" Value="{StaticResource FolderIcon}" />
-                                    </DataTrigger>
-                                </DataTemplate.Triggers>
                             </DataTemplate>
                         </GridViewColumn.CellTemplate>
                     </GridViewColumn>

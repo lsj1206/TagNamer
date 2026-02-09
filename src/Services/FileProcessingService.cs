@@ -14,10 +14,12 @@ namespace TagNamer.Services;
 public class FileProcessingService : IFileProcessingService
 {
     private readonly IFileService _fileService;
+    private readonly IIconService _iconService;
 
-    public FileProcessingService(IFileService fileService)
+    public FileProcessingService(IFileService fileService, IIconService iconService)
     {
         _fileService = fileService;
+        _iconService = iconService;
     }
 
     public async Task<FileProcessingResult> ProcessPathsAsync(
@@ -74,6 +76,7 @@ public class FileProcessingService : IFileProcessingService
                 var item = _fileService.CreateFileItem(finalPaths[i]);
                 if (item != null)
                 {
+                    item.Icon = _iconService.GetIcon(item.Path, item.IsFolder);
                     item.UpdateDisplay(showExtension);
                     items.Add(item);
                 }

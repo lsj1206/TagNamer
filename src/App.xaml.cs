@@ -30,6 +30,7 @@ public partial class App : Application
         services.AddSingleton<IRenameService, RenameService>();
         services.AddSingleton<ISortingService, SortingService>();
         services.AddSingleton<ILanguageService, LanguageService>();
+        services.AddSingleton<IIconService, IconService>();
         services.AddSingleton<IFileProcessingService, FileProcessingService>();
 
         // ViewModels

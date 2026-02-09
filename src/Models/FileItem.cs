@@ -1,11 +1,15 @@
 // 파일/폴더 정보 Model
 
 using CommunityToolkit.Mvvm.ComponentModel;
+using System.Windows.Media;
 
 namespace TagNamer.Models;
 
 public partial class FileItem : ObservableObject
 {
+    [ObservableProperty]
+    private ImageSource? icon;
+
     // 파일명이 포함된 전체 경로
     private string _path = default!;
     public required string Path
