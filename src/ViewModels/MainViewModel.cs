@@ -36,7 +36,19 @@ public partial class MainViewModel : ObservableObject
         public SortType Type { get; set; }
     }
 
+    public class LanguageOption
+    {
+        public string Display { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+    }
+
     public ObservableCollection<SortOption> SortOptions { get; } = new();
+
+    public ObservableCollection<LanguageOption> Languages { get; } =
+    [
+        new() { Display = "EN", Code = "en-US" },
+        new() { Display = "KR", Code = "ko-KR" }
+    ];
 
     // 현재 규칙 표시 (RenameViewModel과 동기화)
     public string CurrentRuleDisplay => _renameViewModel.RuleFormat;
@@ -45,7 +57,7 @@ public partial class MainViewModel : ObservableObject
     private const int MaxItemCount = 50000;
 
     [ObservableProperty]
-    private string selectedLanguage = "en-US";
+    private LanguageOption? selectedLanguage;
 
     [ObservableProperty]
     private bool isBusy = false;
@@ -113,8 +125,9 @@ public partial class MainViewModel : ObservableObject
         _renameViewModel = renameViewModel;
 
         // 시스템 언어 감지 및 설정
-        selectedLanguage = _languageService.GetSystemLanguage();
-        _languageService.ChangeLanguage(selectedLanguage);
+        var systemLang = _languageService.GetSystemLanguage();
+        selectedLanguage = Languages.FirstOrDefault(l => l.Code == systemLang) ?? Languages[0];
+        _languageService.ChangeLanguage(selectedLanguage.Code);
         _renameViewModel.TagManager.RefreshLanguage();
 
         // RenameViewModel의 RuleFormat 변경 시 UI 알림
@@ -479,9 +492,11 @@ public partial class MainViewModel : ObservableObject
     }
 
     // 언어 변경 시 호출
-    partial void OnSelectedLanguageChanged(string value)
+    partial void OnSelectedLanguageChanged(LanguageOption? value)
     {
-        _languageService.ChangeLanguage(value);
+        if (value == null) return;
+
+        _languageService.ChangeLanguage(value.Code);
 
         // 정렬 옵션 재로드
         var currentType = SelectedSortOption?.Type ?? SortType.AddIndex;

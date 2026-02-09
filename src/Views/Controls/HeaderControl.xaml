@@ -35,36 +35,68 @@
                            Text="{Binding CurrentRuleDisplay}" />
             </StackPanel>
 
-             <!-- 버전 정보 -->
+            <!-- 버전 정보 -->
             <TextBlock Grid.Column="2"
                        Margin="15,0,10,0"
                        VerticalAlignment="Center"
-                       FontSize="14"
+                       FontSize="13"
                        FontWeight="Normal"
                        Foreground="{DynamicResource SystemControlForegroundBaseMediumBrush}"
                        Text="{x:Static local:App.Version}" />
 
-            <!-- 언어 선택 토글 버튼 -->
-            <ToggleButton Grid.Column="3"
-                            Width="32"
-                            Height="20"
-                            Padding="0"
-                            FontSize="11"
-                            FontWeight="SemiBold"
-                            VerticalAlignment="Center"
-                            IsChecked="{Binding SelectedLanguage, Converter={StaticResource LanguageToBoolConverter}, Mode=TwoWay}"
-                            ToolTip="{DynamicResource Header_Language}">
-                <ToggleButton.Style>
-                    <Style TargetType="ToggleButton" BasedOn="{StaticResource DefaultToggleButtonStyle}">
-                        <Setter Property="Content" Value="EN"/>
-                        <Style.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Setter Property="Content" Value="KO"/>
-                            </Trigger>
-                        </Style.Triggers>
+            <!-- 언어 선택 (Segmented 제어 방식) -->
+            <ListBox Grid.Column="3"
+                     ItemsSource="{Binding Languages}"
+                     SelectedItem="{Binding SelectedLanguage}"
+                     Background="Transparent"
+                     BorderThickness="0"
+                     VerticalAlignment="Center">
+                <ListBox.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListBox.ItemsPanel>
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="6,2" />
+                        <Setter Property="FontSize" Value="12" />
+                        <Setter Property="HorizontalContentAlignment" Value="Center" />
+                        <Setter Property="Cursor" Value="Hand" />
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <Border x:Name="bd"
+                                            Background="Transparent"
+                                            BorderBrush="{DynamicResource SystemControlBackgroundBaseMediumLowBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="2"
+                                            Margin="2,0"
+                                            SnapsToDevicePixels="True">
+                                        <ContentPresenter Margin="{TemplateBinding Padding}"
+                                                          HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                          VerticalAlignment="Center"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource SystemControlBackgroundBaseLowBrush}"/>
+                                        </Trigger>
+                                        <Trigger Property="IsSelected" Value="True">
+                                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource SystemControlHighlightAccentBrush}"/>
+                                            <Setter Property="Foreground" Value="White"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
                     </Style>
-                </ToggleButton.Style>
-            </ToggleButton>
+                </ListBox.ItemContainerStyle>
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Display}" />
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
         </Grid>
     </Border>
 </UserControl>
