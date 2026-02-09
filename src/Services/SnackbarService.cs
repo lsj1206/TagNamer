@@ -1,18 +1,17 @@
-using System;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Threading;
 using TagNamer.ViewModels;
 
 namespace TagNamer.Services;
 
 /// <summary>
-/// 스낵바 알림을 관리하고 시간을 제어하는 서비스 구현체입니다.
+/// 스낵바 알림을 관리하고 세션 기반으로 비동기 흐름을 제어하는 서비스 구현체입니다.
 /// </summary>
 public class SnackbarService : ISnackbarService
 {
     private readonly SnackbarViewModel _viewModel;
-    private DispatcherTimer? _timer;
-    private bool _isTransitioning;
+    private long _currentSessionId = 0;
+    private CancellationTokenSource? _sessionCts;
 
     public SnackbarService(SnackbarViewModel viewModel)
     {
@@ -21,10 +20,13 @@ public class SnackbarService : ISnackbarService
 
     public async void Show(string message, SnackbarType type = SnackbarType.Info, int durationMs = 3000)
     {
-        // 이전 요청이 전환 중이면 무시하거나 큐 처리가 필요하지만,
-        // 여기서는 가장 최신 요청을 우선시하되 애니메이션 흐름을 보장합니다.
-        if (_isTransitioning) return;
-        _isTransitioning = true;
+        // 새로운 세션 시작
+        long sessionId = Interlocked.Increment(ref _currentSessionId);
+
+        // 이전 세션 취소 (대기 중인 Task.Delay 등 종료)
+        _sessionCts?.Cancel();
+        _sessionCts = new CancellationTokenSource();
+        var ct = _sessionCts.Token;
 
         try
         {
@@ -33,54 +35,52 @@ public class SnackbarService : ISnackbarService
 
             await app.Dispatcher.InvokeAsync(async () =>
             {
-                // 이미 표시 중이라면 먼저 내림
-                if (_viewModel.IsVisible && _viewModel.IsAnimating)
+                // 이미 표시 중인 메세지를 교체하기전에 약간의 대기
+                if (_viewModel.IsVisible)
                 {
-                    _viewModel.IsAnimating = false;
-                    _timer?.Stop();
-                    await Task.Delay(350); // 퇴장 애니메이션 대기
-                    _viewModel.IsVisible = false;
-                    await Task.Delay(50); // 상태 초기화 대기
+                    await Task.Delay(150, ct);
                 }
 
-                // 새로운 데이터 설정
                 _viewModel.Message = message;
                 _viewModel.Type = type;
                 _viewModel.IsVisible = true;
                 _viewModel.IsAnimating = true;
 
-                // 새로운 타이머 설정
-                _timer?.Stop();
-                _timer = new DispatcherTimer
+                try
                 {
-                    Interval = TimeSpan.FromMilliseconds(durationMs)
-                };
+                    // 설정된 시간만큼 대기 (취소 가능)
+                    await Task.Delay(durationMs, ct);
 
-                _timer.Tick += (s, e) =>
+                    // 대기가 정상적으로 끝났다면 (취소되지 않았다면) 닫기
+                    if (sessionId == Interlocked.Read(ref _currentSessionId))
+                    {
+                        await CloseInternalAsync(sessionId);
+                    }
+                }
+                catch (TaskCanceledException)
                 {
-                    _timer.Stop();
-                    CloseInternal();
-                };
-
-                _timer.Start();
+                    // 새로운 알림이 들어와서 취소된 경우이므로 아무것도 하지 않음
+                }
             });
         }
-        finally
+        catch (Exception)
         {
-            _isTransitioning = false;
+            // 예외 발생 시 세션 상태 확인 후 정리
         }
     }
 
     public void ShowProgress(string message)
     {
-        // 큐 처리는 생략하고 즉시 반영합니다.
+        // 진행률 표시는 자동 종료 타이머가 없는 무한 세션으로 취급
+        Interlocked.Increment(ref _currentSessionId);
+        _sessionCts?.Cancel();
+        _sessionCts = null;
+
         var app = System.Windows.Application.Current;
         if (app == null) return;
 
         app.Dispatcher.Invoke(() =>
         {
-            _timer?.Stop(); // 기존 타이머 중지 (자동 닫힘 방지)
-
             _viewModel.Message = message;
             _viewModel.Type = SnackbarType.Info;
             _viewModel.IsVisible = true;
@@ -102,19 +102,24 @@ public class SnackbarService : ISnackbarService
         });
     }
 
-    private void CloseInternal()
+    private async Task CloseInternalAsync(long sessionId)
     {
         var app = System.Windows.Application.Current;
         if (app == null) return;
 
-        app.Dispatcher.Invoke(async () =>
+        await app.Dispatcher.InvokeAsync(async () =>
         {
-            _viewModel.IsAnimating = false;
-            await Task.Delay(350); // 퇴장 애니메이션 대기
-            // 혹시 그 사이에 새로 애니메이션이 시작되지 않았을 때만 숨김
-            if (!_viewModel.IsAnimating)
+            // 현재 세션이 여전히 유효할 때만 닫기 애니메이션 시작
+            if (sessionId == Interlocked.Read(ref _currentSessionId))
             {
-                _viewModel.IsVisible = false;
+                _viewModel.IsAnimating = false;
+                await Task.Delay(350); // 퇴장 애니메이션 대기
+
+                // 애니메이션 대기 후에도 세션이 동일하면 완전히 숨김
+                if (sessionId == Interlocked.Read(ref _currentSessionId))
+                {
+                    _viewModel.IsVisible = false;
+                }
             }
         });
     }
