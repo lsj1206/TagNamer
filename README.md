@@ -88,6 +88,14 @@ No installation is required — just download and run.
 - 태그 치환 일관성 개선 (Improved tag consistency)
   - 태그 값이 비어 있어도 치환되도록 수정 (Replace even if tag value is empty)
 
+#### v.1.3.0 (2026.02.09)
+- 스낵바 알림 안정성 강화 (Improved snackbar notification stability)
+  - CancellationTokenSource와 세션 ID(Interlocked Counter) 도입하여 알림이 겹쳤을때 표현 개선
+- 파일의 실제 아이콘 반영 (Reflected actual file icons)
+  - 기존의 파일/폴더 구분 아이콘에서 `Windows Shell API(SHGetFileInfo)`으로 파일의 실제 아이콘을 표시
+- 언어 선택 버튼 변경 (Changed language selection button)
+- 내부 구조 개선 (Improved internal structure)
+
 ---
 
 ## 🔎 개발 정보
