@@ -83,12 +83,14 @@ No installation is required — just download and run.
 - [Origin] 태그 버그 수정
 
 #### v.1.2.0 (2026.01.23)
+
 - 영어 지원 추가 (English support)
 - 한/영 언어 전환 기능 추가 (Added Korean/English language switching)
 - 태그 치환 일관성 개선 (Improved tag consistency)
   - 태그 값이 비어 있어도 치환되도록 수정 (Replace even if tag value is empty)
 
 #### v.1.3.0 (2026.02.09)
+
 - 스낵바 알림 안정성 강화 (Improved snackbar notification stability)
   - CancellationTokenSource와 세션 ID(Interlocked Counter) 도입하여 알림이 겹쳤을때 표현 개선
 - 파일의 실제 아이콘 반영 (Reflected actual file icons)
@@ -102,7 +104,7 @@ No installation is required — just download and run.
 
 - **개발자**: lsj1206
 - **기간**: 2025.12 ~ 2026.01
-- **[개발 일지](https://lsj1206.github.io/search/?tag=TagNamer)**
+- **[개발 일지](https://lsj1206.github.io/blog/search/?tag=Rename)**
 
 ## 🚀 기술 스택
 
